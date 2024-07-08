@@ -2146,6 +2146,20 @@ dependencies = [
  "tower-http",
  "tracing",
  "tracing-subscriber",
+ "venus-core",
+]
+
+[[package]]
+name = "venus-core"
+version = "0.1.0"
+source = "git+https://github.com/VOD-Venus/venus-core#4b8ffa58501346826806d04caba7701a1fe56425"
+dependencies = [
+ "anyhow",
+ "log",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "toml",
 ]
 
 [[package]]
