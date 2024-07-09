@@ -3,7 +3,6 @@ use error::AppResult;
 use tracing::info;
 use utils::init_logger;
 
-mod config;
 mod consts;
 mod error;
 mod utils;
