@@ -4,6 +4,7 @@ use tracing::info;
 use utils::init_logger;
 
 mod consts;
+mod core;
 mod error;
 mod utils;
 

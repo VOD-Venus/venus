@@ -2152,7 +2152,6 @@ dependencies = [
 [[package]]
 name = "venus-core"
 version = "0.1.0"
-source = "git+https://github.com/VOD-Venus/venus-core#5996ec81ec6d71d79b5cb220c6439ddad2dfce37"
 dependencies = [
  "anyhow",
  "log",

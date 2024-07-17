@@ -62,5 +62,11 @@ build-freebsd: clean-release
 build-loongarch: clean-release
 	$(CROSS) build --release --target loongarch64-unknown-linux-gnu
 
+deps:
+	python -m venv venus \
+		&& source venus/bin/activate \
+		&& pip install -r scripts/requirements.txt \
+		&& python scripts/download-core.py
+
 # Phony targets to avoid conflicts with file names
-.PHONY: all build dev run test clean check format lint fix build-linux-musl build-linux-gnu build-windows-gnu build-freebsd build-loongarch
+.PHONY: all build dev run test clean check format lint fix build-linux-musl build-linux-gnu build-windows-gnu build-freebsd build-loongarch deps
