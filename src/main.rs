@@ -16,7 +16,14 @@ async fn main() -> AppResult<()> {
 
     let mut venus = Venus::new()?;
     venus.config.reload_rua()?;
+    venus.config.reload_core()?;
 
     info!("Hello, world!");
+    let inbounds = if let Some(c) = venus.config.core {
+        c.inbounds
+    } else {
+        vec![]
+    };
+    info!("core config {:?}", inbounds);
     Ok(())
 }
