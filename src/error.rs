@@ -4,6 +4,8 @@ pub enum AppError {
     VenusCore(#[from] venus_core::error::VenusError),
     #[error("venus config error {0}")]
     VenusConfig(#[from] venus_core::config::error::ConfigError),
+    #[error("venus poison {0}")]
+    GlobalPoison(#[from] std::sync::PoisonError<std::sync::MutexGuard<'static, venus_core::Venus>>),
 }
 
 pub type AppResult<T, E = AppError> = Result<T, E>;
