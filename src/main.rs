@@ -1,5 +1,6 @@
 use core::get_core;
 
+use anyhow::anyhow;
 use dotenvy::dotenv;
 use error::AppResult;
 use tracing::info;
@@ -29,6 +30,11 @@ async fn main() -> AppResult<()> {
         };
         info!("core config {:?}", inbounds);
         venus.config.write_core()?;
+
+        venus.spawn_core()?;
+        while let Ok(msg) = venus.child_rx.as_ref().ok_or(anyhow!("todo "))?.recv() {
+            info!("{msg}");
+        }
     }
     Ok(())
 }

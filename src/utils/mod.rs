@@ -27,7 +27,7 @@ pub fn init_logger() {
         .with_target(false)
         .with_writer(std::io::stdout);
 
-    let env_layer = EnvFilter::try_from_env("LIMOS_LOG").unwrap_or_else(|_| "info".into());
+    let env_layer = EnvFilter::try_from_env("VENUS_LOG").unwrap_or_else(|_| "info".into());
 
     registry().with(env_layer).with(formatting_layer).init();
 }
