@@ -41,3 +41,4 @@ docs/public
 /venus
 /v2ray-core/
 /scripts/v2ray-core/
+.env

@@ -1,9 +1,11 @@
 use core::get_core;
-use std::thread;
+use std::{env, error::Error, net::SocketAddr, thread};
 
 use anyhow::anyhow;
+use axum::Router;
+use consts::DEFAULT_PORT;
 use dotenvy::dotenv;
-use error::AppResult;
+use tokio::net::TcpListener;
 use tracing::info;
 use utils::init_logger;
 
@@ -12,14 +14,17 @@ mod core;
 mod error;
 mod utils;
 
+type Result<T> = std::result::Result<T, Box<dyn Error>>;
+
 #[tokio::main]
-async fn main() -> AppResult<()> {
+async fn main() -> Result<()> {
     dotenv().ok();
     init_logger();
 
     let venus = get_core();
     // register child message
     {
+        info!("string core");
         let mut venus = venus.lock()?;
         venus.config.reload_rua()?;
         venus.config.reload_core()?;
@@ -36,5 +41,18 @@ async fn main() -> AppResult<()> {
         });
     }
 
+    let port = env::var("VENUS_PORT")
+        .map(|port| port.parse::<u16>().unwrap_or(DEFAULT_PORT))
+        .unwrap_or(DEFAULT_PORT);
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
+    let listener = TcpListener::bind(addr).await?;
+    info!("listening on {}", addr);
+
+    axum::serve(listener, app()).await?;
+
     Ok(())
+}
+
+fn app() -> Router {
+    Router::new()
 }
