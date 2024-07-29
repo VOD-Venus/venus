@@ -1,4 +1,5 @@
 use core::get_core;
+use std::thread;
 
 use anyhow::anyhow;
 use dotenvy::dotenv;
@@ -17,24 +18,23 @@ async fn main() -> AppResult<()> {
     init_logger();
 
     let venus = get_core();
-
+    // register child message
     {
         let mut venus = venus.lock()?;
         venus.config.reload_rua()?;
         venus.config.reload_core()?;
-        info!("Hello, world!");
-        let inbounds = if let Some(c) = venus.config.core.as_ref() {
-            c.inbounds.as_ref()
-        } else {
-            &vec![]
-        };
-        info!("core config {:?}", inbounds);
         venus.config.write_core()?;
-
         venus.spawn_core()?;
-        while let Ok(msg) = venus.child_rx.as_ref().ok_or(anyhow!("todo "))?.recv() {
-            info!("{msg}");
-        }
+        let child_rx = venus
+            .child_rx
+            .take()
+            .ok_or(anyhow!("get child rx failed"))?;
+        thread::spawn(move || {
+            while let Ok(msg) = child_rx.recv() {
+                info!("{msg}");
+            }
+        });
     }
+
     Ok(())
 }
