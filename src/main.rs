@@ -7,7 +7,7 @@ use consts::DEFAULT_PORT;
 use dotenvy::dotenv;
 use tokio::net::TcpListener;
 use tracing::info;
-use utils::init_logger;
+use utils::{init_logger, shutdown_signal};
 
 mod consts;
 mod core;
@@ -48,7 +48,9 @@ async fn main() -> Result<()> {
     let listener = TcpListener::bind(addr).await?;
     info!("listening on {}", addr);
 
-    axum::serve(listener, app()).await?;
+    axum::serve(listener, app())
+        .with_graceful_shutdown(shutdown_signal())
+        .await?;
 
     Ok(())
 }

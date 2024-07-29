@@ -1,5 +1,9 @@
 use tokio::signal;
+use tracing::info;
 use tracing_subscriber::{fmt, prelude::*, registry, EnvFilter};
+use venus_core::error::log_err;
+
+use crate::{core::get_core, error::AppResult};
 
 pub mod jwt;
 pub mod password;
@@ -32,6 +36,16 @@ pub fn init_logger() {
     registry().with(env_layer).with(formatting_layer).init();
 }
 
+fn stop_core() -> AppResult<()> {
+    info!("stopping core");
+    let venus = get_core();
+    let mut venus = venus.lock()?;
+    venus.config.write_core()?;
+    venus.config.write_rua()?;
+    venus.kill_core()?;
+    Ok(())
+}
+
 pub async fn shutdown_signal() {
     let ctrl_c = async {
         signal::ctrl_c()
@@ -51,7 +65,11 @@ pub async fn shutdown_signal() {
     let terminate = std::future::pending::<()>();
 
     tokio::select! {
-        _ = ctrl_c => {},
-        _ = terminate => {},
+        _ = ctrl_c => {
+            let _ = stop_core().map_err(log_err);
+        },
+        _ = terminate => {
+            let _ = stop_core().map_err(log_err);
+        },
     }
 }
