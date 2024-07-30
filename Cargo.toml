@@ -21,6 +21,13 @@ thiserror = "1.0.61"
 toml = "0.8.14"
 serde = { version = "1.0.203", features = ["derive", "serde_derive"] }
 serde_json = { version = "1.0.120" }
+serde_repr = "0.1.19"
+serde_with = { version = "3.8.1", features = ["time_0_3"] }
 dotenvy = "0.15.7"
+# password
+argon2 = "0.5.3"
+rand = "0.8.5"
+validator = { version = "0.18.1", features = ["derive"] }
+jsonwebtoken = "9.3.0"
 
 [dev-dependencies]

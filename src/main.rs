@@ -1,17 +1,20 @@
 use core::get_core;
 use std::{env, error::Error, net::SocketAddr, thread};
 
-use anyhow::anyhow;
+use anyhow::{anyhow, Context};
 use axum::Router;
 use consts::DEFAULT_PORT;
 use dotenvy::dotenv;
+use routes::routes;
 use tokio::net::TcpListener;
-use tracing::info;
+use tracing::{info, span, Level};
 use utils::{init_logger, shutdown_signal};
 
 mod consts;
 mod core;
 mod error;
+mod middlewares;
+mod routes;
 mod utils;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
@@ -26,18 +29,29 @@ async fn main() -> Result<()> {
     {
         info!("string core");
         let mut venus = venus.lock()?;
-        venus.config.reload_rua()?;
-        venus.config.reload_core()?;
-        venus.config.write_core()?;
-        venus.spawn_core()?;
+        venus
+            .config
+            .reload_rua()
+            .with_context(|| "reading venus configuration failed")?;
+        venus
+            .config
+            .reload_core()
+            .with_context(|| "reading core configuration failed")?;
+        venus
+            .config
+            .write_core()
+            .with_context(|| "write core configuration failed")?;
+        venus.spawn_core().with_context(|| "staring core failed")?;
         let child_rx = venus
             .child_rx
             .take()
             .ok_or(anyhow!("get child rx failed"))?;
         thread::spawn(move || {
+            let core_span = span!(Level::INFO, "core").entered();
             while let Ok(msg) = child_rx.recv() {
                 info!("{msg}");
             }
+            core_span.exit();
         });
     }
 
@@ -55,6 +69,9 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
+#[derive(Debug, Clone)]
+pub struct AppState {}
+
 fn app() -> Router {
-    Router::new()
+    Router::new().merge(routes())
 }
