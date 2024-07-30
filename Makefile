@@ -2,12 +2,12 @@ CARGO = cargo
 RUSTC = rustc
 CROSS = cross
 
-all: build-release
+all: build
 
 build:
 	$(CARGO) build
 
-build-release: clean
+release: clean
 	$(CARGO) build --release
 
 dev:
