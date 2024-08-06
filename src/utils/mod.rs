@@ -3,7 +3,7 @@ use tracing::info;
 use tracing_subscriber::{fmt, prelude::*, registry, EnvFilter};
 use venus_core::error::log_err;
 
-use crate::{core::get_core, error::AppResult};
+use crate::{core::CORE, error::AppResult};
 
 pub mod jwt;
 pub mod password;
@@ -38,7 +38,7 @@ pub fn init_logger() {
 
 fn stop_core() -> AppResult<()> {
     info!("stopping core");
-    let venus = get_core();
+    let venus = &*CORE;
     let mut venus = venus.lock()?;
     venus.config.write_core()?;
     venus.config.write_rua()?;

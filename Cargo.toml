@@ -2,6 +2,7 @@
 name = "venus"
 version = "0.1.4"
 edition = "2021"
+rust-version = "1.80.0"
 
 [dependencies]
 # core
@@ -18,9 +19,9 @@ tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 anyhow = "1.0.86"
 thiserror = "1.0.63"
 # tools
-toml = "0.8.17"
+toml = "0.8.19"
 serde = { version = "1.0.204", features = ["derive", "serde_derive"] }
-serde_json = { version = "1.0.121" }
+serde_json = { version = "1.0.122" }
 serde_repr = "0.1.19"
 serde_with = { version = "3.9.0", features = ["time_0_3"] }
 dotenvy = "0.15.7"

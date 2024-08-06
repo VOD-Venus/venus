@@ -1,4 +1,4 @@
-use core::get_core;
+use core::CORE;
 use std::{env, error::Error, net::SocketAddr, thread};
 
 use anyhow::{anyhow, Context};
@@ -24,7 +24,7 @@ async fn main() -> Result<()> {
     dotenv().ok();
     init_logger();
 
-    let venus = get_core();
+    let venus = &*CORE;
     // register child message
     {
         info!("string core");
