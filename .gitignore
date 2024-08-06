@@ -42,3 +42,6 @@ docs/public
 /v2ray-core/
 /scripts/v2ray-core/
 .env
+
+# core
+config.toml

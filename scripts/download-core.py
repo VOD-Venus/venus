@@ -9,10 +9,19 @@ TARGET_DIR = os.path.join(os.getcwd(), "v2ray-core/")
 
 system = platform.system()
 machine = platform.machine()
+print(f"current system {system} machine {machine}")
 system_map = {
-    'Darwin': 'macos'
+    'Darwin': 'macos',
+    'Linux': 'linux'
+}
+machine_map = {
+    "arm64": "arm64",
+    "x86_64": "64"
 }
 print(f"current system {system_map[system]} machine {machine}")
+
+mapped_system = system_map[system]
+mapped_machine = machine_map[machine]
 
 
 def get_latest_release_tag(repo_owner, repo_name):
@@ -36,8 +45,8 @@ def find_current_system_core():
     assets = get_latest_release_tag("v2fly", "v2ray-core")
     for asset in assets:
         name = asset['name']
-        if (system_map[system].lower()
-                in name.lower() and machine
+        if (mapped_system.lower()
+                in name.lower() and mapped_machine
                 in name and name.endswith('.zip')):
             """ print(json.dumps(asset, indent=4)) """
             return (asset['browser_download_url'], name)
