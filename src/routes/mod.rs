@@ -10,12 +10,14 @@ use axum::{
     routing::get,
     Json, RequestPartsExt, Router,
 };
+use include_dir::{include_dir, Dir};
 use serde::Serialize;
 use tower::ServiceBuilder;
 use tower_http::{
     classify::ServerErrorsFailureClass, compression::CompressionLayer, cors::CorsLayer,
     timeout::TimeoutLayer, trace::TraceLayer,
 };
+use tower_serve_static::ServeDir;
 use tracing::{error, info, info_span, Span};
 
 use crate::{
@@ -33,9 +35,14 @@ where
 }
 pub type RouteResult<T> = AppResult<Json<RouteResponse<T>>>;
 
+static ASSERT_UI: Dir = include_dir!("./public");
+
 pub fn routes() -> Router {
+    let service = ServeDir::new(&ASSERT_UI);
+
     Router::new()
         .route("/", get(hello).post(hello))
+        .nest_service("/app", service)
         .layer(
             ServiceBuilder::new()
                 .layer(middleware::from_fn(add_version))
