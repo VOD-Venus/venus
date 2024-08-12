@@ -53,15 +53,15 @@ pub fn routes() -> Router {
         .fallback(fallback)
         .layer(
             TraceLayer::new_for_http()
-                .make_span_with(|request: &Request<_>| {
-                    let matched_path = request
-                        .extensions()
-                        .get::<MatchedPath>()
-                        .map(MatchedPath::as_str);
+                .make_span_with(|_request: &Request<_>| {
+                    /* let matched_path = request
+                    .extensions()
+                    .get::<MatchedPath>()
+                    .map(MatchedPath::as_str); */
                     info_span!(
                         "http",
-                        method = ?request.method(),
-                        matched_path,
+                        // method = ?request.method(),
+                        // matched_path,
                         some_other_field = tracing::field::Empty,
                     )
                 })

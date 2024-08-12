@@ -19,6 +19,8 @@ dist-ssr
 *.local
 .next
 public/
+# for soft link
+public
 
 # Editor directories and files
 .vscode/*
