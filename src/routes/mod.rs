@@ -3,7 +3,7 @@ use std::{collections::HashMap, time::Duration};
 use axum::{
     async_trait,
     body::Bytes,
-    extract::{FromRequestParts, MatchedPath, Path, Request},
+    extract::{FromRequestParts, Path, Request},
     http::{request::Parts, HeaderMap, StatusCode, Uri},
     middleware,
     response::{IntoResponse, Response},
