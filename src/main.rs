@@ -1,7 +1,7 @@
-use core::CORE;
+use core::{CORE, MSG};
 use std::{env, error::Error, net::SocketAddr, thread};
 
-use anyhow::{anyhow, Context};
+use anyhow::Context;
 use axum::Router;
 use consts::DEFAULT_PORT;
 use dotenvy::dotenv;
@@ -42,14 +42,12 @@ async fn main() -> Result<()> {
             .write_core()
             .with_context(|| "write core configuration failed")?;
         venus.spawn_core().with_context(|| "staring core failed")?;
-        let child_rx = venus
-            .child_rx
-            .take()
-            .ok_or(anyhow!("get child rx failed"))?;
+        // global message handler
         thread::spawn(move || {
+            let child_rx = &MSG.lock().expect("cannot access global message").1;
             let core_span = span!(Level::INFO, "core").entered();
             while let Ok(msg) = child_rx.recv() {
-                info!("{msg}");
+                info!("{msg:?}");
             }
             core_span.exit();
         });

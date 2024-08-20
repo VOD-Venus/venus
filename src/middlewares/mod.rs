@@ -16,7 +16,7 @@ pub async fn add_version(req: Request<Body>, next: Next) -> AppResult<impl IntoR
     let headers = res.headers_mut();
     headers.append("Server", HeaderValue::from_str(env!("CARGO_PKG_NAME"))?);
     headers.append(
-        "L-Version",
+        "Venus-Version",
         HeaderValue::from_str(env!("CARGO_PKG_VERSION"))?,
     );
     Ok(res)

@@ -54,16 +54,7 @@ pub fn routes() -> Router {
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(|_request: &Request<_>| {
-                    /* let matched_path = request
-                    .extensions()
-                    .get::<MatchedPath>()
-                    .map(MatchedPath::as_str); */
-                    info_span!(
-                        "http",
-                        // method = ?request.method(),
-                        // matched_path,
-                        some_other_field = tracing::field::Empty,
-                    )
+                    info_span!("http", some_other_field = tracing::field::Empty,)
                 })
                 .on_request(|req: &Request<_>, _span: &Span| {
                     info!("{} {}", req.method(), req.uri());
