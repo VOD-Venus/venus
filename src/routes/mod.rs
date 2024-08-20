@@ -25,6 +25,8 @@ use crate::{
     middlewares::add_version,
 };
 
+pub mod version;
+
 #[derive(Debug, Serialize)]
 pub struct RouteResponse<T>
 where
@@ -43,6 +45,7 @@ pub fn routes() -> Router {
     Router::new()
         .route("/", get(hello).post(hello))
         .nest_service("/app", service)
+        .route("/:version/version", get(version::version))
         .layer(
             ServiceBuilder::new()
                 .layer(middleware::from_fn(add_version))
