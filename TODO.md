@@ -1,3 +1,3 @@
 ## Feature
 
-- [ ] Embed core binary
+-   [x] Embed ui into binary
