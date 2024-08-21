@@ -7,7 +7,7 @@ use consts::DEFAULT_PORT;
 use dotenvy::dotenv;
 use routes::routes;
 use tokio::net::TcpListener;
-use tracing::{info, span, Level};
+use tracing::{error, info, span, Level};
 use utils::{init_logger, shutdown_signal};
 
 mod consts;
@@ -44,7 +44,14 @@ async fn main() -> Result<()> {
         venus.spawn_core().with_context(|| "staring core failed")?;
         // global message handler
         thread::spawn(move || {
-            let child_rx = &MSG.lock().expect("cannot access global message").1;
+            let lock = &MSG.lock();
+            let child_rx = match lock {
+                Ok(msg) => &msg.1,
+                Err(err) => {
+                    error!("{err}");
+                    return;
+                }
+            };
             let core_span = span!(Level::INFO, "core").entered();
             while let Ok(msg) = child_rx.recv() {
                 info!("{msg:?}");
