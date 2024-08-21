@@ -48,7 +48,7 @@ async fn main() -> Result<()> {
             let child_rx = match lock {
                 Ok(msg) => &msg.1,
                 Err(err) => {
-                    error!("{err}");
+                    error!("lock message failed {err}");
                     return;
                 }
             };
