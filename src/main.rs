@@ -9,6 +9,7 @@ use routes::routes;
 use tokio::net::TcpListener;
 use tracing::{error, info, span, Level};
 use utils::{init_logger, shutdown_signal};
+use venus_core::message::MessageType;
 
 mod consts;
 mod core;
@@ -52,11 +53,15 @@ async fn main() -> Result<()> {
                     return;
                 }
             };
-            let core_span = span!(Level::INFO, "core").entered();
             while let Ok(msg) = child_rx.recv() {
-                info!("{msg:?}");
+                match msg {
+                    MessageType::Core(msg) => {
+                        let core_span = span!(Level::INFO, "core").entered();
+                        info!("{msg}");
+                        core_span.exit();
+                    }
+                }
             }
-            core_span.exit();
         });
     }
 
