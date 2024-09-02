@@ -14,10 +14,10 @@ use crate::error::AppResult;
 pub async fn add_version(req: Request<Body>, next: Next) -> AppResult<impl IntoResponse> {
     let mut res = next.run(req).await;
     let headers = res.headers_mut();
-    headers.append("Server", HeaderValue::from_str(env!("CARGO_PKG_NAME"))?);
+    headers.append("Server", HeaderValue::from_static(env!("CARGO_PKG_NAME")));
     headers.append(
         "Venus-Version",
-        HeaderValue::from_str(env!("CARGO_PKG_VERSION"))?,
+        HeaderValue::from_static(env!("CARGO_PKG_VERSION")),
     );
     Ok(res)
 }

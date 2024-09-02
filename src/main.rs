@@ -56,7 +56,7 @@ async fn main() -> Result<()> {
             while let Ok(msg) = child_rx.recv() {
                 match msg {
                     MessageType::Core(msg) => {
-                        let core_span = span!(Level::INFO, "core").entered();
+                        let core_span = span!(Level::INFO, "CORE").entered();
                         info!("{msg}");
                         core_span.exit();
                     }

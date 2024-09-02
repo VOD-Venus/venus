@@ -4,7 +4,7 @@ use axum::{
     async_trait,
     body::Bytes,
     extract::{FromRequestParts, Path, Request},
-    http::{request::Parts, HeaderMap, StatusCode, Uri},
+    http::{request::Parts, HeaderMap, HeaderValue, StatusCode, Uri},
     middleware,
     response::{IntoResponse, Response},
     routing::get,
@@ -57,10 +57,17 @@ pub fn routes() -> Router {
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(|_request: &Request<_>| {
-                    info_span!("http", some_other_field = tracing::field::Empty,)
+                    info_span!("HTTP", some_other_field = tracing::field::Empty,)
                 })
                 .on_request(|req: &Request<_>, _span: &Span| {
-                    info!("{} {}", req.method(), req.uri());
+                    let unknown = &HeaderValue::from_static("Unknown");
+                    let ua = req
+                        .headers()
+                        .get("User-Agent")
+                        .unwrap_or(unknown)
+                        .to_str()
+                        .unwrap_or("Unknown");
+                    info!("{} {} {}", req.method(), req.uri(), ua);
                 })
                 .on_response(|res: &Response, latency: Duration, _span: &Span| {
                     info!("{} {}ms", res.status(), latency.as_millis());
