@@ -56,19 +56,20 @@ pub fn routes() -> Router {
         .fallback(fallback)
         .layer(
             TraceLayer::new_for_http()
-                .make_span_with(|_request: &Request<_>| {
-                    info_span!("HTTP", some_other_field = tracing::field::Empty,)
-                })
-                .on_request(|req: &Request<_>, _span: &Span| {
+                .make_span_with(|req: &Request<_>| {
                     let unknown = &HeaderValue::from_static("Unknown");
-                    let ua = req
-                        .headers()
+                    let empty = &HeaderValue::from_static("");
+                    let headers = req.headers();
+                    let ua = headers
                         .get("User-Agent")
                         .unwrap_or(unknown)
                         .to_str()
                         .unwrap_or("Unknown");
-                    info!("{} {} {}", req.method(), req.uri(), ua);
+                    let host = headers.get("Host").unwrap_or(empty).to_str().unwrap_or("");
+                    let client = format!("{} {}{} {}", req.method(), host, req.uri(), ua);
+                    info_span!("HTTP", client)
                 })
+                .on_request(|_req: &Request<_>, _span: &Span| {})
                 .on_response(|res: &Response, latency: Duration, _span: &Span| {
                     info!("{} {}ms", res.status(), latency.as_millis());
                 })
