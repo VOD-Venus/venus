@@ -66,12 +66,12 @@ pub fn routes() -> Router {
                         .to_str()
                         .unwrap_or("Unknown");
                     let host = headers.get("Host").unwrap_or(empty).to_str().unwrap_or("");
-                    let client = format!("{} {}{} {}", req.method(), host, req.uri(), ua);
-                    info_span!("HTTP", client)
+                    // let client = format!("{} {}{} {}", req.method(), host, req.uri(), ua);
+                    info_span!("HTTP", method = ?req.method(), host, uri = ?req.uri(), ua)
                 })
                 .on_request(|_req: &Request<_>, _span: &Span| {})
                 .on_response(|res: &Response, latency: Duration, _span: &Span| {
-                    info!("{} {}ms", res.status(), latency.as_millis());
+                    info!("{} {}μs", res.status(), latency.as_micros());
                 })
                 .on_body_chunk(|_chunk: &Bytes, _latency: Duration, _span: &Span| {})
                 .on_eos(
