@@ -8,7 +8,7 @@ use dotenvy::dotenv;
 use routes::routes;
 use tokio::net::TcpListener;
 use tracing::{error, info, span, Level};
-use utils::{init_logger, shutdown_signal};
+use utils::{init_logger, shutdown_cb, shutdown_signal};
 use venus_core::message::MessageType;
 
 mod consts;
@@ -73,7 +73,7 @@ async fn main() -> Result<()> {
     info!("listening on {}", addr);
 
     axum::serve(listener, app())
-        .with_graceful_shutdown(shutdown_signal())
+        .with_graceful_shutdown(shutdown_signal(shutdown_cb))
         .await?;
 
     Ok(())
