@@ -16,7 +16,7 @@ tower-http = { version = "0.5.2", features = ["full"] }
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 # error
-anyhow = "1.0.87"
+anyhow = "1.0.88"
 thiserror = "1.0.63"
 # tools
 toml = "0.8.19"
@@ -34,3 +34,10 @@ jsonwebtoken = "9.3.0"
 tower-serve-static = "0.1.1"
 
 [dev-dependencies]
+
+[profile.release]
+lto = true
+panic = "abort"   # Strip expensive panic clean-up logic
+codegen-units = 1 # Compile crates one after another so the compiler can optimize better
+# opt-level = "s"   # Optimize for binary size
+strip = true # Remove debug symbols
