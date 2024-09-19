@@ -5,16 +5,16 @@ CROSS = cross
 all: build
 
 build:
-	$(CARGO) build
+	$(CARGO) build -p venus
 
 release: clean
-	$(CARGO) build --release
+	$(CARGO) build -p venus --release
 
 dev:
-	VENUS_LOG=debug $(CARGO) watch -x run
+	VENUS_LOG=debug $(CARGO) watch -x run -p venus
 
 run:
-	$(CARGO) run
+	$(CARGO) run -p venus
 
 test:
 	$(CARGO) test
@@ -23,35 +23,35 @@ clean:
 	$(CARGO) clean
 
 clean-release:
-	rm -rf ./target/release/
-	rm -rf ./target/debug/
+	rm -rf ./venus/target/release/
+	rm -rf ./venus/target/debug/
 
 check:
 	$(CARGO) check
 
 format:
-	$(CARGO) fmt
+	$(CARGO) +nightly fmt
 
 lint:
-	$(CARGO) clippy
+	$(CARGO) +nightly clippy
 
 fix:
-	$(CARGO) fix --allow-dirty --all-features && $(CARGO) fmt
+	$(CARGO) +nightly fix --allow-dirty --all-features && $(CARGO) +nightly fmt
 
 linux-musl: clean-release
-	$(CROSS) build --release --target x86_64-unknown-linux-musl
+	$(CROSS) build -p venus --release --target x86_64-unknown-linux-musl
 
 linux-gnu: clean-release
-	$(CROSS) build --release --target x86_64-unknown-linux-gnu
+	$(CROSS) build -p venus --release --target x86_64-unknown-linux-gnu
 
 windows-gnu: clean-release
-	$(CROSS) build --release --target x86_64-pc-windows-gnu
+	$(CROSS) build -p venus --release --target x86_64-pc-windows-gnu
 
 freebsd: clean-release
-	$(CROSS) build --release --target x86_64-unknown-freebsd
+	$(CROSS) build -p venus --release --target x86_64-unknown-freebsd
 
 loongarch: clean-release
-	$(CROSS) build --release --target loongarch64-unknown-linux-gnu
+	$(CROSS) build -p venus --release --target loongarch64-unknown-linux-gnu
 
 deps:
 	python -m venv .venus \
