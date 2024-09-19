@@ -39,7 +39,7 @@ docs/public
 
 /target
 # python venv
-/venus
+/.venus
 /v2ray-core/
 /scripts/v2ray-core/
 .env

@@ -1,0 +1,14 @@
+[package]
+name = "venus-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80.0"
+
+[dependencies]
+anyhow = "1.0.88"
+log = "0.4.22"
+thiserror = "1.0.63"
+toml = "0.8.19"
+serde = { version = "1.0.210", features = ["derive", "serde_derive"] }
+serde_json = { version = "1.0.128" }
+json_comments = "0.2.2"

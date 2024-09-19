@@ -11,7 +11,7 @@ release: clean
 	$(CARGO) build --release
 
 dev:
-	VENUS_LOG=debug $(CARGO) watch -x run
+	$(CARGO) watch -x run
 
 run:
 	$(CARGO) run
@@ -52,11 +52,5 @@ freebsd: clean-release
 
 loongarch: clean-release
 	$(CROSS) build --release --target loongarch64-unknown-linux-gnu
-
-deps:
-	python -m venv .venus \
-		&& source .venus/bin/activate \
-		&& pip install -r scripts/requirements.txt \
-		&& python scripts/download-core.py
 
 .PHONY: all
