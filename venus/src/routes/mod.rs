@@ -1,28 +1,22 @@
-use std::{collections::HashMap, time::Duration};
+use std::{borrow::Cow, collections::HashMap, time::Duration};
 
 use axum::{
     async_trait,
-    body::Bytes,
-    extract::{FromRequestParts, Path, Request},
-    http::{request::Parts, HeaderMap, HeaderValue, StatusCode, Uri},
+    extract::{FromRequestParts, Path},
+    http::{request::Parts, StatusCode, Uri},
     middleware,
     response::{IntoResponse, Response},
     routing::get,
     Json, RequestPartsExt, Router,
 };
-use include_dir::{include_dir, Dir};
 use serde::Serialize;
 use tower::ServiceBuilder;
-use tower_http::{
-    classify::ServerErrorsFailureClass, compression::CompressionLayer, cors::CorsLayer,
-    timeout::TimeoutLayer, trace::TraceLayer,
-};
-use tower_serve_static::ServeDir;
-use tracing::{error, info, info_span, Span};
+use tower_http::{compression::CompressionLayer, cors::CorsLayer, timeout::TimeoutLayer};
+use tracing::info;
 
 use crate::{
     error::{AppResult, ErrorCode},
-    middlewares::add_version,
+    middlewares::{add_version, logging_route},
 };
 
 pub mod version;
@@ -33,18 +27,20 @@ where
     T: Serialize,
 {
     code: ErrorCode,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message: Option<Cow<'static, str>>,
     data: T,
 }
 pub type RouteResult<T> = AppResult<Json<RouteResponse<T>>>;
 
-static ASSERT_UI: Dir = include_dir!("./public");
+// static ASSERT_UI: Dir = include_dir!("./public");
 
 pub fn routes() -> Router {
-    let service = ServeDir::new(&ASSERT_UI);
+    // let service = ServeDir::new(&ASSERT_UI);
 
-    Router::new()
+    let router = Router::new()
         .route("/", get(hello).post(hello))
-        .nest_service("/app", service)
+        // .nest_service("/app", service)
         .route("/:version/version", get(version::version))
         .layer(
             ServiceBuilder::new()
@@ -53,36 +49,8 @@ pub fn routes() -> Router {
                 .layer(TimeoutLayer::new(Duration::from_secs(15)))
                 .layer(CompressionLayer::new()),
         )
-        .fallback(fallback)
-        .layer(
-            TraceLayer::new_for_http()
-                .make_span_with(|req: &Request<_>| {
-                    let unknown = &HeaderValue::from_static("Unknown");
-                    let empty = &HeaderValue::from_static("");
-                    let headers = req.headers();
-                    let ua = headers
-                        .get("User-Agent")
-                        .unwrap_or(unknown)
-                        .to_str()
-                        .unwrap_or("Unknown");
-                    let host = headers.get("Host").unwrap_or(empty).to_str().unwrap_or("");
-                    // let client = format!("{} {}{} {}", req.method(), host, req.uri(), ua);
-                    info_span!("HTTP", method = ?req.method(), host, uri = ?req.uri(), ua)
-                })
-                .on_request(|_req: &Request<_>, _span: &Span| {})
-                .on_response(|res: &Response, latency: Duration, _span: &Span| {
-                    info!("{} {}μs", res.status(), latency.as_micros());
-                })
-                .on_body_chunk(|_chunk: &Bytes, _latency: Duration, _span: &Span| {})
-                .on_eos(
-                    |_trailers: Option<&HeaderMap>, _stream_duration: Duration, _span: &Span| {},
-                )
-                .on_failure(
-                    |error: ServerErrorsFailureClass, _latency: Duration, _span: &Span| {
-                        error!("{}", error);
-                    },
-                ),
-        )
+        .fallback(fallback);
+    logging_route(router)
 }
 
 /// hello world

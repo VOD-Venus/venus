@@ -1,4 +1,4 @@
-use std::{borrow::Cow, fmt::Display};
+use std::fmt::Display;
 
 use axum::{
     extract::rejection::{FormRejection, JsonRejection},
@@ -30,13 +30,12 @@ pub enum AppError {
     AxumFormRejection(#[from] FormRejection),
     #[error(transparent)]
     AxumJsonRejection(#[from] JsonRejection),
-
     // route
     // 路由通常错误 错误信息直接返回用户
-    #[error("{0}")]
-    AuthorizeFailed(Cow<'static, str>),
-    #[error("{0}")]
-    UserConflict(Cow<'static, str>),
+    // #[error("{0}")]
+    // AuthorizeFailed(Cow<'static, str>),
+    // #[error("{0}")]
+    // UserConflict(Cow<'static, str>),
 }
 
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug)]
@@ -106,12 +105,11 @@ impl IntoResponse for AppError {
                 ParameterIncorrect,
                 self.to_string(),
             ),
-
             // route
-            AppError::AuthorizeFailed(err) => {
+            /* AppError::AuthorizeFailed(err) => {
                 (StatusCode::UNAUTHORIZED, AuthorizeFailed, err.to_string())
             }
-            AppError::UserConflict(err) => (StatusCode::CONFLICT, UserConflict, err.to_string()),
+            AppError::UserConflict(err) => (StatusCode::CONFLICT, UserConflict, err.to_string()), */
         };
         let body = Json(json!({
             "code": code,
