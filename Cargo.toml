@@ -1,5 +1,5 @@
 [workspace]
-members = ["venus", "venus-core"]
+members = ["venus", "venus-core", "venus-ui"]
 resolver = "2"
 
 [profile.release]

@@ -13,6 +13,18 @@ release: clean
 dev:
 	VENUS_LOG=debug $(CARGO) watch -x run -p venus
 
+ui:
+	cd venus-ui \
+		&& trunk build
+
+ui-dev:
+	cd venus-ui \
+		&& trunk serve --port 3000
+
+ui-release:
+	cd venus-ui \
+		&& trunk build --release
+
 run:
 	$(CARGO) run -p venus
 
