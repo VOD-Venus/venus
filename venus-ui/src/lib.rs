@@ -1,3 +1,4 @@
+#![feature(stmt_expr_attributes)]
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
@@ -5,6 +6,7 @@ use leptos_router::*;
 // Modules
 mod components;
 mod pages;
+mod utils;
 
 // Top-Level pages
 use crate::pages::home::Home;
@@ -17,19 +19,19 @@ pub fn App() -> impl IntoView {
     provide_meta_context();
 
     view! {
-        <Html lang="en" dir="ltr" attr:data-theme="light"/>
+        <Html lang="en" dir="ltr" attr:data-theme="light" />
 
         // sets the document title
-        <Title text="Welcome to Leptos CSR"/>
+        <Title text="Welcome to Leptos CSR" />
 
         // injects metadata in the <head> of the page
-        <Meta charset="UTF-8"/>
-        <Meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <Meta charset="UTF-8" />
+        <Meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <Router>
             <Routes>
-                <Route path="/" view=Home/>
-                <Route path="/*" view=NotFound/>
+                <Route path="/" view=Home />
+                <Route path="/*" view=NotFound />
             </Routes>
         </Router>
     }
