@@ -19,7 +19,7 @@ ui:
 
 ui-dev:
 	cd venus-ui \
-		&& trunk serve --port 3000
+		&& trunk serve
 
 ui-release:
 	cd venus-ui \
