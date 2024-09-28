@@ -1,9 +1,11 @@
-use crate::components::counter_btn::Button;
+use crate::components::button::Button;
 use leptos::*;
 
 /// Default Home Page
 #[component]
 pub fn Home() -> impl IntoView {
+    let (count, set_count) = create_signal(0);
+
     view! {
         <ErrorBoundary fallback=|errors| {
             view! {
@@ -28,8 +30,10 @@ pub fn Home() -> impl IntoView {
                 <h1>"Welcome to Leptos"</h1>
 
                 <div class="p-2">
-                    <Button class="mr-2".into() />
-                    <Button increment=5 />
+                    <Button on_click=Box::new(|| { set_count(count() + 1) }) class="mr-2".into()>
+                        {count}
+                    </Button>
+                   <Button>{count}</Button>
                 </div>
             </div>
         </ErrorBoundary>

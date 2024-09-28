@@ -7,10 +7,10 @@ use crate::clsx;
 /// A parameterized incrementing button
 #[component]
 pub fn Button(
-    #[prop(default = 1)] increment: i32,
+    children: Children,
     #[prop(optional)] class: Cow<'static, str>,
+    #[prop(optional)] on_click: Option<Box<dyn Fn()>>,
 ) -> impl IntoView {
-    let (count, set_count) = create_signal(0);
     view! {
         <button
             class=clsx!(
@@ -27,10 +27,13 @@ pub fn Button(
           "disabled:dark:hover:border-transparent",
           class
             )
-            on:click=move |_| { set_count(count() + increment) }
+            on:click=move |_| {
+                if let Some(c) = on_click.as_ref() {
+                    c()
+                }
+            }
         >
-            "Click me: "
-            {count}
+            {children().nodes.into_iter().collect::<Vec<_>>()}
         </button>
     }
 }

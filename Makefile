@@ -1,4 +1,6 @@
-CARGO = cargo
+RUSTFLAGS := "-Zthreads=8"
+
+CARGO = RUSTFLAGS=$(RUSTFLAGS) cargo
 RUSTC = rustc
 CROSS = cross
 
