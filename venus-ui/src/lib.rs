@@ -15,11 +15,14 @@ use crate::pages::not_found::NotFound;
 /// An app router which renders the homepage and handles 404's
 #[component]
 pub fn App() -> impl IntoView {
+    let (current_theme, set_current_theme) = create_signal("light");
+    provide_context((current_theme, set_current_theme));
+
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
 
     view! {
-        <Html lang="en" dir="ltr" attr:data-theme="light" />
+        <Html lang="en" dir="ltr" attr:data-theme=current_theme />
 
         // sets the document title
         <Title text="Venus" />
