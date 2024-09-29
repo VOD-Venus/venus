@@ -1,4 +1,4 @@
-use crate::components::button::Button;
+use crate::components::{button::Button, errors::ErrorsView};
 use leptos::*;
 
 /// Default Home Page
@@ -8,32 +8,17 @@ pub fn Home() -> impl IntoView {
 
     view! {
         <ErrorBoundary fallback=|errors| {
-            view! {
-                <h1>"Uh oh! Something went wrong!"</h1>
-
-                <p>"Errors: "</p>
-                // Render a list of errors as strings - good for development purposes
-                <ul>
-                    {move || {
-                        errors
-                            .get()
-                            .into_iter()
-                            .map(|(_, e)| view! { <li>{e.to_string()}</li> })
-                            .collect_view()
-                    }}
-
-                </ul>
-            }
+            view! { <ErrorsView errors=errors /> }
         }>
 
             <div>
                 <h1>"Welcome to Leptos"</h1>
 
                 <div class="p-2">
-                    <Button on_click=Box::new(|| { set_count(count() + 1) }) class="mr-2".into()>
+                    <Button on:click=move |_| set_count(count() + 1) class="mr-2".into()>
                         {count}
                     </Button>
-                   <Button>{count}</Button>
+                // <Button>{count}</Button>
                 </div>
             </div>
         </ErrorBoundary>
