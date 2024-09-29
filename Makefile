@@ -27,6 +27,11 @@ ui-release:
 	cd venus-ui \
 		&& trunk build --release
 
+ui-fix:
+	cd venus-ui \
+		&& leptosfmt . \
+		&& $(CARGO) +nightly fix --allow-dirty --all-features && $(CARGO) +nightly fmt
+
 run:
 	$(CARGO) run -p venus
 

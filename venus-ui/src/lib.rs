@@ -1,7 +1,9 @@
 #![feature(stmt_expr_attributes)]
+use consts::COLOR_MODE;
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
+use leptos_use::{use_color_mode_with_options, UseColorModeOptions, UseColorModeReturn};
 
 // Modules
 mod components;
@@ -16,14 +18,20 @@ use crate::pages::not_found::NotFound;
 /// An app router which renders the homepage and handles 404's
 #[component]
 pub fn App() -> impl IntoView {
-    let (current_theme, set_current_theme) = create_signal("light");
-    provide_context((current_theme, set_current_theme));
+    let UseColorModeReturn { mode, set_mode, .. } = use_color_mode_with_options(
+        UseColorModeOptions::default()
+            .emit_auto(true)
+            .attribute("data-theme")
+            .custom_modes(COLOR_MODE.iter().map(|m| m.to_string()).collect::<_>()),
+    );
+    logging::log!("lib {}", mode.get());
+    provide_context((mode, set_mode));
 
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
 
     view! {
-        <Html lang="en" dir="ltr" attr:data-theme=current_theme />
+        <Html lang="en" dir="ltr" />
 
         // sets the document title
         <Title text="Venus" />

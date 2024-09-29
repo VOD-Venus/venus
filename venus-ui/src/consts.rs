@@ -1,4 +1,5 @@
-pub const COLOR_MODE: [&str; 32] = [
+pub const COLOR_MODE: [&str; 33] = [
+    "auto",
     "light",
     "dark",
     "cupcake",

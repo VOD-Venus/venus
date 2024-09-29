@@ -1,17 +1,15 @@
 use std::borrow::Cow;
 
 use leptos::*;
+use leptos_use::ColorMode;
 
 use crate::{clsx, consts::COLOR_MODE};
 
 /// 颜色模式切换下拉框
 #[component]
 pub fn DarkMode(#[prop(optional)] class: Cow<'static, str>) -> impl IntoView {
-    let (current_theme, set_current_theme) = use_context::<(ReadSignal<&str>, WriteSignal<&str>)>()
+    let (mode, set_mode) = use_context::<(Signal<ColorMode>, WriteSignal<ColorMode>)>()
         .expect("to have found the setter provided");
-    create_effect(move |_| {
-        logging::log!("{}", current_theme());
-    });
 
     view! {
         <div class=clsx!("dropdown", class)>
@@ -32,8 +30,10 @@ pub fn DarkMode(#[prop(optional)] class: Cow<'static, str>) -> impl IntoView {
                     key=|theme| theme.to_string()
                     children=move |theme| {
                         view! {
-                            <li class=clsx!("w-full") on:click=move |_| set_current_theme(theme)>
-                                <a class:active=move || { current_theme() == theme }>{theme}</a>
+                            <li class=clsx!("w-full") on:click=move |_| set_mode.set(theme.into())>
+                                <a class:active=move || {
+                                    mode.get().to_string() == theme
+                                }>{theme}</a>
                             </li>
                         }
                     }
