@@ -5,6 +5,7 @@ use leptos_router::*;
 
 // Modules
 mod components;
+mod consts;
 mod pages;
 mod utils;
 
