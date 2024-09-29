@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    /* body { */
+    /*     @apply dark:text-gray-300 bg-bluish-gray; */
+    /*     @apply dark:bg-rua-gray-900; */
+    /*     user-select: none; */
+    /* } */
+}

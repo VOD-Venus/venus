@@ -1,4 +1,7 @@
-use crate::components::{button::Button, errors::ErrorsView};
+use crate::{
+    clsx,
+    components::{dark_mode_btn::DarkMode, errors::ErrorsView},
+};
 use leptos::*;
 
 /// Default Home Page
@@ -15,10 +18,11 @@ pub fn Home() -> impl IntoView {
                 <h1>"Welcome to Leptos"</h1>
 
                 <div class="p-2">
-                    <Button on:click=move |_| set_count(count() + 1) class="mr-2".into()>
+                    <button on:click=move |_| set_count(count() + 1) class=clsx!("btn mr-2")>
                         {count}
-                    </Button>
-                // <Button>{count}</Button>
+                    </button>
+                    <button class=clsx!("btn mr-2")>{count}</button>
+                    <DarkMode />
                 </div>
             </div>
         </ErrorBoundary>

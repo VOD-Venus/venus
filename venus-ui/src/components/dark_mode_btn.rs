@@ -2,19 +2,22 @@ use std::borrow::Cow;
 
 use leptos::*;
 
-use crate::{clsx, components::button::Button};
+use crate::clsx;
 
 /// 颜色模式切换下拉框
 #[component]
 pub fn DarkMode(#[prop(optional)] class: Cow<'static, str>) -> impl IntoView {
-    let (show, set_show) = create_signal(false);
-
-    // 当前的颜色模式
-    let (mode, set_mode) = create_signal(0);
-
     view! {
-        <div class=clsx!(class) on:click=move |_| { set_show(!show()) }>
-            test
-        </div>
+        <details class=clsx!("dropdown", class)>
+            <summary class="btn m-1">open or close</summary>
+            <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                <li>
+                    <a>Item 1</a>
+                </li>
+                <li>
+                    <a>Item 2</a>
+                </li>
+            </ul>
+        </details>
     }
 }
