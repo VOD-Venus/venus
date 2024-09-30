@@ -1,5 +1,7 @@
 [serve]
-# The address to serve on.
 addresses = ["0.0.0.0"]
-# The port to serve on.
 port = 3000
+
+[build]
+cargo_profile = "ui"
+minify = "on_release"

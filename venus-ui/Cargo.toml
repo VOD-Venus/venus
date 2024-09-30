@@ -23,9 +23,3 @@ leptos-use = "0.13.5"
 wasm-bindgen = "0.2.93"
 wasm-bindgen-test = "0.3.43"
 web-sys = { version = "0.3.70", features = ["Document", "Window"] }
-
-[profile.release]
-opt-level = 'z'
-lto = true
-codegen-units = 1
-panic = "abort"

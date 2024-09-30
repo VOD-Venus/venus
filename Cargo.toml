@@ -6,5 +6,8 @@ resolver = "2"
 lto = true
 panic = "abort"   # Strip expensive panic clean-up logic
 codegen-units = 1 # Compile crates one after another so the compiler can optimize better
-# opt-level = "s"   # Optimize for binary size
-strip = true # Remove debug symbols
+strip = true      # Remove debug symbols
+
+[profile.ui]
+inherits = "release"
+opt-level = "s"

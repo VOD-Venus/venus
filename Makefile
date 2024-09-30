@@ -30,7 +30,7 @@ ui-release:
 ui-fix:
 	cd venus-ui \
 		&& leptosfmt . \
-		&& $(CARGO)  fix --allow-dirty --all-features && $(CARGO)  fmt
+		&& $(CARGO) fix --allow-dirty --all-features && $(CARGO) fmt
 
 run:
 	$(CARGO) run -p venus
