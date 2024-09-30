@@ -1,6 +1,6 @@
 RUSTFLAGS := "-Zthreads=8"
 
-CARGO = RUSTFLAGS=$(RUSTFLAGS) cargo
+CARGO = RUSTFLAGS=$(RUSTFLAGS) cargo +nightly
 RUSTC = rustc
 CROSS = cross
 
@@ -30,7 +30,7 @@ ui-release:
 ui-fix:
 	cd venus-ui \
 		&& leptosfmt . \
-		&& $(CARGO) +nightly fix --allow-dirty --all-features && $(CARGO) +nightly fmt
+		&& $(CARGO)  fix --allow-dirty --all-features && $(CARGO)  fmt
 
 run:
 	$(CARGO) run -p venus
@@ -49,13 +49,13 @@ check:
 	$(CARGO) check
 
 format:
-	$(CARGO) +nightly fmt
+	$(CARGO) fmt
 
 lint:
-	$(CARGO) +nightly clippy
+	$(CARGO) clippy
 
 fix:
-	$(CARGO) +nightly fix --allow-dirty --all-features && $(CARGO) +nightly fmt
+	$(CARGO) fix --allow-dirty --all-features && $(CARGO) fmt
 
 linux-musl: clean-release
 	$(CROSS) build -p venus --release --target x86_64-unknown-linux-musl

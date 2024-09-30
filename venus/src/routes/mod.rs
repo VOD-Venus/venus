@@ -21,7 +21,7 @@ use crate::{
 
 pub mod version;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Default)]
 pub struct RouteResponse<T>
 where
     T: Serialize,

@@ -136,6 +136,6 @@ pub fn core_version() -> VenusResult<String> {
     let core = Command::new(core_exec_path).args(["version"]).output()?;
     let output = String::from_utf8_lossy(&core.stdout);
     let stdout = output.split(' ').collect::<Vec<_>>();
-    let stdout = stdout.get(1).unwrap_or(&"0.0");
-    Ok(stdout.to_string())
+    let version = stdout.get(1).map(|v| v.to_string()).ok_or(anyhow!(""))?;
+    Ok(version)
 }

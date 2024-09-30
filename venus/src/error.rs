@@ -38,9 +38,10 @@ pub enum AppError {
     // UserConflict(Cow<'static, str>),
 }
 
-#[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug)]
+#[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Default)]
 #[repr(u16)]
 pub enum ErrorCode {
+    #[default]
     Normal = 200,
     InternalError = 1000,
     //NotAuthorized = 1001,

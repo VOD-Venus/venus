@@ -3,7 +3,7 @@ use std::{env, error::Error, net::SocketAddr, thread};
 
 use anyhow::Context;
 use axum::Router;
-use consts::DEFAULT_PORT;
+use consts::{DEFAULT_PORT, RUA_COMPILER};
 use dotenvy::dotenv;
 use routes::routes;
 use tokio::net::TcpListener;
@@ -25,6 +25,7 @@ async fn main() -> Result<()> {
     dotenv().ok();
     init_logger();
 
+    info!("venus {RUA_COMPILER}");
     let venus = &*CORE;
     // register child message
     {
