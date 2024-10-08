@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use leptos::*;
 use leptos_use::ColorMode;
 
-use crate::{clsx, consts::COLOR_MODE};
+use crate::{clsx, consts::COLOR_MODE, utils::capitalize_first};
 
 /// 颜色模式切换下拉框
 #[component]
@@ -33,7 +33,7 @@ pub fn DarkMode(#[prop(optional)] class: Cow<'static, str>) -> impl IntoView {
                             <li class=clsx!("w-full") on:click=move |_| set_mode.set(theme.into())>
                                 <a class:active=move || {
                                     mode.get().to_string() == theme
-                                }>{theme}</a>
+                                }>{capitalize_first(theme)}</a>
                             </li>
                         }
                     }
