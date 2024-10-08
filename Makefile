@@ -6,10 +6,10 @@ CROSS = cross
 
 all: build
 
-build:
+build: ui
 	$(CARGO) build -p venus
 
-release: clean
+release: clean ui-release
 	$(CARGO) build -p venus --release
 
 dev:
@@ -26,11 +26,6 @@ ui-dev:
 ui-release:
 	cd venus-ui \
 		&& trunk build --release
-
-ui-fix:
-	cd venus-ui \
-		&& leptosfmt . \
-		&& $(CARGO) fix --allow-dirty --all-features && $(CARGO) fmt
 
 run:
 	$(CARGO) run -p venus
@@ -55,7 +50,9 @@ lint:
 	$(CARGO) clippy
 
 fix:
-	$(CARGO) fix --allow-dirty --all-features && $(CARGO) fmt
+	cd venus-ui \
+		&& leptosfmt . \
+		&& $(CARGO) fix --allow-dirty --all-features && $(CARGO) fmt
 
 linux-musl: clean-release
 	$(CROSS) build -p venus --release --target x86_64-unknown-linux-musl

@@ -5,3 +5,4 @@ port = 3000
 [build]
 cargo_profile = "ui"
 minify = "on_release"
+public_url = "./"

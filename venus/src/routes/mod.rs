@@ -7,9 +7,11 @@ use axum::{
     routing::get,
     Json, Router,
 };
+use include_dir::{include_dir, Dir};
 use serde::Serialize;
 use tower::ServiceBuilder;
 use tower_http::{compression::CompressionLayer, cors::CorsLayer, timeout::TimeoutLayer};
+use tower_serve_static::ServeDir;
 use tracing::info;
 
 use crate::{
@@ -31,14 +33,13 @@ where
 }
 pub type RouteResult<T> = AppResult<Json<RouteResponse<T>>>;
 
-// static ASSERT_UI: Dir = include_dir!("./public");
+static ASSERT_UI: Dir = include_dir!("./venus-ui/dist");
 
 pub fn routes() -> Router {
-    // let service = ServeDir::new(&ASSERT_UI);
+    let service = ServeDir::new(&ASSERT_UI);
 
     let router = Router::new()
-        .route("/", get(hello).post(hello))
-        // .nest_service("/app", service)
+        .nest_service("/", service)
         .nest(
             "/api/",
             Router::new().route("/version", get(version::version)),
@@ -52,11 +53,6 @@ pub fn routes() -> Router {
         )
         .fallback(fallback);
     logging_route(router)
-}
-
-/// hello world
-pub async fn hello() -> String {
-    format!("hello {}", env!("CARGO_PKG_NAME"))
 }
 
 /// Fallback route handler for handling unmatched routes.
