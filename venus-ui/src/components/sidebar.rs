@@ -10,6 +10,10 @@ pub fn Sidebar() -> impl IntoView {
             "py-6 px-5",
             "bg-gray-100 flex-col",
             "dark:bg-rua-gray-900"
-        )>test</nav>
+        )>
+            <div class=clsx!("flex w-full justify-center")>
+                <img alt="venus" src="public/venus.svg" class=clsx!("object-contain w-28 h-28") />
+            </div>
+        </nav>
     }
 }
