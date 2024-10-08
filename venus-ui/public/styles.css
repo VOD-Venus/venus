@@ -8,4 +8,8 @@
     /*     @apply dark:bg-rua-gray-900; */
     /*     user-select: none; */
     /* } */
+    html,
+    body {
+        height: 100%;
+    }
 }
