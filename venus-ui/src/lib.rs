@@ -1,5 +1,7 @@
 #![feature(stmt_expr_attributes)]
+use components::sidebar::Sidebar;
 use consts::COLOR_MODE;
+use layout::Layout;
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
@@ -8,6 +10,7 @@ use leptos_use::{use_color_mode_with_options, UseColorModeOptions, UseColorModeR
 // Modules
 mod components;
 mod consts;
+mod layout;
 mod pages;
 mod utils;
 
@@ -24,7 +27,6 @@ pub fn App() -> impl IntoView {
             .attribute("data-theme")
             .custom_modes(COLOR_MODE.iter().map(|m| m.to_string()).collect::<_>()),
     );
-    logging::log!("lib {}", mode.get());
     provide_context((mode, set_mode));
 
     // Provides context that manages stylesheets, titles, meta tags, etc.
@@ -41,10 +43,13 @@ pub fn App() -> impl IntoView {
         <Meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <Router>
-            <Routes>
-                <Route path="/" view=Home />
-                <Route path="/*" view=NotFound />
-            </Routes>
+            <Layout>
+                <Sidebar />
+                <Routes>
+                    <Route path="/" view=Home />
+                    <Route path="/*" view=NotFound />
+                </Routes>
+            </Layout>
         </Router>
     }
 }
