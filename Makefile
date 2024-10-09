@@ -72,7 +72,8 @@ loongarch: clean-release
 	$(CROSS) build -p venus --release --target loongarch64-unknown-linux-gnu
 
 deps:
-	python -m venv .venus \
+	$(CARGO) install --locked trunk \
+		&& python -m venv .venus \
 		&& source .venus/bin/activate \
 		&& pip install -r scripts/requirements.txt \
 		&& python scripts/download-core.py
