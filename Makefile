@@ -1,6 +1,6 @@
-RUSTFLAGS := "-Zthreads=8"
+RUSTFLAGS := "-Z threads=8 -C target-cpu=native"
 
-CARGO = RUSTFLAGS=$(RUSTFLAGS) cargo +nightly
+CARGO = RUSTFLAGS=$(RUSTFLAGS) cargo
 RUSTC = rustc
 CROSS = cross
 
@@ -9,7 +9,7 @@ all: build
 build: ui
 	$(CARGO) build -p venus
 
-release: clean ui-release
+release: ui-release
 	$(CARGO) build -p venus --release
 
 dev:
@@ -52,6 +52,8 @@ lint:
 fix:
 	cd venus-ui \
 		&& leptosfmt . \
+		&& $(CARGO) fix --allow-dirty --all-features && $(CARGO) fmt \
+		&& cd .. \
 		&& $(CARGO) fix --allow-dirty --all-features && $(CARGO) fmt
 
 linux-musl: clean-release
