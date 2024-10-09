@@ -37,9 +37,9 @@ pub fn Sidebar() -> impl IntoView {
     view! {
         <nav class=clsx!(
             "w-56 max-w-xs flex",
-            "py-6 px-5",
-            "bg-gray-100 flex-col",
-            "dark:bg-rua-gray-900"
+                "py-6 px-5",
+                "bg-gray-100 flex-col",
+                "dark:bg-rua-gray-900"
         )>
             // logo
             <div class=clsx!("flex w-full justify-center")>
@@ -47,23 +47,30 @@ pub fn Sidebar() -> impl IntoView {
             </div>
 
             // nav
-            {location.pathname}
             <div class=clsx!("flex flex-col justify-between", "felx-1 h-full")>
-                <div class=clsx!("my-4")>
-                    <For
-                        each=move || NAVI
-                        key=|n| n.path
-                        children=move |n| {
-                            view! {
-                                <a href=n.path>
-                                    <button class=clsx!(
-                                        "btn",
-                                        if n.path == location.pathname.get() {"btn-active"} else {""}
-                                    )>{n.name}</button>
-                                </a>
+                <div class=clsx!("my-4 flex flex-col")>
+                    <ul class="menu bg-base-200 rounded-box my-4">
+                        <For
+                            each=move || NAVI
+                            key=|n| n.path
+                            children=move |n| {
+                                view! {
+                                    <li>
+                                        <a
+                                            href=n.path
+                                            class="mb-2"
+                                            class=(
+                                                "btn-active",
+                                                move || n.path == location.pathname.get(),
+                                            )
+                                        >
+                                            {n.name}
+                                        </a>
+                                    </li>
+                                }
                             }
-                        }
-                    />
+                        />
+                    </ul>
                 </div>
             </div>
         </nav>
