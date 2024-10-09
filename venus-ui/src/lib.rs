@@ -1,5 +1,4 @@
 #![feature(stmt_expr_attributes)]
-use components::sidebar::Sidebar;
 use consts::COLOR_MODE;
 use layout::Layout;
 use leptos::*;
@@ -15,8 +14,9 @@ mod pages;
 mod utils;
 
 // Top-Level pages
-use crate::pages::home::Home;
-use crate::pages::not_found::NotFound;
+use pages::home::Home;
+use pages::not_found::NotFound;
+use pages::settings::Settings;
 
 /// An app router which renders the homepage and handles 404's
 #[component]
@@ -44,9 +44,9 @@ pub fn App() -> impl IntoView {
 
         <Router>
             <Layout>
-                <Sidebar />
                 <Routes>
                     <Route path="/" view=Home />
+                    <Route path="/settings" view=Settings />
                     <Route path="/*" view=NotFound />
                 </Routes>
             </Layout>
