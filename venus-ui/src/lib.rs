@@ -5,22 +5,27 @@ use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
 use leptos_use::{use_color_mode_with_options, UseColorModeOptions, UseColorModeReturn};
+use pages::home::Home;
+use pages::not_found::NotFound;
+use pages::settings::Settings;
 
-// Modules
 mod components;
 mod consts;
 mod layout;
 mod pages;
 mod utils;
 
-// Top-Level pages
-use pages::home::Home;
-use pages::not_found::NotFound;
-use pages::settings::Settings;
+struct Tabs {
+    pub home: String,
+}
+#[derive(Copy, Clone, Debug)]
+struct GlobalUI {
+    pub tabs: RwSignal<Tabs>,
+}
 
-/// An app router which renders the homepage and handles 404's
 #[component]
 pub fn App() -> impl IntoView {
+    // color mode global context
     let UseColorModeReturn { mode, set_mode, .. } = use_color_mode_with_options(
         UseColorModeOptions::default()
             .emit_auto(true)
