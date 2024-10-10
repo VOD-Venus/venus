@@ -1,11 +1,8 @@
-use crate::components::{dark_mode_btn::DarkMode, title::Title};
+use crate::{
+    components::{dark_mode_btn::DarkMode, title::Title},
+    GlobalUI,
+};
 use leptos::*;
-
-#[derive(Debug, Clone, Copy)]
-struct Tabs<'a> {
-    /// 首页的 Tab 标签页 ID
-    pub home: &'a str,
-}
 
 #[derive(Debug, Clone, Copy)]
 struct HomeTab<'a> {
@@ -26,9 +23,8 @@ pub fn Home() -> impl IntoView {
             name: "Nodes",
         },
     ];
-    let (index, set_index) = create_signal(Tabs {
-        home: "subscription",
-    });
+
+    let ui = use_context::<GlobalUI>().expect("GlobalUI state is not set");
 
     view! {
         <div>
@@ -45,8 +41,8 @@ pub fn Home() -> impl IntoView {
                                     id=tab.id
                                     role="tab"
                                     class="tab"
-                                    class=("tab-active", move || index().home == tab.id)
-                                    on:click=move |_| { set_index.update(|t| t.home = tab.id) }
+                                    class=("tab-active", move || ui.tabs.get().home == tab.id)
+                                    on:click=move |_| { ui.tabs.update(|t| t.home = tab.id) }
                                 >
                                     {tab.name}
                                 </a>

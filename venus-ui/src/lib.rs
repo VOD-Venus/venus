@@ -15,12 +15,24 @@ mod layout;
 mod pages;
 mod utils;
 
-struct Tabs {
-    pub home: String,
+#[derive(Debug, Clone, Copy)]
+struct Tabs<'a> {
+    /// 首页的 Tab 标签页 ID
+    pub home: &'a str,
 }
 #[derive(Copy, Clone, Debug)]
 struct GlobalUI {
-    pub tabs: RwSignal<Tabs>,
+    /// 各个页面标签页的 tab index
+    pub tabs: RwSignal<Tabs<'static>>,
+}
+impl GlobalUI {
+    pub fn new() -> Self {
+        Self {
+            tabs: create_rw_signal(Tabs {
+                home: "subscription",
+            }),
+        }
+    }
 }
 
 #[component]
@@ -34,16 +46,17 @@ pub fn App() -> impl IntoView {
     );
     provide_context((mode, set_mode));
 
+    // ui 的全局状态
+    provide_context(GlobalUI::new());
+
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
 
     view! {
         <Html lang="en" dir="ltr" />
 
-        // sets the document title
         <Title text="Venus" />
 
-        // injects metadata in the <head> of the page
         <Meta charset="UTF-8" />
         <Meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
