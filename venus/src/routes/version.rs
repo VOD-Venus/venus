@@ -1,6 +1,5 @@
 use std::borrow::Cow;
 
-use axum::Json;
 use serde::{Deserialize, Serialize};
 
 use crate::{consts::VERSION, core::CORE};
@@ -18,9 +17,8 @@ pub async fn version() -> RouteResult<Versions> {
         core: core.version.clone().into(),
         venus: VERSION.into(),
     };
-    let res = RouteResponse {
+    Ok(RouteResponse {
         data: v,
         ..RouteResponse::default()
-    };
-    Ok(Json(res))
+    })
 }

@@ -1,6 +1,12 @@
 use std::{borrow::Cow, time::Duration};
 
-use axum::{middleware, routing::get, Json, Router};
+use axum::{
+    http::StatusCode,
+    middleware,
+    response::{IntoResponse, Response},
+    routing::get,
+    Json, Router,
+};
 use serde::Serialize;
 use tower::ServiceBuilder;
 use tower_http::{
@@ -28,7 +34,15 @@ where
     message: Option<Cow<'static, str>>,
     data: T,
 }
-pub type RouteResult<T> = AppResult<Json<RouteResponse<T>>>;
+impl<T> IntoResponse for RouteResponse<T>
+where
+    T: Serialize + Default,
+{
+    fn into_response(self) -> Response {
+        (StatusCode::OK, Json(self)).into_response()
+    }
+}
+pub type RouteResult<T> = AppResult<RouteResponse<T>>;
 
 pub fn routes() -> Router {
     let ui_folder = &*VENUS_UI_PATH;

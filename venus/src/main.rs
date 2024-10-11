@@ -76,7 +76,6 @@ async fn main() -> Result<()> {
     axum::serve(listener, app())
         .with_graceful_shutdown(shutdown_signal(shutdown_cb))
         .await?;
-
     Ok(())
 }
 
