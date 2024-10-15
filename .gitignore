@@ -9,8 +9,6 @@ lerna-debug.log*
 **/*/downloads/
 downloads/
 .xwin-cache/
-.cargo/
-out
 .vscode
 
 node_modules
@@ -43,4 +41,4 @@ docs/public
 .env
 
 # core
-config.toml
+venus-core/config.toml

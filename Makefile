@@ -1,6 +1,7 @@
-RUSTFLAGS := "-Z threads=8 -C target-cpu=native"
+# RUSTFLAGS := "-Z threads=8 -C target-cpu=native"
 
-CARGO = RUSTFLAGS=$(RUSTFLAGS) cargo
+# CARGO = RUSTFLAGS=$(RUSTFLAGS) cargo
+CARGO = cargo
 RUSTC = rustc
 CROSS = cross
 
