@@ -30,7 +30,7 @@ pub fn Home() -> impl IntoView {
         <div>
             <Title>Proxies</Title>
 
-            <div>
+            <div class="flex">
                 <div role="tablist" class="tabs tabs-bordered">
                     <For
                         each=move || home_tabs
@@ -40,7 +40,7 @@ pub fn Home() -> impl IntoView {
                                 <a
                                     id=tab.id
                                     role="tab"
-                                    class="tab"
+                                    class="tab transition-all duration-300"
                                     class=("tab-active", move || ui.tabs.get().home == tab.id)
                                     on:click=move |_| { ui.tabs.update(|t| t.home = tab.id) }
                                 >
@@ -50,8 +50,8 @@ pub fn Home() -> impl IntoView {
                         }
                     />
                 </div>
-                <DarkMode />
             </div>
+            <DarkMode />
         </div>
     }
 }
