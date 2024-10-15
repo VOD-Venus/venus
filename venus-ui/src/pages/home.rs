@@ -1,5 +1,5 @@
 use crate::{
-    components::{dark_mode_btn::DarkMode, title::Title},
+    components::{dark_mode_btn::DarkMode, home_page::subscripiton::Subscription, title::Title},
     GlobalUI,
 };
 use leptos::*;
@@ -42,7 +42,11 @@ pub fn Home() -> impl IntoView {
                                     role="tab"
                                     class="tab transition-all duration-300"
                                     class=("tab-active", move || ui.tabs.get().home == tab.id)
-                                    on:click=move |_| { ui.tabs.update(|t| t.home = tab.id) }
+                                    on:click=move |_| {
+                                        if ui.tabs.get().home != tab.id {
+                                            ui.tabs.update(|t| t.home = tab.id)
+                                        }
+                                    }
                                 >
                                     {tab.name}
                                 </a>
@@ -51,6 +55,13 @@ pub fn Home() -> impl IntoView {
                     />
                 </div>
             </div>
+
+            {move || match ui.tabs.get().home {
+                "subscription" => view! { <Subscription /> }.into_view(),
+                "nodes" => view! { <div>nodes</div> }.into_view(),
+                _ => view! { <div>Error: wrong tab id</div> }.into_view(),
+            }}
+
             <DarkMode />
         </div>
     }
