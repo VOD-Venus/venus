@@ -35,12 +35,7 @@ pub fn Sidebar() -> impl IntoView {
     let location = use_location();
 
     view! {
-        <nav class=clsx!(
-            "w-56 max-w-xs flex",
-                "py-6 px-5",
-                "bg-gray-100 flex-col",
-                "dark:bg-rua-gray-900"
-        )>
+        <nav class="flex flex-col w-56 max-w-xs px-5 py-6 bg-gray-100 dark:bg-rua-gray-900">
             // logo
             <div class=clsx!("flex w-full justify-center")>
                 <img alt="venus" src="public/venus.svg" class=clsx!("object-contain w-28 h-28") />
@@ -49,7 +44,7 @@ pub fn Sidebar() -> impl IntoView {
             // nav
             <div class=clsx!("flex flex-col justify-between", "felx-1 h-full")>
                 <div class=clsx!("my-4 flex flex-col")>
-                    <ul class="menu bg-base-200 rounded-box my-4">
+                    <ul class="my-4 menu bg-base-200 rounded-box">
                         <For
                             each=move || NAVI
                             key=|n| n.path

@@ -13,7 +13,7 @@ pub fn DarkMode(#[prop(optional)] class: Cow<'static, str>) -> impl IntoView {
 
     view! {
         <div class=clsx!("dropdown", class)>
-            <div tabindex="0" role="button" class="btn m-1">
+            <div tabindex="0" role="button" class="m-1 btn">
                 Themes
             </div>
             <ul
