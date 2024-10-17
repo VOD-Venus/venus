@@ -1,9 +1,6 @@
 use leptos::*;
 
-use crate::{
-    clsx,
-    components::{errors::ErrorsView, sidebar::Sidebar},
-};
+use crate::components::{errors::ErrorsView, sidebar::Sidebar};
 
 #[component]
 pub fn Layout(children: Children) -> impl IntoView {
@@ -11,10 +8,10 @@ pub fn Layout(children: Children) -> impl IntoView {
         <ErrorBoundary fallback=|errors| {
             view! { <ErrorsView errors=errors /> }
         }>
-            <main class=clsx!("flex h-full")>
+            <main class="flex h-full">
                 <Sidebar />
 
-                <div class="p-8 flex-1 overflow-auto h-full">
+                <div class="flex-1 h-full p-8 overflow-auto">
                     {children().nodes.into_iter().collect::<Vec<_>>()}
                 </div>
             </main>
