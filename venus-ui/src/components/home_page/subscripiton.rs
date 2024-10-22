@@ -20,15 +20,55 @@ pub fn Subscription() -> impl IntoView {
                 <div class="px-4 pb-2 text-sm">
                     <div>Subcriptions</div>
                 </div>
-                <div class="shadow-xl card dark:bg-base-300 bg-base-100 w-96">
-                    <div class="card-body">
-                        <h2 class="card-title">RUA!</h2>
-                        <div class="text-gray-400">"https://google.com"</div>
-                        <div class="justify-end card-actions">
-                            <button class="btn btn-sm">Buy Now</button>
+
+                <div class="flex flex-wrap">
+                    <div class="shadow-xl card dark:bg-base-300 bg-base-100 w-96 mr-4 mb-4">
+                        <div class="card-body">
+                            <h2 class="card-title">RUA!</h2>
+                            <div class="text-gray-400">"https://google.com"</div>
+                            <div class="justify-end card-actions">
+                                <button class="btn btn-sm">Buy Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="shadow-xl card dark:bg-base-300 bg-base-100 w-96 mr-4 mb-4">
+                        <div class="card-body">
+                            <h2 class="card-title">RUA!</h2>
+                            <div class="text-gray-400">"https://google.com"</div>
+                            <div class="justify-end card-actions">
+                                <button class="btn btn-sm">Buy Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="shadow-xl card dark:bg-base-300 bg-base-100 w-96 mr-4 mb-4">
+                        <div class="card-body">
+                            <h2 class="card-title">RUA!</h2>
+                            <div class="text-gray-400">"https://google.com"</div>
+                            <div class="justify-end card-actions">
+                                <button class="btn btn-sm">Buy Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="shadow-xl card dark:bg-base-300 bg-base-100 w-96 mr-4 mb-4">
+                        <div class="card-body">
+                            <h2 class="card-title">RUA!</h2>
+                            <div class="text-gray-400">"https://google.com"</div>
+                            <div class="justify-end card-actions">
+                                <button class="btn btn-sm">Buy Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="shadow-xl card dark:bg-base-300 bg-base-100 w-96 mr-4 mb-4">
+                        <div class="card-body">
+                            <h2 class="card-title">RUA!</h2>
+                            <div class="text-gray-400">"https://google.com"</div>
+                            <div class="justify-end card-actions">
+                                <button class="btn btn-sm">Buy Now</button>
+                            </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     }
