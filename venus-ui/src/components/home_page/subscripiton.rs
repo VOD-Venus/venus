@@ -1,5 +1,7 @@
 use leptos::*;
 
+use crate::components::subscription_card::SubscriptionCard;
+
 /// 首页中的订阅选项卡
 #[component]
 pub fn Subscription() -> impl IntoView {
@@ -10,8 +12,12 @@ pub fn Subscription() -> impl IntoView {
                 <div class="px-4 pb-2 text-sm">
                     <div>Subscription Settings</div>
                 </div>
-                <div class="p-4 rounded-lg bg-slate-50 dark:bg-rua-gray-800">
-                    <button class="mr-2 btn btn-sm">Add</button>
+                <div class="p-4 rounded-lg bg-stone-50 dark:bg-rua-gray-800">
+                    <button class="mr-2 btn btn-sm" onclick="add_modal.showModal()">
+                        Add
+                    </button>
+                    <SubscriptionCard />
+
                     <button class="btn btn-sm">Update All</button>
                 </div>
             </div>
