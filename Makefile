@@ -60,6 +60,9 @@ fix:
 linux-musl: clean-release
 	$(CROSS) build -p venus --release --target x86_64-unknown-linux-musl
 
+aarch64-unknown-linux-musl: clean-release
+	$(CROSS) build -p venus --release --target aarch64-unknown-linux-musl
+
 linux-gnu: clean-release
 	$(CROSS) build -p venus --release --target x86_64-unknown-linux-gnu
 
