@@ -3,7 +3,7 @@
 # CARGO = RUSTFLAGS=$(RUSTFLAGS) cargo
 CARGO = cargo
 RUSTC = rustc
-CROSS = cross
+CROSS = CROSS_REMOTE=1 cross
 
 all: build
 
