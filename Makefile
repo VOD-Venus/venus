@@ -31,9 +31,6 @@ ui-release:
 	cd venus-ui \
 		&& trunk build --release
 
-run:
-	$(CARGO) run -p venus
-
 test:
 	$(CARGO) test
 

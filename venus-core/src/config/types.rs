@@ -26,9 +26,9 @@ impl Default for VenusConfig {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct RUAUser {
-    username: Cow<'static, str>,
+    pub username: Cow<'static, str>,
     /// hashed password
-    password: Cow<'static, str>,
+    pub password: Cow<'static, str>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
