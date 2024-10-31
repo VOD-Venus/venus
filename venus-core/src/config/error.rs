@@ -10,6 +10,8 @@ pub enum ConfigError {
     SerializeToml(#[from] toml::ser::Error),
     #[error("serde json failed {0}")]
     SerdeJson(#[from] serde_json::Error),
+    #[error("venus error {0}")]
+    Anyhow(#[from] anyhow::Error),
 
     #[error("{0}")]
     Empty(Cow<'static, str>),

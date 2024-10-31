@@ -14,7 +14,7 @@ release: ui-release
 	$(CARGO) build -p venus --release
 
 dev:
-	VENUS_LOG=debug $(CARGO) watch -x run -p venus
+	VENUS_LOG=debug $(CARGO) watch -x "run -p venus"
 
 ui:
 	cd venus-ui \
@@ -22,7 +22,7 @@ ui:
 
 ui-dev:
 	cd venus-ui \
-		&& trunk serve
+		&& trunk serve --port 4002
 
 ui-release:
 	cd venus-ui \

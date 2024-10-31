@@ -22,6 +22,7 @@ use crate::{
     middlewares::{add_version, logging_route},
 };
 
+pub mod user;
 pub mod version;
 
 #[derive(Debug, Serialize, Default)]

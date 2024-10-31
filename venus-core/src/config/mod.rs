@@ -1,3 +1,4 @@
+use anyhow::Context;
 use error::{ConfigError, ConfigResult};
 use json_comments::StripComments;
 use log::info;
@@ -55,11 +56,14 @@ impl Config {
 
     /// Reload core config file from VConfig
     pub fn reload_core(&mut self) -> ConfigResult<()> {
-        let path = format!("{}/config.json", &*VENUS_V2RAY_PATH);
-        let path = PathBuf::from(path);
-        let core_file = File::open(path)?;
+        let path_str = format!("{}/config.json", &*VENUS_V2RAY_PATH);
+        let path_ctx = path_str.clone();
+        let ctx = || format!("reload config {} failed", path_ctx);
+
+        let path = PathBuf::from(path_str);
+        let core_file = File::open(path).with_context(ctx)?;
         let stripped = StripComments::new(core_file);
-        let core_config: CoreConfig = serde_json::from_reader(stripped)?;
+        let core_config: CoreConfig = serde_json::from_reader(stripped).with_context(ctx)?;
         self.core = Some(core_config);
         Ok(())
     }
@@ -67,26 +71,37 @@ impl Config {
     ///  Write core config to config file
     pub fn write_core(&mut self) -> ConfigResult<()> {
         let path = format!("{}/config.json", &*VENUS_V2RAY_PATH);
+        let path_ctx = path.clone();
+        let ctx = || format!("write config {} failed", path_ctx);
+
         let path = PathBuf::from(path);
         let config = self.core.as_ref().ok_or(ConfigError::Empty(
             "write_core: v2ray core config is empty".into(),
         ))?;
-        let core_file = OpenOptions::new().write(true).open(path)?;
-        core_file.set_len(0)?;
+        let core_file = OpenOptions::new()
+            .write(true)
+            .open(path)
+            .with_context(ctx)?;
+        core_file.set_len(0).with_context(ctx)?;
         serde_json::to_writer_pretty(&core_file, &config)?;
         Ok(())
     }
 
     pub fn write_rua(&mut self) -> ConfigResult<()> {
         let path = PathBuf::from(VENUS_CONFIG_PATH.as_ref());
+        let path_ctx = path.clone();
+        let ctx = || format!("write config {:?} failed", path_ctx);
+
         let mut rua_file = OpenOptions::new()
             .write(true)
             .create(true)
             .truncate(true)
             .open(path)?;
-        let rua_string = toml::to_string(&self.venus)?;
-        rua_file.set_len(0)?;
-        rua_file.write_all(rua_string.as_bytes())?;
+        let rua_string = toml::to_string(&self.venus).with_context(ctx)?;
+        rua_file.set_len(0).with_context(ctx)?;
+        rua_file
+            .write_all(rua_string.as_bytes())
+            .with_context(ctx)?;
         Ok(())
     }
 }
