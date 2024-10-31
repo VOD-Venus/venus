@@ -43,3 +43,16 @@ pub async fn verify(password: String, hash: String) -> anyhow::Result<bool> {
     .await
     .context("panic in verify()")?
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn hash_works() {
+        let passwd = "xfyxfy";
+        let hashed = hash(passwd.to_string()).await.unwrap();
+        let verified = verify(passwd.to_string(), hashed).await.unwrap();
+        assert!(verified)
+    }
+}
