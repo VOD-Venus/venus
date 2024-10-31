@@ -16,6 +16,9 @@ release: ui-release
 dev:
 	VENUS_LOG=debug $(CARGO) watch -x "run -p venus"
 
+run:
+	VENUS_LOG=debug $(CARGO) run -p venus
+
 ui:
 	cd venus-ui \
 		&& trunk build

@@ -4,7 +4,7 @@ use axum::{
     http::StatusCode,
     middleware,
     response::{IntoResponse, Response},
-    routing::get,
+    routing::{get, post},
     Json, Router,
 };
 use serde::Serialize;
@@ -54,7 +54,9 @@ pub fn routes() -> Router {
         .nest_service("/", ui_service)
         .nest(
             "/api/",
-            Router::new().route("/version", get(version::version)),
+            Router::new()
+                .route("/version", get(version::version))
+                .route("/user/register", post(user::register)),
         )
         .layer(
             ServiceBuilder::new()
