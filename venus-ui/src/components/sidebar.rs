@@ -79,25 +79,43 @@ pub fn Sidebar() -> impl IntoView {
 #[component]
 pub fn SidebarMobile() -> impl IntoView {
     view! {
-        <div>
-            // mobile drawer button
-            <div class="z-10 sm:hidden relative">
-                <input id="my-drawer" type="checkbox" class="drawer-toggle" />
-                // <!-- Page content here -->
-                <label for="my-drawer" class="btn btn-primary drawer-button">
-                    Open drawer
-                </label>
-                <div class="drawer-side">
-                    <label
-                        for="my-drawer"
-                        aria-label="close sidebar"
-                        class="drawer-overlay"
-                    ></label>
-                    <ul class="menu bg-base-200 text-base-content min-h-full w-72 p-4">
-                        <SidebarContent />
-                    </ul>
+        <>
+            <div class="navbar bg-base-100 p-0 mt-[-2rem] mx-[-1rem] sm:hidden">
+                <div class="flex-none">
+                    <div class="z-10 sm:hidden relative">
+                        <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+                        <label for="my-drawer" class="btn drawer-button btn-square btn-ghost">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                class="inline-block h-5 w-5 stroke-current"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 6h16M4 12h16M4 18h16"
+                                ></path>
+                            </svg>
+                        </label>
+                        <div class="drawer-side">
+                            <label
+                                for="my-drawer"
+                                aria-label="close sidebar"
+                                class="drawer-overlay"
+                            ></label>
+                            <ul class="menu bg-base-200 text-base-content min-h-full w-72 p-4">
+                                <SidebarContent />
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-1">
+                    <a class="btn btn-ghost text-xl">Venus</a>
                 </div>
             </div>
-        </div>
+        </>
     }
 }
