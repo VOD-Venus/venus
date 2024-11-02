@@ -6,6 +6,7 @@ use venus_core::config::types::RUAUser;
 
 use crate::{
     core::CORE,
+    error::ErrorCode,
     utils::{password, validator::ValidatedJson},
 };
 
@@ -43,5 +44,36 @@ pub async fn register(
         config.write_rua()?;
     }
     res.data = "ok".into();
+    Ok(res)
+}
+
+pub async fn login(ValidatedJson(input): ValidatedJson<RegisterInput>) -> RouteResult<String> {
+    let mut res = RouteResponse {
+        code: ErrorCode::ParameterIncorrect,
+        message: Some("User not exist or password incorrect".into()),
+        ..Default::default()
+    };
+    let RegisterInput {
+        username: _,
+        password,
+    } = input;
+
+    let user = {
+        let core = &CORE.lock()?;
+        let config = &core.config;
+        if let Some(user) = &config.venus.user {
+            user.clone()
+        } else {
+            return Ok(res);
+        }
+    };
+
+    let validated = password::verify(password, user.password.into()).await?;
+    if !validated {
+        return Ok(res);
+    }
+
+    res.message = Some("ok".into());
+    res.code = ErrorCode::default();
     Ok(res)
 }

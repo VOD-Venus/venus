@@ -56,7 +56,8 @@ pub fn routes() -> Router {
             "/api/",
             Router::new()
                 .route("/version", get(version::version))
-                .route("/user/register", post(user::register)),
+                .route("/user/register", post(user::register))
+                .route("/user/login", post(user::login)),
         )
         .layer(
             ServiceBuilder::new()
