@@ -1,7 +1,7 @@
 use std::{borrow::Cow, time::Duration};
 
 use axum::{
-    http::StatusCode,
+    http::{HeaderMap, StatusCode},
     middleware,
     response::{IntoResponse, Response},
     routing::{get, post},
@@ -30,17 +30,42 @@ pub struct RouteResponse<T>
 where
     T: Serialize,
 {
+    #[serde(skip_serializing)]
+    headers: HeaderMap,
     code: ErrorCode,
     #[serde(skip_serializing_if = "Option::is_none")]
     message: Option<Cow<'static, str>>,
     data: T,
 }
+
+#[derive(Debug, Serialize, Default)]
+struct RouteInnerResponse<T>
+where
+    T: Serialize,
+{
+    code: ErrorCode,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message: Option<Cow<'static, str>>,
+    data: T,
+}
+
 impl<T> IntoResponse for RouteResponse<T>
 where
     T: Serialize + Default,
 {
     fn into_response(self) -> Response {
-        (StatusCode::OK, Json(self)).into_response()
+        let Self {
+            headers,
+            code,
+            message,
+            data,
+        } = self;
+        let res = RouteInnerResponse {
+            code,
+            message,
+            data,
+        };
+        (headers, Json(res)).into_response()
     }
 }
 pub type RouteResult<T> = AppResult<RouteResponse<T>>;
