@@ -6,6 +6,7 @@ use leptos_meta::*;
 use leptos_router::*;
 use leptos_use::{use_color_mode_with_options, UseColorModeOptions, UseColorModeReturn};
 use pages::home::Home;
+use pages::login::Login;
 use pages::not_found::NotFound;
 use pages::settings::Settings;
 
@@ -61,13 +62,14 @@ pub fn App() -> impl IntoView {
         <Meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <Router>
-            <Layout>
-                <Routes>
-                    <Route path="/" view=Home />
+            <Routes>
+                <Route path="/" view=Layout>
+                    <Route path="/home" view=Home />
+                    <Route path="/login" view=Login />
                     <Route path="/settings" view=Settings />
                     <Route path="/*" view=NotFound />
-                </Routes>
-            </Layout>
+                </Route>
+            </Routes>
         </Router>
     }
 }
