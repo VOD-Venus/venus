@@ -10,17 +10,17 @@ rust-version = "1.80.0"
 venus-core = { path = "../venus-core" }
 # server
 axum = { version = "0.7.7", features = ["macros"] }
-tokio = { version = "1.40.0", features = ["full"] }
+tokio = { version = "1.41.0", features = ["full"] }
 tower = "0.5.1"
 tower-http = { version = "0.6.1", features = ["full"] }
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 # error
-anyhow = "1.0.91"
-thiserror = "1.0.65"
+anyhow = "1.0.93"
+thiserror = "2.0.0"
 # tools
 toml = "0.8.19"
-serde = { version = "1.0.213", features = ["derive", "serde_derive"] }
+serde = { version = "1.0.214", features = ["derive", "serde_derive"] }
 serde_json = { version = "1.0.132" }
 serde_repr = "0.1.19"
 serde_with = { version = "3.11.0", features = ["time_0_3"] }
@@ -28,7 +28,7 @@ dotenvy = "0.15.7"
 # password
 argon2 = "0.5.3"
 rand = "0.8.5"
-validator = { version = "0.18.1", features = ["derive"] }
+validator = { version = "0.19.0", features = ["derive"] }
 jsonwebtoken = "9.3.0"
 
 [dev-dependencies]

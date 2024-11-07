@@ -10,7 +10,7 @@ authors = ["xfy <xfyxfy@proton.me>"]
 leptos = { version = "0.6", features = ["csr", "nightly"] }
 leptos_meta = { version = "0.6", features = ["csr", "nightly"] }
 leptos_router = { version = "0.6", features = ["csr", "nightly"] }
-leptos-use = "0.13.5"
+leptos-use = "0.13.8"
 console_log = "1"
 log = "0.4.22"
 console_error_panic_hook = "0.1"

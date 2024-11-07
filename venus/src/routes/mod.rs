@@ -1,7 +1,7 @@
 use std::{borrow::Cow, time::Duration};
 
 use axum::{
-    http::{HeaderMap, StatusCode},
+    http::StatusCode,
     middleware,
     response::{IntoResponse, Response},
     routing::{get, post},
