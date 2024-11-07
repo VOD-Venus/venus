@@ -1,7 +1,7 @@
 use anyhow::Context;
 use error::{ConfigError, ConfigResult};
 use json_comments::StripComments;
-use log::info;
+use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use std::{
     fs::{File, OpenOptions},
@@ -49,6 +49,7 @@ impl Config {
         let mut buffer = String::new();
         config_file.read_to_string(&mut buffer)?;
         let mut rua_config = toml::from_str::<VenusConfig>(&buffer)?;
+        debug!("reloading rua config: {:?}", rua_config);
         rua_config.version = VERSION.into();
         self.venus = rua_config;
         Ok(())
@@ -64,6 +65,7 @@ impl Config {
         let core_file = File::open(path).with_context(ctx)?;
         let stripped = StripComments::new(core_file);
         let core_config: CoreConfig = serde_json::from_reader(stripped).with_context(ctx)?;
+        debug!("reloading core config: {:?}", core_config);
         self.core = Some(core_config);
         Ok(())
     }

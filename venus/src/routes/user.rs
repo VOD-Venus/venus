@@ -1,16 +1,17 @@
 use std::borrow::Cow;
 
+use axum::{http::StatusCode, response::IntoResponse};
 use serde::Deserialize;
 use validator::Validate;
 use venus_core::config::types::RUAUser;
 
 use crate::{
     core::CORE,
-    error::ErrorCode,
+    error::{AppResult, ErrorCode},
     utils::{password, validator::ValidatedJson},
 };
 
-use super::{RouteResponse, RouteResult};
+use super::RouteResponse;
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct RegisterInput {
@@ -23,8 +24,8 @@ pub struct RegisterInput {
 #[axum::debug_handler]
 pub async fn register(
     ValidatedJson(input): ValidatedJson<RegisterInput>,
-) -> RouteResult<Cow<'static, str>> {
-    let mut res = RouteResponse {
+) -> AppResult<impl IntoResponse> {
+    let mut res: RouteResponse<Cow<'static, str>> = RouteResponse {
         ..RouteResponse::default()
     };
     let RegisterInput { username, password } = input;
@@ -33,8 +34,8 @@ pub async fn register(
     {
         let config = &mut CORE.lock()?.config;
         if config.venus.user.is_some() {
-            res.data = "admin user already exist".into();
-            return Ok(res);
+            res.message = Some("admin user already exist".into());
+            return Ok((StatusCode::BAD_REQUEST, res));
         } else {
             config.venus.user = Some(RUAUser {
                 username: username.into(),
@@ -44,11 +45,13 @@ pub async fn register(
         config.write_rua()?;
     }
     res.data = "ok".into();
-    Ok(res)
+    Ok((StatusCode::OK, res))
 }
 
-pub async fn login(ValidatedJson(input): ValidatedJson<RegisterInput>) -> RouteResult<String> {
-    let mut res = RouteResponse {
+pub async fn login(
+    ValidatedJson(input): ValidatedJson<RegisterInput>,
+) -> AppResult<impl IntoResponse> {
+    let mut res: RouteResponse<Cow<'static, str>> = RouteResponse {
         code: ErrorCode::ParameterIncorrect,
         message: Some("User not exist or password incorrect".into()),
         ..Default::default()
@@ -64,16 +67,16 @@ pub async fn login(ValidatedJson(input): ValidatedJson<RegisterInput>) -> RouteR
         if let Some(user) = &config.venus.user {
             user.clone()
         } else {
-            return Ok(res);
+            return Ok((StatusCode::UNAUTHORIZED, res));
         }
     };
 
     let validated = password::verify(password, user.password.into()).await?;
     if !validated {
-        return Ok(res);
+        return Ok((StatusCode::UNAUTHORIZED, res));
     }
 
     res.message = Some("ok".into());
     res.code = ErrorCode::default();
-    Ok(res)
+    Ok((StatusCode::OK, res))
 }
