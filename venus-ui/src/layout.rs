@@ -1,5 +1,5 @@
 use leptos::*;
-use leptos_router::Outlet;
+use leptos_router::{use_navigate, use_route, Outlet};
 
 use crate::components::{
     errors::ErrorsView,
@@ -8,12 +8,19 @@ use crate::components::{
 
 #[component]
 pub fn Layout() -> impl IntoView {
+    let route = use_route();
+    let navigate = use_navigate();
+
+    if route.path() == "/" || route.path() == "" {
+        navigate("/home", Default::default());
+    }
+
     view! {
         <ErrorBoundary fallback=|errors| {
             view! { <ErrorsView errors=errors /> }
         }>
             <main class="flex h-full">
-                <Show when=|| false fallback=|| view! { <Outlet /> }>
+                <Show when=|| true fallback=|| view! { <Outlet /> }>
                     <Sidebar />
                     <div class="flex-1 h-full p-8 overflow-auto">
                         <SidebarMobile />

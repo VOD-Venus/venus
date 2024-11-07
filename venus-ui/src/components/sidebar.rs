@@ -8,7 +8,7 @@ struct Navi {
 const NAVI: [Navi; 5] = [
     Navi {
         name: "Proxies",
-        path: "/",
+        path: "/home",
     },
     Navi {
         name: "Settings",
