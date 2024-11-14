@@ -1,8 +1,6 @@
-use std::borrow::Cow;
-
 use axum::{http::StatusCode, response::IntoResponse};
 use chrono::Utc;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use validator::Validate;
 use venus_core::config::types::RUAUser;
 
@@ -26,11 +24,17 @@ pub struct RegisterInput {
     pub password: String,
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub struct AuthBody {
+    pub access_token: String,
+    pub token_type: String,
+}
+
 #[axum::debug_handler]
 pub async fn register(
     ValidatedJson(input): ValidatedJson<RegisterInput>,
 ) -> AppResult<impl IntoResponse> {
-    let mut res: RouteResponse<Cow<'static, str>> = RouteResponse {
+    let mut res: RouteResponse<Option<AuthBody>> = RouteResponse {
         ..RouteResponse::default()
     };
     let RegisterInput { username, password } = input;
@@ -59,22 +63,23 @@ pub async fn register(
     };
     let token = jwt::encode_jwt(&claims)?;
 
-    res.data = token.into();
+    res.data = Some(AuthBody {
+        access_token: token,
+        token_type: "Bearer".into(),
+    });
+    res.message = Some("ok".into());
     Ok((StatusCode::OK, res))
 }
 
 pub async fn login(
     ValidatedJson(input): ValidatedJson<RegisterInput>,
 ) -> AppResult<impl IntoResponse> {
-    let mut res: RouteResponse<Cow<'static, str>> = RouteResponse {
+    let mut res: RouteResponse<Option<AuthBody>> = RouteResponse {
         code: ErrorCode::ParameterIncorrect,
         message: Some("User not exist or password incorrect".into()),
         ..Default::default()
     };
-    let RegisterInput {
-        username: _,
-        password,
-    } = input;
+    let RegisterInput { username, password } = input;
 
     let user = {
         let core = &CORE.lock()?;
@@ -91,6 +96,19 @@ pub async fn login(
         return Ok((StatusCode::UNAUTHORIZED, res));
     }
 
+    let iat = Utc::now().naive_utc();
+    let exp = (iat + chrono::naive::Days::new(7)).and_utc().timestamp() as usize;
+    let claims = Claims {
+        exp,
+        iat: iat.and_utc().timestamp() as usize,
+        sub: username,
+    };
+    let token = jwt::encode_jwt(&claims)?;
+
+    res.data = Some(AuthBody {
+        access_token: token,
+        token_type: "Bearer".into(),
+    });
     res.message = Some("ok".into());
     res.code = ErrorCode::default();
     Ok((StatusCode::OK, res))
