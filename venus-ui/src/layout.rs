@@ -11,7 +11,10 @@ pub fn Layout() -> impl IntoView {
     let route = use_route();
     let navigate = use_navigate();
 
-    if route.path() == "/" || route.path() == "" {
+    let logged_in = false;
+    if !logged_in {
+        navigate("/login", Default::default());
+    } else if route.path() == "/" || route.path() == "" {
         navigate("/home", Default::default());
     }
 
@@ -20,7 +23,7 @@ pub fn Layout() -> impl IntoView {
             view! { <ErrorsView errors=errors /> }
         }>
             <main class="flex h-full">
-                <Show when=|| true fallback=|| view! { <Outlet /> }>
+                <Show when=move || logged_in fallback=|| view! { <Outlet /> }>
                     <Sidebar />
                     <div class="flex-1 h-full p-8 overflow-auto">
                         <SidebarMobile />
