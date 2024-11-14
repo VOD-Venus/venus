@@ -10,7 +10,7 @@ all: build
 build: ui
 	$(CARGO) build -p venus
 
-release: ui-release
+release: clean ui-release
 	$(CARGO) build -p venus --release
 
 dev:
@@ -27,9 +27,13 @@ ui-dev:
 	cd venus-ui \
 		&& trunk serve --port 4002
 
-ui-release:
+ui-release: ui-clean
 	cd venus-ui \
 		&& trunk build --release
+
+ui-clean:
+	cd venus-ui \
+		&& rm -rf dist
 
 test:
 	$(CARGO) test
