@@ -30,5 +30,6 @@ argon2 = "0.5.3"
 rand = "0.8.5"
 validator = { version = "0.19.0", features = ["derive"] }
 jsonwebtoken = "9.3.0"
+chrono = "0.4.38"
 
 [dev-dependencies]

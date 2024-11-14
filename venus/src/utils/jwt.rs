@@ -1,7 +1,29 @@
+use std::sync::LazyLock;
+
 use jsonwebtoken::{
     decode, encode, Algorithm, DecodingKey, EncodingKey, Header, TokenData, Validation,
 };
+use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
+
+pub struct Keys {
+    pub encoding: EncodingKey,
+    pub decoding: DecodingKey,
+}
+
+impl Keys {
+    fn new(secret: &[u8]) -> Self {
+        Self {
+            encoding: EncodingKey::from_secret(secret),
+            decoding: DecodingKey::from_secret(secret),
+        }
+    }
+}
+
+pub static KEYS: LazyLock<Keys> = LazyLock::new(|| {
+    let secret = Alphanumeric.sample_string(&mut rand::thread_rng(), 32);
+    Keys::new(secret.as_bytes())
+});
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Claims {
@@ -13,23 +35,12 @@ pub struct Claims {
     pub sub: String, // Optional. Subject (whom token refers to)
 }
 
-pub fn encode_jwt(claims: &Claims, key: &[u8]) -> Result<String, jsonwebtoken::errors::Error> {
-    encode(
-        &Header::new(Algorithm::HS256),
-        &claims,
-        &EncodingKey::from_secret(key),
-    )
+pub fn encode_jwt(claims: &Claims) -> Result<String, jsonwebtoken::errors::Error> {
+    encode(&Header::new(Algorithm::HS256), &claims, &KEYS.encoding)
 }
 
-pub fn decode_jwt(
-    token: &str,
-    key: &[u8],
-) -> Result<TokenData<Claims>, jsonwebtoken::errors::Error> {
-    decode::<Claims>(
-        token,
-        &DecodingKey::from_secret(key),
-        &Validation::default(),
-    )
+pub fn decode_jwt(token: &str) -> Result<TokenData<Claims>, jsonwebtoken::errors::Error> {
+    decode::<Claims>(token, &KEYS.decoding, &Validation::default())
 }
 
 #[cfg(test)]
@@ -54,9 +65,9 @@ mod tests {
             iat: seconds_since_epoch,
             sub: sub.clone(),
         };
-        let jwt = encode_jwt(&claims, key.as_ref()).unwrap();
+        let jwt = encode_jwt(&claims).unwrap();
 
-        let token_data = decode_jwt(&jwt, key.as_ref()).unwrap();
+        let token_data = decode_jwt(&jwt).unwrap();
         println!("{token_data:?}");
 
         assert_eq!(token_data.header.alg, Algorithm::HS256);

@@ -30,6 +30,9 @@ pub enum AppError {
     AxumFormRejection(#[from] FormRejection),
     #[error(transparent)]
     AxumJsonRejection(#[from] JsonRejection),
+    // jwt
+    #[error(transparent)]
+    Jwt(#[from] jsonwebtoken::errors::Error),
     // route
     // 路由通常错误 错误信息直接返回用户
     // #[error("{0}")]
@@ -89,6 +92,7 @@ impl IntoResponse for AppError {
             AppError::VenusConfig(err) => log_internal_error(err),
             AppError::GlobalPoison(err) => log_internal_error(err),
             AppError::Any(err) => log_internal_error(err),
+            AppError::Jwt(err) => log_internal_error(err),
             AppError::InvalidHeaderValue(err) => {
                 error!("{err}");
                 (
