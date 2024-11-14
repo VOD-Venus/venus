@@ -2,7 +2,7 @@
 module.exports = {
     darkMode: ["class", '[data-theme="dark"]'],
     content: {
-        files: ["*.html", "./src/**/*.rs"],
+        files: ["*.html", "./src/**/*.rs", "./public/**/*.svg"],
     },
     theme: {
         extend: {

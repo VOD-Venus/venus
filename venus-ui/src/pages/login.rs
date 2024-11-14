@@ -1,4 +1,5 @@
-use ev::Event;
+use ev::{Event, MouseEvent};
+use html::Form;
 use leptos::*;
 
 #[derive(Debug, Clone)]
@@ -29,6 +30,18 @@ pub fn Login() -> impl IntoView {
         }
     };
 
+    let form_ref = create_node_ref::<Form>();
+    let handle_submit = move |e: MouseEvent| {
+        e.prevent_default();
+        let form_ref = form_ref.get().expect("form element is not rendered");
+        let valided = form_ref.check_validity();
+        if !valided {
+            form_ref.report_validity();
+            return;
+        }
+        logging::log!("username {} password {}", form().username, form().password);
+    };
+
     view! {
         <div class="hero bg-base-200 min-h-screen">
             <div class="hero-content flex-col lg:flex-row-reverse">
@@ -40,18 +53,15 @@ pub fn Login() -> impl IntoView {
                     </p>
                 </div>
                 <div class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
-                    <form class="card-body">
+                    <form class="card-body" node_ref=form_ref>
                         <div class="form-control">
                             <span class="label-text mb-2">Username</span>
                             <label class="input input-bordered flex items-center gap-2">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 16 16"
-                                    fill="currentColor"
+                                <img
+                                    src="public/images/login/user.svg"
+                                    alt="user icon"
                                     class="h-4 w-4 opacity-70"
-                                >
-                                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z" />
-                                </svg>
+                                />
                                 <input
                                     type="text"
                                     class="grow"
@@ -65,18 +75,11 @@ pub fn Login() -> impl IntoView {
                         <div class="form-control">
                             <span class="label-text mb-2">Password</span>
                             <label class="input input-bordered flex items-center gap-2">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 16 16"
-                                    fill="currentColor"
+                                <img
+                                    src="public/images/login/password.svg"
+                                    alt="password icon"
                                     class="h-4 w-4 opacity-70"
-                                >
-                                    <path
-                                        fill-rule="evenodd"
-                                        d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .146-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z"
-                                        clip-rule="evenodd"
-                                    />
-                                </svg>
+                                />
                                 <input
                                     type="password"
                                     class="grow"
@@ -93,7 +96,9 @@ pub fn Login() -> impl IntoView {
                             </label>
                         </div>
                         <div class="form-control mt-6">
-                            <button class="btn btn-primary">Login</button>
+                            <button class="btn btn-primary" on:click=handle_submit>
+                                Login
+                            </button>
                         </div>
                     </form>
                 </div>
