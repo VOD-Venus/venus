@@ -31,6 +31,11 @@ pub struct AuthBody {
     pub token_type: String,
 }
 
+/// User register route
+///
+/// # Errors
+///
+/// Returns `AppError::UserConflict` if user already exists
 #[axum::debug_handler]
 pub async fn register(
     ValidatedJson(input): ValidatedJson<RegisterInput>,
@@ -72,6 +77,11 @@ pub async fn register(
     Ok((StatusCode::OK, res))
 }
 
+/// User login route
+///
+/// # Errors
+///
+/// Returns `AppError::AuthorizeFailed` if user not exists or password incorrect
 pub async fn login(
     ValidatedJson(input): ValidatedJson<RegisterInput>,
 ) -> AppResult<impl IntoResponse> {

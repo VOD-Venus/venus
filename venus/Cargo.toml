@@ -9,10 +9,10 @@ rust-version = "1.80.0"
 # venus-core = { git = "https://github.com/VOD-Venus/venus-core" }
 venus-core = { path = "../venus-core" }
 # server
-axum = { version = "0.7.7", features = ["macros"] }
+axum = { version = "0.7.9", features = ["macros"] }
 tokio = { version = "1.41.1", features = ["full"] }
 tower = "0.5.1"
-tower-http = { version = "0.6.1", features = ["full"] }
+tower-http = { version = "0.6.2", features = ["full"] }
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 # error
@@ -21,7 +21,7 @@ thiserror = "2.0.3"
 # tools
 toml = "0.8.19"
 serde = { version = "1.0.215", features = ["derive", "serde_derive"] }
-serde_json = { version = "1.0.132" }
+serde_json = { version = "1.0.133" }
 serde_repr = "0.1.19"
 serde_with = { version = "3.11.0", features = ["time_0_3"] }
 dotenvy = "0.15.7"
