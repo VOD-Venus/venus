@@ -25,6 +25,7 @@ pub struct RegisterInput {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AuthBody {
     pub access_token: String,
     pub token_type: String,
@@ -112,4 +113,8 @@ pub async fn login(
     res.message = Some("ok".into());
     res.code = ErrorCode::default();
     Ok((StatusCode::OK, res))
+}
+
+pub async fn protected() -> AppResult<impl IntoResponse> {
+    Ok(())
 }

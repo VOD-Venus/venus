@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{borrow::Cow, fmt::Display};
 
 use axum::{
     extract::rejection::{FormRejection, JsonRejection},
@@ -35,8 +35,8 @@ pub enum AppError {
     Jwt(#[from] jsonwebtoken::errors::Error),
     // route
     // 路由通常错误 错误信息直接返回用户
-    // #[error("{0}")]
-    // AuthorizeFailed(Cow<'static, str>),
+    #[error("{0}")]
+    InvalidToken(Cow<'static, str>),
     // #[error("{0}")]
     // UserConflict(Cow<'static, str>),
 }
@@ -109,6 +109,11 @@ impl IntoResponse for AppError {
                 StatusCode::BAD_REQUEST,
                 ParameterIncorrect,
                 self.to_string(),
+            ),
+            AppError::InvalidToken(_) => (
+                StatusCode::BAD_REQUEST,
+                AuthorizeFailed,
+                "Invalid token".to_string(),
             ),
             // route
             /* AppError::AuthorizeFailed(err) => {
