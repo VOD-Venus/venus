@@ -115,6 +115,7 @@ pub async fn login(
     Ok((StatusCode::OK, res))
 }
 
-pub async fn protected() -> AppResult<impl IntoResponse> {
-    Ok(())
+pub async fn protected(claims: Claims) -> AppResult<impl IntoResponse> {
+    let sub = claims.sub;
+    Ok(sub)
 }
