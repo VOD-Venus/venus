@@ -4,6 +4,8 @@ use html::Form;
 use leptos::*;
 use serde::{Deserialize, Serialize};
 
+use crate::{GlobalUI, Notification};
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BaseResponse<T> {
     pub code: i64,
@@ -49,14 +51,10 @@ async fn login(login_form: LoginForm) -> Result<LoginResponse, String> {
         .await
         .map_err(|_| "send request failed".to_string())?;
 
-    if response.status() == 200 {
-        Ok(response
-            .json()
-            .await
-            .map_err(|_| "parse response failed".to_string())?)
-    } else {
-        Err(response.status_text())
-    }
+    response
+        .json()
+        .await
+        .map_err(|_| "parse response failed".to_string())
 }
 /// 登录用的表单
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -92,7 +90,10 @@ pub fn Login() -> impl IntoView {
         }
     };
 
-    /// 登录方法 点击登录按钮后触发
+    let nts = use_context::<GlobalUI>()
+        .expect("GlobalUI state is not set")
+        .notifications;
+    // 登录方法 点击登录按钮后触发
     let login_action = create_action(|login_form: &LoginForm| {
         let login_form = login_form.clone();
         async {
@@ -113,6 +114,15 @@ pub fn Login() -> impl IntoView {
         }
         logging::log!("username {} password {}", form().username, form().password);
         login_action.dispatch(form());
+        nts.update(|nts| {
+            nts.push(Notification {
+                key: nts.len() as u32,
+                kind: "success".into(),
+                message: "Login success".into(),
+            })
+        });
+        let test = nts.get();
+        logging::log!("nts {:?} length {}", test, test.len());
     };
 
     view! {
@@ -164,7 +174,7 @@ pub fn Login() -> impl IntoView {
                             </label>
                         </div>
                         <div class="form-control">
-                            <span class="label-text mb-2">Password</span>
+                            <span class="label-text mb-2">Password (min 6)</span>
                             <label class="input input-bordered flex items-center gap-2">
                                 <img
                                     src="public/images/login/password.svg"
@@ -177,6 +187,8 @@ pub fn Login() -> impl IntoView {
                                     prop:value=move || form().password
                                     placeholder="Password"
                                     required
+                                    minlength="6"
+                                    pattern="[a-zA-Z0-9]{6,}"
                                     on:change=handle_change(FormTarget::Password)
                                 />
                             </label>

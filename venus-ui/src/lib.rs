@@ -1,4 +1,5 @@
 #![feature(stmt_expr_attributes)]
+use components::notifications::Notifications;
 use consts::COLOR_MODE;
 use layout::Layout;
 use leptos::*;
@@ -16,15 +17,26 @@ mod layout;
 mod pages;
 mod utils;
 
+/// 各个页面的保存的 Tab ID，用于持久化 Tab 状态
 #[derive(Debug, Clone, Copy)]
 struct Tabs<'a> {
     /// 首页的 Tab 标签页 ID
     pub home: &'a str,
 }
+
+/// 通知消息，由于右上角通知栏
+#[derive(Debug, Clone)]
+pub struct Notification {
+    pub key: u32,
+    pub kind: String,
+    pub message: String,
+}
 #[derive(Copy, Clone, Debug)]
 struct GlobalUI {
     /// 各个页面标签页的 tab index
     pub tabs: RwSignal<Tabs<'static>>,
+    /// 整个 App 的通知 右上角
+    pub notifications: RwSignal<Vec<Notification>>,
 }
 impl GlobalUI {
     pub fn new() -> Self {
@@ -32,6 +44,7 @@ impl GlobalUI {
             tabs: create_rw_signal(Tabs {
                 home: "subscription",
             }),
+            notifications: create_rw_signal(vec![]),
         }
     }
 }
@@ -71,5 +84,8 @@ pub fn App() -> impl IntoView {
                 </Route>
             </Routes>
         </Router>
+
+        // Global notifications
+        <Notifications />
     }
 }

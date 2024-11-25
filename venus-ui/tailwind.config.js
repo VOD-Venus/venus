@@ -6,6 +6,30 @@ module.exports = {
     },
     theme: {
         extend: {
+            keyframes: {
+                "slide-in-right": {
+                    "0%": {
+                        transform: "translateX(100%)",
+                    },
+                    "100%": {
+                        transform: "translateX(0)",
+                    },
+                },
+                "slide-out-right": {
+                    "0%": {
+                        transform: "translateX(0)",
+                    },
+                    "100%": {
+                        transform: "translateX(100%)",
+                    },
+                },
+            },
+            animation: {
+                "slide-in-right": "slide-in-right 0.3s ease-out",
+                "slide-in-right-slow": "slide-in-right 1s ease-out",
+                "slide-out-right": "slide-out-right 0.3s ease-out",
+                "slide-out-right-slow": "slide-out-right 1s ease-out",
+            },
             colors: {
                 bluish: {
                     gray: "rgba(245,247,250)",

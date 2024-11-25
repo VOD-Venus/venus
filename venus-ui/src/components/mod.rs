@@ -1,5 +1,6 @@
 pub mod dark_mode_btn;
 pub mod errors;
+pub mod notifications;
 pub mod sidebar;
 pub mod subscription_card;
 pub mod title;

@@ -81,6 +81,7 @@ loongarch: clean-release
 
 deps:
 	$(CARGO) install --locked trunk \
+		&& $(CARGO) install --locked leptosfmt \
 		&& rustup target add wasm32-unknown-unknown \
 		&& python -m venv .venus \
 		&& source .venus/bin/activate \
