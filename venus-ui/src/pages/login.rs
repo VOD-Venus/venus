@@ -18,13 +18,30 @@ pub struct Data {
     pub token_type: String,
 }
 
+/// 登录接口返回的数据
 type LoginResponse = BaseResponse<Data>;
 
+/// 登录接口需要的参数
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct LoginBody {
+    pub username: String,
+    pub password: String,
+}
+
+/// Login to the server
+///
+/// ## Arguments
+/// * `login_form` - The login form
 async fn login(login_form: LoginForm) -> Result<LoginResponse, String> {
-    let response = Request::post("http://192.168.1.57:4001/api/user/login")
+    let address = format!("{}/api/user/login", login_form.server);
+    let login_body = LoginBody {
+        username: login_form.username,
+        password: login_form.password,
+    };
+    let response = Request::post(&address)
         .header("Content-Type", "application/json")
         .body(
-            serde_json::to_string(&login_form)
+            serde_json::to_string(&login_body)
                 .map_err(|_| "serialize to string failed".to_string())?,
         )
         .map_err(|_| "create body failed".to_string())?
@@ -41,9 +58,10 @@ async fn login(login_form: LoginForm) -> Result<LoginResponse, String> {
         Err(response.status_text())
     }
 }
-
+/// 登录用的表单
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct LoginForm {
+    pub server: String,
     pub username: String,
     pub password: String,
 }
@@ -51,11 +69,14 @@ struct LoginForm {
 #[component]
 pub fn Login() -> impl IntoView {
     let (form, set_form) = create_signal(LoginForm {
+        server: "http://localhost:4000".into(),
         username: "".into(),
         password: "".into(),
     });
 
+    /// The form input field corresponding to the field
     enum FormTarget {
+        Server,
         Username,
         Password,
     }
@@ -64,12 +85,14 @@ pub fn Login() -> impl IntoView {
         move |e: Event| {
             let value = event_target_value(&e);
             match target {
+                Server => set_form.update(|f| f.server = value),
                 Username => set_form.update(|f| f.username = value),
                 Password => set_form.update(|f| f.password = value),
             }
         }
     };
 
+    /// 登录方法 点击登录按钮后触发
     let login_action = create_action(|login_form: &LoginForm| {
         let login_form = login_form.clone();
         async {
@@ -104,6 +127,24 @@ pub fn Login() -> impl IntoView {
                 </div>
                 <div class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
                     <form class="card-body" node_ref=form_ref>
+                        <div class="form-control">
+                            <span class="label-text mb-2">Server</span>
+                            <label class="input input-bordered flex items-center gap-2">
+                                <img
+                                    src="public/images/login/server.svg"
+                                    alt="user icon"
+                                    class="h-4 w-4 opacity-70"
+                                />
+                                <input
+                                    type="text"
+                                    class="grow"
+                                    prop:value=move || form().server
+                                    placeholder="Server"
+                                    required
+                                    on:change=handle_change(FormTarget::Server)
+                                />
+                            </label>
+                        </div>
                         <div class="form-control">
                             <span class="label-text mb-2">Username</span>
                             <label class="input input-bordered flex items-center gap-2">
