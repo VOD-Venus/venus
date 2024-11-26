@@ -140,11 +140,7 @@ pub fn Login() -> impl IntoView {
                         <div class="form-control">
                             <span class="label-text mb-2">Server</span>
                             <label class="input input-bordered flex items-center gap-2">
-                                <img
-                                    src="public/images/login/server.svg"
-                                    alt="user icon"
-                                    class="h-4 w-4 opacity-70"
-                                />
+                                <span class="icon-[solar--server-2-bold-duotone]"></span>
                                 <input
                                     type="text"
                                     class="grow"
@@ -158,11 +154,7 @@ pub fn Login() -> impl IntoView {
                         <div class="form-control">
                             <span class="label-text mb-2">Username</span>
                             <label class="input input-bordered flex items-center gap-2">
-                                <img
-                                    src="public/images/login/user.svg"
-                                    alt="user icon"
-                                    class="h-4 w-4 opacity-70"
-                                />
+                                <span class="icon-[solar--user-bold-duotone] h-4 w-4"></span>
                                 <input
                                     type="text"
                                     class="grow"
@@ -176,11 +168,7 @@ pub fn Login() -> impl IntoView {
                         <div class="form-control">
                             <span class="label-text mb-2">Password (min 6)</span>
                             <label class="input input-bordered flex items-center gap-2">
-                                <img
-                                    src="public/images/login/password.svg"
-                                    alt="password icon"
-                                    class="h-4 w-4 opacity-70"
-                                />
+                                <span class="icon-[solar--lock-password-bold-duotone]"></span>
                                 <input
                                     type="password"
                                     class="grow"

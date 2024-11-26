@@ -11,11 +11,11 @@ pub fn Notifications() -> impl IntoView {
 
     view! {
         <div class="toast toast-top toast-end">
-                <For each=move || nts.get() key=|nt| nt.key let:nt>
-                    <div class="alert shadow-lg bg-white animate-slide-in-right">
-                        <span>{nt.message}</span>
-                    </div>
-                </For>
+            <For each=move || nts.get() key=|nt| nt.key let:nt>
+                <div class="alert shadow-lg bg-white animate-slide-in-right">
+                    <span>{nt.message}</span>
+                </div>
+            </For>
         </div>
     }
 }
