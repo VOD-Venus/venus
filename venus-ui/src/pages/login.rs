@@ -6,14 +6,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::{GlobalUI, Notification};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BaseResponse<T> {
     pub code: i64,
     pub message: String,
-    pub data: T,
+    pub data: Option<T>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Data {
     pub access_token: String,
@@ -40,7 +40,7 @@ async fn login(login_form: LoginForm) -> Result<LoginResponse, String> {
         username: login_form.username,
         password: login_form.password,
     };
-    let response = Request::post(&address)
+    let request = Request::post(&address)
         .header("Content-Type", "application/json")
         .body(
             serde_json::to_string(&login_body)
@@ -48,13 +48,14 @@ async fn login(login_form: LoginForm) -> Result<LoginResponse, String> {
         )
         .map_err(|_| "create body failed".to_string())?
         .send()
-        .await
-        .map_err(|_| "send request failed".to_string())?;
-
-    response
-        .json()
-        .await
-        .map_err(|_| "parse response failed".to_string())
+        .await;
+    match request {
+        Ok(response) => response
+            .json()
+            .await
+            .map_err(|_| "parse response failed".to_string()),
+        Err(err) => Err(err.to_string()),
+    }
 }
 /// 登录用的表单
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -67,7 +68,8 @@ struct LoginForm {
 #[component]
 pub fn Login() -> impl IntoView {
     let (form, set_form) = create_signal(LoginForm {
-        server: "http://localhost:4000".into(),
+        // server: "http://localhost:4000".into(),
+        server: "http://192.168.1.57:4001".into(),
         username: "".into(),
         password: "".into(),
     });
@@ -93,17 +95,52 @@ pub fn Login() -> impl IntoView {
     let nts = use_context::<GlobalUI>()
         .expect("GlobalUI state is not set")
         .notifications;
+    let form_ref = create_node_ref::<Form>();
+
     // 登录方法 点击登录按钮后触发
     let login_action = create_action(|login_form: &LoginForm| {
         let login_form = login_form.clone();
-        async {
-            let response = login(login_form).await;
-            if let Ok(response) = response {
-                logging::log!("login response {:?}", response);
-            };
+        async { login(login_form).await }
+    });
+    let login_loading = login_action.pending();
+    let login_result = login_action.value();
+    create_effect(move |_| {
+        if let Some(res) = login_result() {
+            match res {
+                Ok(response) => match response.data {
+                    Some(data) => {
+                        logging::log!("login response {:?}", data.access_token);
+                        nts.update(|nts| {
+                            nts.push(Notification {
+                                key: nts.len() as u32,
+                                kind: crate::NotificationKind::Success,
+                                message: "Login success".into(),
+                            })
+                        });
+                    }
+                    None => {
+                        nts.update(|nts| {
+                            nts.push(Notification {
+                                key: nts.len() as u32,
+                                kind: crate::NotificationKind::Error,
+                                message: response.message,
+                            })
+                        });
+                    }
+                },
+                Err(err) => {
+                    logging::log!("login error {:?}", err);
+                    nts.update(|nts| {
+                        nts.push(Notification {
+                            key: nts.len() as u32,
+                            kind: crate::NotificationKind::Error,
+                            message: "Login failed".into(),
+                        })
+                    });
+                }
+            }
         }
     });
-    let form_ref = create_node_ref::<Form>();
     let handle_submit = move |e: MouseEvent| {
         e.prevent_default();
         let form_ref = form_ref.get().expect("form element is not rendered");
@@ -112,17 +149,7 @@ pub fn Login() -> impl IntoView {
             form_ref.report_validity();
             return;
         }
-        logging::log!("username {} password {}", form().username, form().password);
         login_action.dispatch(form());
-        nts.update(|nts| {
-            nts.push(Notification {
-                key: nts.len() as u32,
-                kind: crate::NotificationKind::Success,
-                message: "Login success".into(),
-            })
-        });
-        let test = nts.get();
-        logging::log!("nts {:?} length {}", test, test.len());
     };
 
     view! {
@@ -188,7 +215,8 @@ pub fn Login() -> impl IntoView {
                         </div>
                         <div class="form-control mt-6">
                             <button class="btn btn-primary" on:click=handle_submit>
-                                Login
+                                {move || if login_loading() { "Loading..." } else { "Login" }}
+                            // Login
                             </button>
                         </div>
                     </form>
