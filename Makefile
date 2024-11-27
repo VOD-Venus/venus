@@ -83,9 +83,15 @@ deps:
 	$(CARGO) install --locked trunk \
 		&& $(CARGO) install --locked leptosfmt \
 		&& rustup target add wasm32-unknown-unknown \
-		&& python -m venv .venus \
+		&& cd venus-ui \
+		&& deno install \
+		&& cd ..
+
+v2ray:
+	python -m venv .venus \
 		&& source .venus/bin/activate \
 		&& pip install -r scripts/requirements.txt \
 		&& python scripts/download-core.py
+
 
 .PHONY: all
