@@ -46,13 +46,78 @@ pub async fn verify(password: String, hash: String) -> anyhow::Result<bool> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{hash, verify};
 
     #[tokio::test]
-    async fn hash_works() {
-        let passwd = "xfyxfy";
-        let hashed = hash(passwd.to_string()).await.unwrap();
-        let verified = verify(passwd.to_string(), hashed).await.unwrap();
-        assert!(verified)
+    async fn test_hash_and_verify_success() {
+        let password = "my_secure_password".to_string();
+
+        // Generate a hash
+        let hashed_password = hash(password.clone())
+            .await
+            .expect("Failed to hash the password");
+
+        // Verify the correct password
+        let is_valid = verify(password, hashed_password.clone())
+            .await
+            .expect("Failed to verify the password");
+        assert!(
+            is_valid,
+            "Expected the password to be valid for the generated hash"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_verify_incorrect_password() {
+        let password = "my_secure_password".to_string();
+        let incorrect_password = "wrong_password".to_string();
+
+        // Generate a hash
+        let hashed_password = hash(password.clone())
+            .await
+            .expect("Failed to hash the password");
+
+        // Verify an incorrect password
+        let is_valid = verify(incorrect_password, hashed_password.clone())
+            .await
+            .expect("Failed to verify the password");
+        assert!(
+            !is_valid,
+            "Expected the incorrect password to be invalid for the generated hash"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_verify_invalid_hash_format() {
+        let password = "my_secure_password".to_string();
+        let invalid_hash = "invalid_hash_format".to_string();
+
+        // Attempt to verify with an invalid hash format
+        let result = verify(password, invalid_hash).await;
+
+        assert!(
+            result.is_err(),
+            "Expected an error when verifying with an invalid hash format"
+        );
+        if let Err(e) = result {
+            assert!(
+                e.to_string().contains("password hash invalid"),
+                "Unexpected error message: {}",
+                e
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn test_hash_panic_handling() {
+        // Test the hashing function with a large password to induce potential failure
+        let large_password = "a".repeat(1_000_000);
+
+        let result = hash(large_password).await;
+
+        assert!(
+            result.is_ok(),
+            "Expected no error when hashing an extremely large password"
+        );
     }
 }

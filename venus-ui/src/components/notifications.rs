@@ -58,7 +58,7 @@ pub fn Notification(kind: crate::NotificationKind, message: String) -> impl Into
     });
     timeout.forget();
 
-    let timeout = Timeout::new(NOTIFICATION_TIMEOUT + 299, move || {
+    let timeout = Timeout::new(NOTIFICATION_TIMEOUT + 300, move || {
         nts.update(|nts| {
             // shorten the notifications from head
             nts.drain(..1);

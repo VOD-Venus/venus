@@ -132,6 +132,9 @@ pub fn Login() -> impl IntoView {
         }
     });
     let handle_submit = move |e: MouseEvent| {
+        if login_loading() {
+            return;
+        }
         e.prevent_default();
         let form_ref = form_ref.get().expect("form element is not rendered");
         let valided = form_ref.check_validity();
@@ -204,9 +207,15 @@ pub fn Login() -> impl IntoView {
                             </label>
                         </div>
                         <div class="form-control mt-6">
-                            <button class="btn btn-primary" on:click=handle_submit>
-                                {move || if login_loading() { "Loading..." } else { "Login" }}
-                            // Login
+                            <button
+                                class="btn btn-primary"
+                                on:click=handle_submit
+                                disabled=move || login_loading.get()
+                            >
+                                <Show when=move || login_loading()>
+                                    <span class="loading loading-spinner"></span>
+                                </Show>
+                                Login
                             </button>
                         </div>
                     </form>
