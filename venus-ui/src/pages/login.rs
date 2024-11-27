@@ -4,7 +4,7 @@ use html::Form;
 use leptos::*;
 use serde::{Deserialize, Serialize};
 
-use crate::{GlobalUI, Notification};
+use crate::{utils::error_to_string, GlobalUI, Notification};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BaseResponse<T> {
@@ -42,18 +42,12 @@ async fn login(login_form: LoginForm) -> Result<LoginResponse, String> {
     };
     let request = Request::post(&address)
         .header("Content-Type", "application/json")
-        .body(
-            serde_json::to_string(&login_body)
-                .map_err(|_| "serialize to string failed".to_string())?,
-        )
-        .map_err(|_| "create body failed".to_string())?
+        .body(serde_json::to_string(&login_body).map_err(error_to_string)?)
+        .map_err(error_to_string)?
         .send()
         .await;
     match request {
-        Ok(response) => response
-            .json()
-            .await
-            .map_err(|_| "parse response failed".to_string()),
+        Ok(response) => response.json().await.map_err(error_to_string),
         Err(err) => Err(err.to_string()),
     }
 }
@@ -105,39 +99,41 @@ pub fn Login() -> impl IntoView {
     let login_loading = login_action.pending();
     let login_result = login_action.value();
     create_effect(move |_| {
-        if let Some(res) = login_result() {
-            match res {
-                Ok(response) => match response.data {
-                    Some(data) => {
-                        logging::log!("login response {:?}", data.access_token);
-                        nts.update(|nts| {
-                            nts.push(Notification {
-                                key: nts.len() as u32,
-                                kind: crate::NotificationKind::Success,
-                                message: "Login success".into(),
-                            })
-                        });
-                    }
-                    None => {
-                        nts.update(|nts| {
-                            nts.push(Notification {
-                                key: nts.len() as u32,
-                                kind: crate::NotificationKind::Error,
-                                message: response.message,
-                            })
-                        });
-                    }
-                },
-                Err(err) => {
-                    logging::log!("login error {:?}", err);
+        if login_result().is_none() {
+            return;
+        }
+        let res = login_result().unwrap();
+        match res {
+            Ok(response) => match response.data {
+                Some(data) => {
+                    logging::log!("login response {:?}", data.access_token);
+                    nts.update(|nts| {
+                        nts.push(Notification {
+                            key: nts.len() as u32,
+                            kind: crate::NotificationKind::Success,
+                            message: "Login success".into(),
+                        })
+                    });
+                }
+                None => {
                     nts.update(|nts| {
                         nts.push(Notification {
                             key: nts.len() as u32,
                             kind: crate::NotificationKind::Error,
-                            message: "Login failed".into(),
+                            message: response.message,
                         })
                     });
                 }
+            },
+            Err(err) => {
+                logging::error!("login error {:?}", err);
+                nts.update(|nts| {
+                    nts.push(Notification {
+                        key: nts.len() as u32,
+                        kind: crate::NotificationKind::Error,
+                        message: "Login failed".into(),
+                    })
+                });
             }
         }
     });
