@@ -117,7 +117,7 @@ pub fn Login() -> impl IntoView {
         nts.update(|nts| {
             nts.push(Notification {
                 key: nts.len() as u32,
-                kind: "success".into(),
+                kind: crate::NotificationKind::Success,
                 message: "Login success".into(),
             })
         });

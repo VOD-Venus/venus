@@ -24,11 +24,19 @@ struct Tabs<'a> {
     pub home: &'a str,
 }
 
+/// 通知类型
+#[derive(Debug, Clone)]
+pub enum NotificationKind {
+    Success,
+    Info,
+    Warning,
+    Error,
+}
 /// 通知消息，由于右上角通知栏
 #[derive(Debug, Clone)]
 pub struct Notification {
     pub key: u32,
-    pub kind: String,
+    pub kind: NotificationKind,
     pub message: String,
 }
 #[derive(Copy, Clone, Debug)]
