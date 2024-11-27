@@ -4,7 +4,7 @@ use html::Form;
 use leptos::*;
 use serde::{Deserialize, Serialize};
 
-use crate::{utils::error_to_string, GlobalUI, Notification};
+use crate::{utils::error_to_string, GlobalUI, Notification, NotificationKind};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BaseResponse<T> {
@@ -108,31 +108,25 @@ pub fn Login() -> impl IntoView {
                 Some(data) => {
                     logging::log!("login response {:?}", data.access_token);
                     nts.update(|nts| {
-                        nts.push(Notification {
-                            key: nts.len() as u32,
-                            kind: crate::NotificationKind::Success,
-                            message: "Login success".into(),
-                        })
+                        nts.push(Notification::new(
+                            NotificationKind::Success,
+                            "Login success".into(),
+                        ));
                     });
                 }
                 None => {
                     nts.update(|nts| {
-                        nts.push(Notification {
-                            key: nts.len() as u32,
-                            kind: crate::NotificationKind::Error,
-                            message: response.message,
-                        })
+                        nts.push(Notification::new(NotificationKind::Error, response.message));
                     });
                 }
             },
             Err(err) => {
                 logging::error!("login error {:?}", err);
                 nts.update(|nts| {
-                    nts.push(Notification {
-                        key: nts.len() as u32,
-                        kind: crate::NotificationKind::Error,
-                        message: "Login failed".into(),
-                    })
+                    nts.push(Notification::new(
+                        NotificationKind::Error,
+                        "Login failed".into(),
+                    ));
                 });
             }
         }

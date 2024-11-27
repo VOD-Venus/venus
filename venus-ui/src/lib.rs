@@ -10,6 +10,7 @@ use pages::home::Home;
 use pages::login::Login;
 use pages::not_found::NotFound;
 use pages::settings::Settings;
+use utils::nanoid;
 
 mod components;
 mod consts;
@@ -35,9 +36,18 @@ pub enum NotificationKind {
 /// 通知消息，由于右上角通知栏
 #[derive(Debug, Clone)]
 pub struct Notification {
-    pub key: u32,
+    pub key: String,
     pub kind: NotificationKind,
     pub message: String,
+}
+impl Notification {
+    pub fn new(kind: NotificationKind, message: String) -> Self {
+        Self {
+            key: nanoid(6),
+            kind,
+            message,
+        }
+    }
 }
 #[derive(Copy, Clone, Debug)]
 struct GlobalUI {
