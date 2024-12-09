@@ -1,8 +1,6 @@
 use gloo::net::http::Request;
 use leptos::web_sys::MouseEvent;
-use leptos::{logging, prelude::*, tachys::renderer::dom::Event};
-use send_wrapper::SendWrapper;
-use serde::de::DeserializeOwned;
+use leptos::{ev::Event, logging, prelude::*};
 use serde::{Deserialize, Serialize};
 
 use crate::{utils::error_to_string, GlobalUI, Notification, NotificationKind};
@@ -179,44 +177,44 @@ pub fn Login() -> impl IntoView {
                             <span class="label-text mb-2">Server</span>
                             <label class="input input-bordered flex items-center gap-2">
                                 <span class="icon-[solar--server-2-bold-duotone]"></span>
-                            // <input
-                            // type="text"
-                            // class="grow"
-                            // prop:value=move || form().server
-                            // placeholder="Server"
-                            // required
-                            // on:change=handle_change(FormTarget::Server)
-                            // />
+                                <input
+                                    type="text"
+                                    class="grow"
+                                    prop:value=move || form().server
+                                    placeholder="Server"
+                                    required
+                                    on:change=handle_change(FormTarget::Server)
+                                />
                             </label>
                         </div>
                         <div class="form-control">
                             <span class="label-text mb-2">Username</span>
                             <label class="input input-bordered flex items-center gap-2">
                                 <span class="icon-[solar--user-bold-duotone] h-4 w-4"></span>
-                                // <input
-                                //     type="text"
-                                //     class="grow"
-                                //     prop:value=move || form().username
-                                //     placeholder="Username"
-                                //     required
-                                //     on:change=handle_change(FormTarget::Username)
-                                // />
+                                <input
+                                    type="text"
+                                    class="grow"
+                                    prop:value=move || form().username
+                                    placeholder="Username"
+                                    required
+                                    on:change=handle_change(FormTarget::Username)
+                                />
                             </label>
                         </div>
                         <div class="form-control">
                             <span class="label-text mb-2">Password (min 6)</span>
                             <label class="input input-bordered flex items-center gap-2">
                                 <span class="icon-[solar--lock-password-bold-duotone]"></span>
-                                // <input
-                                //     type="password"
-                                //     class="grow"
-                                //     prop:value=move || form().password
-                                //     placeholder="Password"
-                                //     required
-                                //     minlength="6"
-                                //     pattern="[a-zA-Z0-9]{6,}"
-                                //     on:change=handle_change(FormTarget::Password)
-                                // />
+                                <input
+                                    type="password"
+                                    class="grow"
+                                    prop:value=move || form().password
+                                    placeholder="Password"
+                                    required
+                                    minlength="6"
+                                    pattern="[a-zA-Z0-9]{6,}"
+                                    on:change=handle_change(FormTarget::Password)
+                                />
                             </label>
                             <label class="label">
                                 <a href="#" class="label-text-alt link link-hover">
