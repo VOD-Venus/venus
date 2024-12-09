@@ -1,4 +1,4 @@
-use leptos::*;
+use leptos::prelude::*;
 
 /// Subscription modal card
 /// use `add_modal.showModal()` on click event

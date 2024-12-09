@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use leptos::*;
+use leptos::prelude::*;
 use leptos_use::ColorMode;
 
 use crate::{consts::COLOR_MODE, utils::capitalize_first};

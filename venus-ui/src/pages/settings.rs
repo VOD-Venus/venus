@@ -1,4 +1,4 @@
-use leptos::*;
+use leptos::prelude::*;
 
 use crate::components::{dark_mode_btn::DarkMode, title::Title};
 

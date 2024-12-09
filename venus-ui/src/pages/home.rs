@@ -2,7 +2,7 @@ use crate::{
     components::{dark_mode_btn::DarkMode, home_page::subscripiton::Subscription, title::Title},
     GlobalUI,
 };
-use leptos::*;
+use leptos::prelude::*;
 
 #[derive(Debug, Clone, Copy)]
 struct HomeTab<'a> {

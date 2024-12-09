@@ -7,23 +7,25 @@ authors = ["xfy <xfyxfy@proton.me>"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-leptos = { version = "0.6", features = ["csr", "nightly"] }
-leptos_meta = { version = "0.6", features = ["csr", "nightly"] }
-leptos_router = { version = "0.6", features = ["csr", "nightly"] }
-leptos-use = "0.13.9"
+leptos = { version = "0.7", features = ["csr", "nightly"] }
+leptos_meta = { version = "0.7" }
+leptos_router = { version = "0.7", features = ["nightly"] }
+leptos-use = "0.14.0"
 console_log = "1"
 log = "0.4.22"
 console_error_panic_hook = "0.1"
 gloo = "0.11.0"
 serde = { version = "1.0.215", features = ["derive", "serde_derive"] }
-serde_json = "1.0.132"
+serde_json = "1.0.133"
 rand = "0.8.5"
+send_wrapper = { version = "0.6.0", features = ["futures"] }
+web-sys = { version = "0.3.76", features = ["Document", "Window"] }
+reqwasm = "0.5.0"
 
 # utils
 # strum = { version = "0.25", features = ["derive", "strum_macros"] }
 # strum_macros = "0.25"
 
 [dev-dependencies]
-wasm-bindgen = "0.2.93"
-wasm-bindgen-test = "0.3.43"
-web-sys = { version = "0.3.70", features = ["Document", "Window"] }
+wasm-bindgen = "0.2.99"
+wasm-bindgen-test = "0.3.49"

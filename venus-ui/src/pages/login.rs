@@ -1,7 +1,8 @@
-use ev::{Event, MouseEvent};
 use gloo::net::http::Request;
-use html::Form;
-use leptos::*;
+use leptos::web_sys::MouseEvent;
+use leptos::{logging, prelude::*, tachys::renderer::dom::Event};
+use send_wrapper::SendWrapper;
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
 use crate::{utils::error_to_string, GlobalUI, Notification, NotificationKind};
@@ -35,12 +36,27 @@ struct LoginBody {
 /// ## Arguments
 /// * `login_form` - The login form
 async fn login(login_form: LoginForm) -> Result<LoginResponse, String> {
+    // use leptos::prelude::on_cleanup;
+    // use send_wrapper::SendWrapper;
+
+    // SendWrapper::new(async move {
+    // let abort_controller = SendWrapper::new(web_sys::AbortController::new().ok());
+    // let abort_signal = abort_controller.as_ref().map(|a| a.signal());
+
+    // abort in-flight requests if, e.g., we've navigated away from this page
+    // on_cleanup(move || {
+    //     if let Some(abort_controller) = abort_controller.take() {
+    //         abort_controller.abort()
+    //     }
+    // });
+
     let address = format!("{}/api/user/login", login_form.server);
     let login_body = LoginBody {
         username: login_form.username,
         password: login_form.password,
     };
     let request = Request::post(&address)
+        // .abort_signal(abort_signal.as_ref())
         .header("Content-Type", "application/json")
         .body(serde_json::to_string(&login_body).map_err(error_to_string)?)
         .map_err(error_to_string)?
@@ -50,6 +66,7 @@ async fn login(login_form: LoginForm) -> Result<LoginResponse, String> {
         Ok(response) => response.json().await.map_err(error_to_string),
         Err(err) => Err(err.to_string()),
     }
+    // });
 }
 /// 登录用的表单
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -61,7 +78,7 @@ struct LoginForm {
 
 #[component]
 pub fn Login() -> impl IntoView {
-    let (form, set_form) = create_signal(LoginForm {
+    let (form, set_form) = signal(LoginForm {
         // server: "http://localhost:4000".into(),
         server: "http://192.168.1.57:4001".into(),
         username: "".into(),
@@ -89,45 +106,46 @@ pub fn Login() -> impl IntoView {
     let nts = use_context::<GlobalUI>()
         .expect("GlobalUI state is not set")
         .notifications;
-    let form_ref = create_node_ref::<Form>();
+    let form_ref: NodeRef<leptos::html::Form> = NodeRef::new();
 
     // 登录方法 点击登录按钮后触发
-    let login_action = create_action(|login_form: &LoginForm| {
-        let login_form = login_form.clone();
-        async { login(login_form).await }
-    });
+    let login_action: Action<
+        LoginForm,
+        std::result::Result<BaseResponse<Data>, String>,
+        SyncStorage,
+    > = Action::new_unsync(|login_form: &LoginForm| login(login_form.clone()));
     let login_loading = login_action.pending();
     let login_result = login_action.value();
-    create_effect(move |_| {
-        if login_result().is_none() {
-            return;
-        }
-        let res = login_result().unwrap();
-        match res {
-            Ok(response) => match response.data {
-                Some(data) => {
-                    logging::log!("login response {:?}", data.access_token);
+    Effect::new(move |_| {
+        if let Some(result) = login_result.read().as_ref() {
+            match result {
+                Ok(response) => {
+                    if let Some(data) = &response.data {
+                        logging::log!("login response {:?}", data.access_token);
+                        nts.update(|nts| {
+                            nts.push(Notification::new(
+                                NotificationKind::Success,
+                                "Login success".into(),
+                            ));
+                        });
+                    } else {
+                        nts.update(|nts| {
+                            nts.push(Notification::new(
+                                NotificationKind::Error,
+                                response.message.clone(),
+                            ));
+                        });
+                    }
+                }
+                Err(err) => {
+                    logging::error!("login error {:?}", err);
                     nts.update(|nts| {
                         nts.push(Notification::new(
-                            NotificationKind::Success,
-                            "Login success".into(),
+                            NotificationKind::Error,
+                            "Login failed".into(),
                         ));
                     });
                 }
-                None => {
-                    nts.update(|nts| {
-                        nts.push(Notification::new(NotificationKind::Error, response.message));
-                    });
-                }
-            },
-            Err(err) => {
-                logging::error!("login error {:?}", err);
-                nts.update(|nts| {
-                    nts.push(Notification::new(
-                        NotificationKind::Error,
-                        "Login failed".into(),
-                    ));
-                });
             }
         }
     });
@@ -161,44 +179,44 @@ pub fn Login() -> impl IntoView {
                             <span class="label-text mb-2">Server</span>
                             <label class="input input-bordered flex items-center gap-2">
                                 <span class="icon-[solar--server-2-bold-duotone]"></span>
-                                <input
-                                    type="text"
-                                    class="grow"
-                                    prop:value=move || form().server
-                                    placeholder="Server"
-                                    required
-                                    on:change=handle_change(FormTarget::Server)
-                                />
+                            // <input
+                            // type="text"
+                            // class="grow"
+                            // prop:value=move || form().server
+                            // placeholder="Server"
+                            // required
+                            // on:change=handle_change(FormTarget::Server)
+                            // />
                             </label>
                         </div>
                         <div class="form-control">
                             <span class="label-text mb-2">Username</span>
                             <label class="input input-bordered flex items-center gap-2">
                                 <span class="icon-[solar--user-bold-duotone] h-4 w-4"></span>
-                                <input
-                                    type="text"
-                                    class="grow"
-                                    prop:value=move || form().username
-                                    placeholder="Username"
-                                    required
-                                    on:change=handle_change(FormTarget::Username)
-                                />
+                                // <input
+                                //     type="text"
+                                //     class="grow"
+                                //     prop:value=move || form().username
+                                //     placeholder="Username"
+                                //     required
+                                //     on:change=handle_change(FormTarget::Username)
+                                // />
                             </label>
                         </div>
                         <div class="form-control">
                             <span class="label-text mb-2">Password (min 6)</span>
                             <label class="input input-bordered flex items-center gap-2">
                                 <span class="icon-[solar--lock-password-bold-duotone]"></span>
-                                <input
-                                    type="password"
-                                    class="grow"
-                                    prop:value=move || form().password
-                                    placeholder="Password"
-                                    required
-                                    minlength="6"
-                                    pattern="[a-zA-Z0-9]{6,}"
-                                    on:change=handle_change(FormTarget::Password)
-                                />
+                                // <input
+                                //     type="password"
+                                //     class="grow"
+                                //     prop:value=move || form().password
+                                //     placeholder="Password"
+                                //     required
+                                //     minlength="6"
+                                //     pattern="[a-zA-Z0-9]{6,}"
+                                //     on:change=handle_change(FormTarget::Password)
+                                // />
                             </label>
                             <label class="label">
                                 <a href="#" class="label-text-alt link link-hover">

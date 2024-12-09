@@ -1,4 +1,4 @@
-use leptos::*;
+use leptos::prelude::*;
 
 use crate::GlobalUI;
 use gloo::timers::callback::Timeout;

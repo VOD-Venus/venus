@@ -1,4 +1,4 @@
-use leptos::*;
+use leptos::prelude::*;
 use venus_ui::App;
 
 fn main() {

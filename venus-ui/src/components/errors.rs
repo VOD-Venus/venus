@@ -1,4 +1,4 @@
-use leptos::*;
+use leptos::prelude::*;
 
 #[component]
 pub fn ErrorsView(errors: RwSignal<Errors>) -> impl IntoView {

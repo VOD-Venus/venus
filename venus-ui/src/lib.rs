@@ -2,9 +2,10 @@
 use components::notifications::Notifications;
 use consts::COLOR_MODE;
 use layout::Layout;
-use leptos::*;
+use leptos::prelude::*;
 use leptos_meta::*;
-use leptos_router::*;
+use leptos_router::components::*;
+use leptos_router::path;
 use leptos_use::{use_color_mode_with_options, UseColorModeOptions, UseColorModeReturn};
 use pages::home::Home;
 use pages::login::Login;
@@ -59,10 +60,10 @@ struct GlobalUI {
 impl GlobalUI {
     pub fn new() -> Self {
         Self {
-            tabs: create_rw_signal(Tabs {
+            tabs: RwSignal::new(Tabs {
                 home: "subscription",
             }),
-            notifications: create_rw_signal(vec![]),
+            notifications: RwSignal::new(vec![]),
         }
     }
 }
@@ -85,7 +86,7 @@ pub fn App() -> impl IntoView {
     provide_meta_context();
 
     view! {
-        <Html lang="en" dir="ltr" />
+        // <Html lang="en" dir="ltr" />
 
         <Title text="Venus" />
 
@@ -93,13 +94,13 @@ pub fn App() -> impl IntoView {
         <Meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <Router>
-            <Routes>
-                <Route path="/" view=Layout>
-                    <Route path="/home" view=Home />
-                    <Route path="/login" view=Login />
-                    <Route path="/settings" view=Settings />
-                    <Route path="/*" view=NotFound />
-                </Route>
+            <Routes fallback=NotFound>
+                <ParentRoute path=path!("/") view=Layout>
+                    <Route path=path!("/home") view=Home />
+                    <Route path=path!("/login") view=Login />
+                    <Route path=path!("/settings") view=Settings />
+                    <Route path=path!("/*") view=NotFound />
+                </ParentRoute>
             </Routes>
         </Router>
 
