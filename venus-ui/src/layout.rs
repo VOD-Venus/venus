@@ -1,23 +1,18 @@
 use leptos::prelude::*;
 use leptos_router::components::Outlet;
-use leptos_router::hooks::{use_location, use_navigate};
 
 use crate::components::{
     errors::ErrorsView,
     sidebar::{Sidebar, SidebarMobile},
 };
+use crate::GlobalUI;
 
 #[component]
 pub fn Layout() -> impl IntoView {
-    let location = use_location();
-    let navigate = use_navigate();
-
-    let logged_in = false;
-    if !logged_in {
-        navigate("/login", Default::default());
-    } else if location.pathname.get() == "/" || location.pathname.get() == "" {
-        navigate("/home", Default::default());
-    }
+    let user = use_context::<GlobalUI>()
+        .expect("GlobalUI state is not set")
+        .user;
+    let logged_in = !user.read().token.is_empty();
 
     view! {
         <ErrorBoundary fallback=|errors| {

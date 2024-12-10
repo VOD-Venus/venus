@@ -1,7 +1,10 @@
 #![feature(stmt_expr_attributes)]
 use components::notifications::Notifications;
 use consts::COLOR_MODE;
+use gloo::storage::LocalStorage;
+use gloo::storage::Storage;
 use layout::Layout;
+use leptos::logging;
 use leptos::prelude::*;
 use leptos_meta::*;
 use leptos_router::components::*;
@@ -11,6 +14,8 @@ use pages::home::Home;
 use pages::login::Login;
 use pages::not_found::NotFound;
 use pages::settings::Settings;
+use serde::Deserialize;
+use serde::Serialize;
 use utils::nanoid;
 
 mod api;
@@ -51,12 +56,32 @@ impl Notification {
         }
     }
 }
+
+/// 登录后保存的用户信息
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct User {
+    pub username: String,
+    /// 用户的 jwt token
+    /// 决定了用户是否已经登录
+    pub token: String,
+    pub token_type: String,
+}
+impl User {
+    pub fn new() -> Self {
+        let user = LocalStorage::get::<User>("rua_user").unwrap_or_default();
+        logging::log!("token {:?}", user);
+        Self { ..user }
+    }
+}
+
 #[derive(Copy, Clone, Debug)]
 struct GlobalUI {
     /// 各个页面标签页的 tab index
     pub tabs: RwSignal<Tabs<'static>>,
     /// 整个 App 的通知 右上角
     pub notifications: RwSignal<Vec<Notification>>,
+    /// 用户信息
+    pub user: RwSignal<User>,
 }
 impl GlobalUI {
     pub fn new() -> Self {
@@ -65,6 +90,7 @@ impl GlobalUI {
                 home: "subscription",
             }),
             notifications: RwSignal::new(vec![]),
+            user: RwSignal::new(User::new()),
         }
     }
 }
@@ -81,7 +107,9 @@ pub fn App() -> impl IntoView {
     provide_context((mode, set_mode));
 
     // ui 的全局状态
-    provide_context(GlobalUI::new());
+    let global_ui = GlobalUI::new();
+    provide_context(global_ui);
+    logging::log!("token {:?}", global_ui.user.read().token.is_empty());
 
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
@@ -97,6 +125,12 @@ pub fn App() -> impl IntoView {
         <Router>
             <Routes fallback=NotFound>
                 <ParentRoute path=path!("/") view=Layout>
+                    <ProtectedRoute
+                        path=path!("/home")
+                        view=Home
+                        condition=move || Some(!global_ui.user.read().token.is_empty())
+                        redirect_path=|| "/login"
+                    />
                     <Route path=path!("/home") view=Home />
                     <Route path=path!("/login") view=Login />
                     <Route path=path!("/settings") view=Settings />
