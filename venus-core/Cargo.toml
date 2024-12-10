@@ -5,10 +5,10 @@ edition = "2021"
 rust-version = "1.80.0"
 
 [dependencies]
-anyhow = "1.0.93"
+anyhow = "1.0.94"
 log = "0.4.22"
-thiserror = "2.0.3"
+thiserror = "2.0.6"
 toml = "0.8.19"
 serde = { version = "1.0.215", features = ["derive", "serde_derive"] }
-serde_json = { version = "1.0.132" }
+serde_json = { version = "1.0.133" }
 json_comments = "0.2.2"

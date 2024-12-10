@@ -34,19 +34,18 @@ struct LoginBody {
 /// ## Arguments
 /// * `login_form` - The login form
 async fn login(login_form: LoginForm) -> Result<LoginResponse, String> {
-    // use leptos::prelude::on_cleanup;
-    // use send_wrapper::SendWrapper;
+    use leptos::prelude::on_cleanup;
+    use send_wrapper::SendWrapper;
 
-    // SendWrapper::new(async move {
-    // let abort_controller = SendWrapper::new(web_sys::AbortController::new().ok());
-    // let abort_signal = abort_controller.as_ref().map(|a| a.signal());
+    let abort_controller = SendWrapper::new(web_sys::AbortController::new().ok());
+    let abort_signal = abort_controller.as_ref().map(|a| a.signal());
 
     // abort in-flight requests if, e.g., we've navigated away from this page
-    // on_cleanup(move || {
-    //     if let Some(abort_controller) = abort_controller.take() {
-    //         abort_controller.abort()
-    //     }
-    // });
+    on_cleanup(move || {
+        if let Some(abort_controller) = abort_controller.take() {
+            abort_controller.abort()
+        }
+    });
 
     let address = format!("{}/api/user/login", login_form.server);
     let login_body = LoginBody {
@@ -54,7 +53,7 @@ async fn login(login_form: LoginForm) -> Result<LoginResponse, String> {
         password: login_form.password,
     };
     let request = Request::post(&address)
-        // .abort_signal(abort_signal.as_ref())
+        .abort_signal(abort_signal.as_ref())
         .header("Content-Type", "application/json")
         .body(serde_json::to_string(&login_body).map_err(error_to_string)?)
         .map_err(error_to_string)?
@@ -64,7 +63,6 @@ async fn login(login_form: LoginForm) -> Result<LoginResponse, String> {
         Ok(response) => response.json().await.map_err(error_to_string),
         Err(err) => Err(err.to_string()),
     }
-    // });
 }
 /// 登录用的表单
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -77,8 +75,7 @@ struct LoginForm {
 #[component]
 pub fn Login() -> impl IntoView {
     let (form, set_form) = signal(LoginForm {
-        // server: "http://localhost:4000".into(),
-        server: "http://192.168.1.57:4001".into(),
+        server: "http://localhost:4001".into(),
         username: "".into(),
         password: "".into(),
     });

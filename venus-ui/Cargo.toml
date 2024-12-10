@@ -20,7 +20,6 @@ serde_json = "1.0.133"
 rand = "0.8.5"
 send_wrapper = { version = "0.6.0", features = ["futures"] }
 web-sys = { version = "0.3.76", features = ["Document", "Window"] }
-reqwasm = "0.5.0"
 
 # utils
 # strum = { version = "0.25", features = ["derive", "strum_macros"] }
