@@ -35,16 +35,17 @@ const NOTIFICATION_TIMEOUT: u32 = 5_000;
 pub fn Notification(kind: crate::NotificationKind, message: String) -> impl IntoView {
     let icon = move |kind: crate::NotificationKind| match kind {
         crate::NotificationKind::Success => {
-            view! { <span class="icon-[solar--check-circle-line-duotone]"></span> }
+            view! { <span class="icon-[solar--check-circle-line-duotone]"></span> }.into_any()
         }
         crate::NotificationKind::Info => {
-            view! { <span class="icon-[solar--info-circle-line-duotone]"></span> }
+            view! { <span class="icon-[solar--info-circle-line-duotone]"></span> }.into_any()
         }
         crate::NotificationKind::Warning => {
-            view! { <span class="icon-[solar--shield-warning-line-duotone]"></span> }
+            view! { <span class="icon-[solar--shield-warning-line-duotone]"></span> }.into_any()
         }
         crate::NotificationKind::Error => {
             view! { <span class="icon-[solar--add-circle-line-duotone] rotate-45"></span> }
+                .into_any()
         }
     };
 
@@ -52,7 +53,7 @@ pub fn Notification(kind: crate::NotificationKind, message: String) -> impl Into
         .expect("GlobalUI state is not set")
         .notifications;
 
-    let (need_move, set_need_move) = create_signal(false);
+    let (need_move, set_need_move) = signal(false);
     let timeout = Timeout::new(NOTIFICATION_TIMEOUT, move || {
         set_need_move.set(true);
     });

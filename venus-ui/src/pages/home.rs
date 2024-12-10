@@ -57,9 +57,9 @@ pub fn Home() -> impl IntoView {
             </div>
 
             {move || match ui.tabs.get().home {
-                "subscription" => view! { <Subscription /> }.into_view(),
-                "nodes" => view! { <div>nodes</div> }.into_view(),
-                _ => view! { <div>Error: wrong tab id</div> }.into_view(),
+                "subscription" => view! { <Subscription /> }.into_any(),
+                "nodes" => view! { <div>nodes</div> }.into_any(),
+                _ => view! { <div>Error: wrong tab id</div> }.into_any(),
             }}
 
             <DarkMode />
