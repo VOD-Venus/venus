@@ -1,4 +1,3 @@
-use gloo::net::http::Request;
 use leptos::web_sys::MouseEvent;
 use leptos::{ev::Event, logging, prelude::*};
 use serde::{Deserialize, Serialize};
@@ -34,35 +33,18 @@ struct LoginBody {
 /// ## Arguments
 /// * `login_form` - The login form
 async fn login(login_form: LoginForm) -> Result<LoginResponse, String> {
-    use leptos::prelude::on_cleanup;
-    use send_wrapper::SendWrapper;
-
-    let abort_controller = SendWrapper::new(web_sys::AbortController::new().ok());
-    let abort_signal = abort_controller.as_ref().map(|a| a.signal());
-
-    // abort in-flight requests if, e.g., we've navigated away from this page
-    on_cleanup(move || {
-        if let Some(abort_controller) = abort_controller.take() {
-            abort_controller.abort()
-        }
-    });
+    use crate::api::post;
 
     let address = format!("{}/api/user/login", login_form.server);
     let login_body = LoginBody {
         username: login_form.username,
         password: login_form.password,
     };
-    let request = Request::post(&address)
-        .abort_signal(abort_signal.as_ref())
-        .header("Content-Type", "application/json")
-        .body(serde_json::to_string(&login_body).map_err(error_to_string)?)
-        .map_err(error_to_string)?
-        .send()
-        .await;
-    match request {
-        Ok(response) => response.json().await.map_err(error_to_string),
-        Err(err) => Err(err.to_string()),
-    }
+    post(
+        &address,
+        serde_json::to_string(&login_body).map_err(error_to_string)?,
+    )
+    .await
 }
 /// 登录用的表单
 #[derive(Debug, Clone, Serialize, Deserialize)]

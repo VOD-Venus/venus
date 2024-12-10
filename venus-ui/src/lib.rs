@@ -13,6 +13,7 @@ use pages::not_found::NotFound;
 use pages::settings::Settings;
 use utils::nanoid;
 
+mod api;
 mod components;
 mod consts;
 mod layout;
