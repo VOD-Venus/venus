@@ -115,10 +115,8 @@ pub fn App() -> impl IntoView {
     provide_meta_context();
 
     view! {
-        // <Html lang="en" dir="ltr" />
-
+        <Html {..} lang="en" dir="ltr" />
         <Title text="Venus" />
-
         <Meta charset="UTF-8" />
         <Meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -126,14 +124,24 @@ pub fn App() -> impl IntoView {
             <Routes fallback=NotFound>
                 <ParentRoute path=path!("/") view=Layout>
                     <ProtectedRoute
+                        path=path!("/")
+                        view=Home
+                        condition=move || Some(!global_ui.user.read().token.is_empty())
+                        redirect_path=|| "/login"
+                    />
+                    <ProtectedRoute
                         path=path!("/home")
                         view=Home
                         condition=move || Some(!global_ui.user.read().token.is_empty())
                         redirect_path=|| "/login"
                     />
-                    <Route path=path!("/home") view=Home />
+                    <ProtectedRoute
+                        path=path!("/settings")
+                        view=Settings
+                        condition=move || Some(!global_ui.user.read().token.is_empty())
+                        redirect_path=|| "/login"
+                    />
                     <Route path=path!("/login") view=Login />
-                    <Route path=path!("/settings") view=Settings />
                     <Route path=path!("/*") view=NotFound />
                 </ParentRoute>
             </Routes>

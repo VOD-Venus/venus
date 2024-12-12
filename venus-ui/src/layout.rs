@@ -1,5 +1,5 @@
-use leptos::prelude::*;
-use leptos_router::components::Outlet;
+use leptos::{logging, prelude::*};
+use leptos_router::{components::Outlet, hooks::use_location};
 
 use crate::components::{
     errors::ErrorsView,
@@ -13,6 +13,9 @@ pub fn Layout() -> impl IntoView {
         .expect("GlobalUI state is not set")
         .user;
     let logged_in = !user.read().token.is_empty();
+
+    let location = use_location();
+    logging::log!("location {:?}", location.pathname.get());
 
     view! {
         <ErrorBoundary fallback=|errors| {
