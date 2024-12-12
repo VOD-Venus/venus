@@ -1,26 +1,20 @@
 #![feature(stmt_expr_attributes)]
 use components::notifications::Notifications;
 use consts::COLOR_MODE;
-use gloo::storage::LocalStorage;
-use gloo::storage::Storage;
+use gloo::storage::{LocalStorage, Storage};
 use layout::Layout;
-use leptos::logging;
-use leptos::prelude::*;
+use leptos::{logging, prelude::*};
 use leptos_meta::*;
-use leptos_router::components::*;
-use leptos_router::path;
+use leptos_router::{components::*, path};
 use leptos_use::{use_color_mode_with_options, UseColorModeOptions, UseColorModeReturn};
-use pages::home::Home;
-use pages::login::Login;
-use pages::not_found::NotFound;
-use pages::settings::Settings;
-use serde::Deserialize;
-use serde::Serialize;
+use pages::{home::Home, login::Login, not_found::NotFound, settings::Settings};
+use serde::{Deserialize, Serialize};
 use utils::nanoid;
 
 mod api;
 mod components;
 mod consts;
+mod hooks;
 mod layout;
 mod pages;
 mod utils;

@@ -4,8 +4,9 @@ use leptos::{ev::Event, logging, prelude::*};
 use leptos_router::hooks::use_navigate;
 use serde::{Deserialize, Serialize};
 
+use crate::hooks::use_global_ui;
 use crate::User;
-use crate::{utils::error_to_string, GlobalUI, Notification, NotificationKind};
+use crate::{utils::error_to_string, Notification, NotificationKind};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BaseResponse<T> {
@@ -83,7 +84,7 @@ pub fn Login() -> impl IntoView {
         }
     };
 
-    let state = use_context::<GlobalUI>().expect("GlobalUI state is not set");
+    let state = use_global_ui();
     let nts = state.notifications;
     let form_ref: NodeRef<leptos::html::Form> = NodeRef::new();
 

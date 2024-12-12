@@ -1,6 +1,6 @@
 use leptos::prelude::*;
 
-use crate::GlobalUI;
+use crate::hooks::use_global_ui;
 use gloo::timers::callback::Timeout;
 
 const MAX_NOTIFICATIONS: usize = 5;
@@ -8,9 +8,7 @@ const MAX_NOTIFICATIONS: usize = 5;
 /// 全局通知栏
 #[component]
 pub fn Notifications() -> impl IntoView {
-    let nts = use_context::<GlobalUI>()
-        .expect("GlobalUI state is not set")
-        .notifications;
+    let nts = use_global_ui().notifications;
 
     view! {
         <div class="toast toast-top toast-end">
@@ -49,9 +47,7 @@ pub fn Notification(kind: crate::NotificationKind, message: String) -> impl Into
         }
     };
 
-    let nts = use_context::<GlobalUI>()
-        .expect("GlobalUI state is not set")
-        .notifications;
+    let nts = use_global_ui().notifications;
 
     let (need_move, set_need_move) = signal(false);
     let timeout = Timeout::new(NOTIFICATION_TIMEOUT, move || {
@@ -68,12 +64,14 @@ pub fn Notification(kind: crate::NotificationKind, message: String) -> impl Into
     timeout.forget();
 
     view! {
-        <div class=move || {
-            if need_move.get() {
-                "alert shadow-lg bg-white animate-slide-out-right-slow"
-            } else {
-                "alert shadow-lg bg-white animate-slide-in-right"
-            }
-        }>{icon(kind)} <span>{message}</span></div>
+        <div
+            class="alert shadow-lg bg-white"
+            class=("animate-slide-out-right", move || need_move.get())
+            class=("animate-slide-in-right", move || !need_move.get())
+        >
+            // }
+            {icon(kind)}
+            <span>{message}</span>
+        </div>
     }
 }
