@@ -68,8 +68,8 @@ pub struct User {
 }
 impl User {
     pub fn new() -> Self {
-        let user = LocalStorage::get::<User>("rua_user").unwrap_or_default();
-        logging::log!("token {:?}", user);
+        let user = LocalStorage::get::<User>("rua-user").unwrap_or_default();
+        logging::log!("user {:?}", user);
         Self { ..user }
     }
 }

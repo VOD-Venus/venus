@@ -1,7 +1,10 @@
+use gloo::storage::{LocalStorage, Storage};
 use leptos::web_sys::MouseEvent;
 use leptos::{ev::Event, logging, prelude::*};
+use leptos_router::hooks::use_navigate;
 use serde::{Deserialize, Serialize};
 
+use crate::User;
 use crate::{utils::error_to_string, GlobalUI, Notification, NotificationKind};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -80,10 +83,17 @@ pub fn Login() -> impl IntoView {
         }
     };
 
-    let nts = use_context::<GlobalUI>()
-        .expect("GlobalUI state is not set")
-        .notifications;
+    let state = use_context::<GlobalUI>().expect("GlobalUI state is not set");
+    let nts = state.notifications;
     let form_ref: NodeRef<leptos::html::Form> = NodeRef::new();
+
+    let navigate = use_navigate();
+    // 如果用户已经登录，则跳转到首页
+    Effect::new(move |_| {
+        if !state.user.read().token.is_empty() {
+            navigate("/home", Default::default());
+        }
+    });
 
     // 登录方法 点击登录按钮后触发
     let login_action: Action<
@@ -93,8 +103,13 @@ pub fn Login() -> impl IntoView {
     > = Action::new_unsync(|login_form: &LoginForm| login(login_form.clone()));
     let login_loading = login_action.pending();
     let login_result = login_action.value();
+    let navigate = use_navigate();
     Effect::new(move |_| {
-        if let Some(result) = login_result.read().as_ref() {
+        let login_handler = || -> anyhow::Result<()> {
+            let login_result = login_result.read();
+            let result = login_result
+                .as_ref()
+                .ok_or(anyhow::anyhow!("login result is none"))?;
             match result {
                 Ok(response) => {
                     if let Some(data) = &response.data {
@@ -105,6 +120,22 @@ pub fn Login() -> impl IntoView {
                                 "Login success".into(),
                             ));
                         });
+                        let user = User {
+                            username: form().username.clone(),
+                            token: data.access_token.clone(),
+                            token_type: data.token_type.clone(),
+                        };
+                        LocalStorage::set("rua-user", user)
+                            .map_err(|err| {
+                                logging::error!("set user info failed {:?}", err);
+                            })
+                            .ok();
+                        state.user.update(|d| {
+                            d.username = form().username.clone();
+                            d.token = data.access_token.clone();
+                            d.token_type = data.token_type.clone();
+                        });
+                        navigate("/home", Default::default());
                     } else {
                         nts.update(|nts| {
                             nts.push(Notification::new(
@@ -124,7 +155,9 @@ pub fn Login() -> impl IntoView {
                     });
                 }
             }
-        }
+            Ok(())
+        };
+        login_handler().ok();
     });
     let handle_submit = move |e: MouseEvent| {
         if login_loading() {
