@@ -107,3 +107,30 @@ impl Config {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    #[test]
+    fn test_config_new() {
+        let config = Config::new().unwrap();
+        assert!(config.core.is_none());
+        assert_eq!(config.venus.version, VenusConfig::default().version);
+    }
+
+    #[test]
+    fn test_config_reload_rua_creates_default_if_missing() {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join("config.toml");
+        std::env::set_var("VENUS_CONFIG_PATH", path.to_str().unwrap());
+
+        let mut config = Config::new().unwrap();
+        let version = config.venus.version.clone();
+        assert!(config.write_rua().is_ok());
+
+        assert!(config.reload_rua().is_ok());
+        assert_eq!(config.venus.version, version);
+    }
+}

@@ -12,6 +12,7 @@ pub struct VenusConfig {
     pub settings: RUABasicSetting,
     pub user: Option<RUAUser>,
 }
+
 impl Default for VenusConfig {
     fn default() -> Self {
         VenusConfig {
