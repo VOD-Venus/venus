@@ -25,11 +25,11 @@ ui:
 
 ui-dev:
 	cd venus-ui \
-		&& trunk serve --port 4002
+		&& trunk serve
 
 ui-release: ui-clean
 	cd venus-ui \
-		&& trunk build --release
+		&& trunk build --release --profile ui
 
 ui-clean:
 	cd venus-ui \

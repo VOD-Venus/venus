@@ -1,5 +1,7 @@
 const { addDynamicIconSelectors } = require("@iconify/tailwind");
 
+// iconify icons https://icon-sets.iconify.design/solar/page-2.html?suffixes=Bold+Duotone
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
     darkMode: ["class", '[data-theme="dark"]'],

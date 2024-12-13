@@ -79,6 +79,8 @@ struct GlobalUI {
     pub notifications: RwSignal<Vec<Notification>>,
     /// 用户信息
     pub user: RwSignal<User>,
+    /// Sidebar 的打开状态
+    pub sidebar_open: RwSignal<bool>,
 }
 impl GlobalUI {
     pub fn new() -> Self {
@@ -88,6 +90,7 @@ impl GlobalUI {
             }),
             notifications: RwSignal::new(vec![]),
             user: RwSignal::new(User::new()),
+            sidebar_open: RwSignal::new(false),
         }
     }
 }
