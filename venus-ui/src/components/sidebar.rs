@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use leptos_router::components::A;
 use leptos_router::hooks::use_location;
 
 struct Navi {
@@ -37,9 +38,10 @@ fn SidebarContent() -> impl IntoView {
             <li>
                 <a
                     href=n.path
-                    class="mb-2"
+                    class="mb-2 flex items-center"
                     class=("btn-active", move || n.path == location.pathname.get())
                 >
+                    <span class="icon-[solar--server-2-bold-duotone]"></span>
                     {n.name}
                 </a>
             </li>
@@ -56,7 +58,7 @@ fn SidebarContent() -> impl IntoView {
             // nav
             <div class="flex flex-col justify-between h-full felx-1">
                 <div class="flex flex-col my-4">
-                    <ul class="my-4 menu bg-base-200 rounded-box">
+                    <ul class="my-4 menu bg-transparent rounded-box">
                         <For each=move || NAVI key=|n| n.path children=children />
                     </ul>
                 </div>
@@ -80,12 +82,15 @@ pub fn Sidebar() -> impl IntoView {
 pub fn SidebarMobile() -> impl IntoView {
     view! {
         <>
-            <div class="navbar bg-base-100 p-0 mt-[-2rem] mx-[-1rem] sm:hidden">
+            <div class="navbar bg-transparent p-0 mt-[-2rem] mx-[-1rem] sm:hidden">
                 <div class="flex-none">
                     <div class="z-10 sm:hidden relative">
                         <input id="my-drawer" type="checkbox" class="drawer-toggle" />
                         <label for="my-drawer" class="btn drawer-button btn-square btn-ghost">
-                            <img src="public/images/components/hamburg.svg" alt="hamburger icon" />
+                            <span
+                                class="icon-[solar--hamburger-menu-line-duotone]"
+                                style="width: 24px; height: 24px;"
+                            ></span>
                         </label>
                         <div class="drawer-side">
                             <label
@@ -101,7 +106,7 @@ pub fn SidebarMobile() -> impl IntoView {
                 </div>
 
                 <div class="flex-1">
-                    <a class="btn btn-ghost text-xl">Venus</a>
+                    <a class="btn btn-ghost text-xl p-0">Venus</a>
                 </div>
             </div>
         </>

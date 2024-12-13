@@ -7,7 +7,10 @@ use leptos::{logging, prelude::*};
 use leptos_meta::*;
 use leptos_router::{components::*, path};
 use leptos_use::{use_color_mode_with_options, UseColorModeOptions, UseColorModeReturn};
-use pages::{home::Home, login::Login, not_found::NotFound, settings::Settings};
+use pages::{
+    about::About, home::Home, logging::Logging, login::Login, not_found::NotFound,
+    settings::Settings,
+};
 use serde::{Deserialize, Serialize};
 use utils::nanoid;
 
@@ -132,6 +135,18 @@ pub fn App() -> impl IntoView {
                     <ProtectedRoute
                         path=path!("/settings")
                         view=Settings
+                        condition=move || Some(!global_ui.user.read().token.is_empty())
+                        redirect_path=|| "/login"
+                    />
+                    <ProtectedRoute
+                        path=path!("/logging")
+                        view=Logging
+                        condition=move || Some(!global_ui.user.read().token.is_empty())
+                        redirect_path=|| "/login"
+                    />
+                    <ProtectedRoute
+                        path=path!("/about")
+                        view=About
                         condition=move || Some(!global_ui.user.read().token.is_empty())
                         redirect_path=|| "/login"
                     />
