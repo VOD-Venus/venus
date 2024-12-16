@@ -65,11 +65,10 @@ pub fn Notification(kind: crate::NotificationKind, message: String) -> impl Into
 
     view! {
         <div
-            class="alert shadow-lg bg-white"
+            class="bg-white shadow-lg alert"
             class=("animate-slide-out-right", move || need_move.get())
             class=("animate-slide-in-right", move || !need_move.get())
         >
-            // }
             {icon(kind)}
             <span>{message}</span>
         </div>
