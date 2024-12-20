@@ -53,48 +53,31 @@ fn SidebarContent(is_mobile: bool) -> impl IntoView {
     let children = move |n: Navi| {
         let ui = use_global_ui();
 
-        // Hide tab name when sidebar is not open
-        let (hide_name, set_hide_name) = signal(!ui.sidebar_open.get());
-        Effect::new(move |_| {
-            if is_mobile {
-                return;
-            }
-            if ui.sidebar_open.get() {
-                set_timeout(
-                    move || {
-                        set_hide_name.set(false);
-                    },
-                    Duration::from_millis(10),
-                );
-            } else {
-                set_timeout(
-                    move || {
-                        set_hide_name.set(true);
-                    },
-                    Duration::from_millis(290),
-                );
-            }
-        });
-
         view! {
-            <li>
-                <a
-                    href=n.path
-                    class="mb-2 flex items-center transition-all duration-300 overflow-hidden h-9 w-full"
-                    class=("sm:w-full", move || ui.sidebar_open.get())
-                    class=("btn-active", move || n.path == location.pathname.get())
-                    style:width=move || {
-                        if is_mobile {
-                            "100%"
-                        } else if ui.sidebar_open.get() {
-                            ""
-                        } else {
-                            "calc(2rem + 16px)"
-                        }
-                    }
-                >
-                    <span class=format!("{} min-w-[1rem]", n.icon)></span>
-                    <span class=("hidden", move || !is_mobile && hide_name())>{n.name}</span>
+            <li class="mb-2">
+                <a href=n.path class="transition-all duration-300">
+                    <button
+                        class="btn btn-ghost overflow-hidden sm:w-full duration-300"
+                        class=("btn-active", move || n.path == location.pathname.get())
+                    >
+                        <div
+                            class="flex items-center justify-start"
+                            class=("w-4/6", move || ui.sidebar_open.get())
+                            class=("w-4", move || !ui.sidebar_open.get())
+                        >
+                            <span
+                                class=format!("{} min-w-[1rem] w-4 h-4", n.icon)
+                                class=("mr-1", move || ui.sidebar_open.get())
+                            ></span>
+                            <span
+                                class="transition-all duration-300 overflow-hidden text-left leading-tight"
+                                class=("w-5/6", move || ui.sidebar_open.get())
+                                class=("w-0", move || !ui.sidebar_open.get())
+                            >
+                                {n.name}
+                            </span>
+                        </div>
+                    </button>
                 </a>
             </li>
         }
@@ -114,19 +97,18 @@ fn SidebarContent(is_mobile: bool) -> impl IntoView {
             // nav
             <div class="flex flex-col justify-between h-full felx-1">
                 <div class="flex flex-col my-4">
-                    <ul class="my-4 menu bg-transparent rounded-box">
+                    <ul class="my-4 bg-transparent rounded-box">
                         <For each=move || NAVI key=|n| n.path children=children />
                     </ul>
                 </div>
 
                 // toggle sidebar button
                 <div>
-                    <button
-                        class="btn btn-ghost hidden sm:block"
+                    <span
+                        class="icon-[solar--square-double-alt-arrow-left-bold-duotone] transition-all duration-300 hidden sm:block w-7 h-7"
+                        class=("rotate-180", move || ui.sidebar_open.get())
                         on:click=move |_| ui.sidebar_open.set(!ui.sidebar_open.get())
-                    >
-                        <span class="icon-[solar--square-double-alt-arrow-left-bold-duotone]"></span>
-                    </button>
+                    ></span>
                 </div>
             </div>
         </>
