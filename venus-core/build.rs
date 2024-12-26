@@ -13,8 +13,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if entry.clone().file_type().is_dir() {
             continue;
         }
-        // warn!("{}", entry?.path().display());
-        tonic_build::compile_protos(entry.path().to_str().unwrap())?;
+        tonic_build::configure()
+            .build_server(false)
+            .compile_protos(&[entry.path().to_str().unwrap()], &["proto"])?;
     }
     Ok(())
 }
