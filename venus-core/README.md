@@ -51,3 +51,15 @@ thread::spawn(move || {
     }
 });
 ```
+
+## Communicate with v2ray core
+
+Venus core use gRPC to communicate with v2ray core. First, we need compile the proto files that from v2ray core: https://github.com/v2fly/v2ray-core.
+
+Copy all the proto files to `venus-core/proto` folder and run `make` to generate the rust code.
+
+macOS:
+
+```bash
+rsync -R **/*/*.proto ../venus/venus-core/proto/
+```

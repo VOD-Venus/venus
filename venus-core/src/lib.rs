@@ -18,6 +18,10 @@ pub mod consts;
 pub mod error;
 pub mod message;
 
+pub mod v2ray_core {
+    tonic::include_proto!("v2ray.core.app.stats.command");
+}
+
 #[derive(Debug)]
 pub struct Venus {
     /// v2ray and venus's self config
