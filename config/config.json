@@ -2,16 +2,16 @@
   "log": {
     "loglevel": "warning"
   },
+  "stats": {},
   "api": {
     "tag": "api",
     "services": ["HandlerService", "LoggerService", "StatsService"]
   },
-  "stats": {},
   "inbounds": [
     {
       "port": 10808,
       "listen": "127.0.0.1",
-      "tag": "socks-inbound",
+      "tag": "socks",
       "protocol": "socks",
       "settings": {
         "auth": "noauth",
@@ -25,7 +25,7 @@
     {
       "port": 10809,
       "listen": "127.0.0.1",
-      "tag": "http-inbound",
+      "tag": "http",
       "protocol": "http",
       "settings": {
         "auth": "noauth",
@@ -34,6 +34,15 @@
       "sniffing": {
         "enabled": true,
         "destOverride": ["http", "tls"]
+      }
+    },
+    {
+      "port": 10086,
+      "listen": "127.0.0.1",
+      "tag": "api",
+      "protocol": "dokodemo-door",
+      "settings": {
+        "address": "127.0.0.1"
       }
     }
   ],
@@ -96,7 +105,9 @@
     "levels": {
       "0": {
         "uplinkOnly": 0,
-        "downlinkOnly": 0
+        "downlinkOnly": 0,
+        "statsUserUplink": true,
+        "statsUserDownlink": true
       }
     },
     "system": {

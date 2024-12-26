@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, path::PathBuf};
+use std::{borrow::Cow, collections::HashMap, path::PathBuf};
 
 use crate::consts::VERSION;
 
@@ -160,13 +160,31 @@ impl NodeType {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CoreConfig {
-    pub log: Log,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stats: Option<Stats>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub log: Option<Log>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub api: Option<Api>,
     pub inbounds: Vec<Inbound>,
     pub outbounds: Vec<Outbound>,
     pub routing: Routing,
-    pub dns: Dns,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dns: Option<Dns>,
     pub policy: Policy,
-    pub other: Other,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub other: Option<Other>,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Stats {}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Api {
+    pub tag: Cow<'static, str>,
+    pub services: Vec<Cow<'static, str>>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -184,7 +202,8 @@ pub struct Log {
 pub struct Inbound {
     pub port: u16,
     // Listen address
-    pub listen: Cow<'static, str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub listen: Option<Cow<'static, str>>,
     pub tag: Cow<'static, str>,
     pub protocol: Cow<'static, str>,
     pub settings: InboundSettings,
@@ -198,12 +217,25 @@ pub struct Inbound {
 pub struct InboundSettings {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub auth: Option<Cow<'static, str>>,
-    pub udp: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub udp: Option<bool>,
     // pub ip: Cow<'static, str>,
     // for dokodemo-door
-    // pub address: Option<Cow<'static, str>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub address: Option<Cow<'static, str>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_transparent: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub clients: Option<Vec<Client>>,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Client {
+    pub id: Cow<'static, str>,
+    pub alter_id: u16,
+    pub email: Cow<'static, str>,
+    // pub security: Cow<'static, str>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -516,31 +548,34 @@ pub struct Servers {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Policy {
-    pub levels: Levels,
+    pub levels: HashMap<String, Levels>,
     pub system: System,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Levels {
-    #[serde(rename = "0")]
-    pub n0: N0,
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct N0 {
-    pub uplink_only: i64,
-    pub downlink_only: i64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub uplink_only: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub downlink_only: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stats_user_uplink: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stats_user_downlink: Option<bool>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct System {
-    pub stats_inbound_uplink: bool,
-    pub stats_inbound_downlink: bool,
-    pub stats_outbound_uplink: bool,
-    pub stats_outbound_downlink: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stats_inbound_uplink: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stats_inbound_downlink: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stats_outbound_uplink: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stats_outbound_downlink: Option<bool>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
