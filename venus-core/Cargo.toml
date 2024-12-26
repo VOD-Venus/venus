@@ -5,13 +5,19 @@ edition = "2021"
 rust-version = "1.80.0"
 
 [dependencies]
-anyhow = "1.0.94"
+anyhow = "1.0.95"
 log = "0.4.22"
-thiserror = "2.0.6"
+thiserror = "2.0.9"
 toml = "0.8.19"
-serde = { version = "1.0.215", features = ["derive", "serde_derive"] }
-serde_json = { version = "1.0.133" }
+serde = { version = "1.0.216", features = ["derive", "serde_derive"] }
+serde_json = { version = "1.0.134" }
 json_comments = "0.2.2"
+tonic = "0.12.3"
+prost = "0.13.4"
+
+[build-dependencies]
+tonic-build = "0.12.3"
+walkdir = "2.5.0"
 
 [dev-dependencies]
 tempfile = "3.14.0"
