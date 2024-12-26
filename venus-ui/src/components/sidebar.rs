@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use leptos::prelude::*;
 use leptos_router::hooks::use_location;
 
@@ -51,28 +49,39 @@ fn SidebarContent(is_mobile: bool) -> impl IntoView {
     let ui = use_global_ui();
 
     let children = move |n: Navi| {
-        let ui = use_global_ui();
+        let opened = Memo::new(move |_| {
+            if is_mobile {
+                true
+            } else {
+                ui.sidebar_open.get()
+            }
+        });
 
         view! {
             <li class="mb-2">
-                <a href=n.path class="transition-all duration-300">
+                <a
+                    href=n.path
+                    class="transition-all duration-300"
+                    class=("flex", move || is_mobile)
+                >
                     <button
                         class="btn btn-ghost overflow-hidden sm:w-full duration-300"
                         class=("btn-active", move || n.path == location.pathname.get())
+                        class=("w-full", move || is_mobile)
                     >
                         <div
                             class="flex items-center justify-start"
-                            class=("w-4/6", move || ui.sidebar_open.get())
-                            class=("w-4", move || !ui.sidebar_open.get())
+                            class=("w-4/6", move || opened.get())
+                            class=("w-4", move || !opened.get())
                         >
                             <span
                                 class=format!("{} min-w-[1rem] w-4 h-4", n.icon)
-                                class=("mr-1", move || ui.sidebar_open.get())
+                                class=("mr-1", move || opened.get())
                             ></span>
                             <span
                                 class="transition-all duration-300 overflow-hidden text-left leading-tight"
-                                class=("w-5/6", move || ui.sidebar_open.get())
-                                class=("w-0", move || !ui.sidebar_open.get())
+                                class=("w-5/6", move || opened.get())
+                                class=("w-0", move || !opened.get())
                             >
                                 {n.name}
                             </span>
@@ -95,21 +104,19 @@ fn SidebarContent(is_mobile: bool) -> impl IntoView {
             </div>
 
             // nav
-            <div class="flex flex-col justify-between h-full felx-1">
-                <div class="flex flex-col my-4">
+            <div class="flex flex-col justify-between h-full felx-1 items-center">
+                <div class="flex flex-col my-4 w-full">
                     <ul class="my-4 bg-transparent rounded-box">
                         <For each=move || NAVI key=|n| n.path children=children />
                     </ul>
                 </div>
 
                 // toggle sidebar button
-                <div>
-                    <span
-                        class="icon-[solar--square-double-alt-arrow-left-bold-duotone] transition-all duration-300 hidden sm:block w-7 h-7"
-                        class=("rotate-180", move || ui.sidebar_open.get())
-                        on:click=move |_| ui.sidebar_open.set(!ui.sidebar_open.get())
-                    ></span>
-                </div>
+                <span
+                    class="icon-[solar--square-double-alt-arrow-left-bold-duotone] transition-all duration-300 hidden sm:block w-7 h-7 cursor-pointer"
+                    class=("rotate-180", move || ui.sidebar_open.get())
+                    on:click=move |_| ui.sidebar_open.set(!ui.sidebar_open.get())
+                ></span>
             </div>
         </>
     }
@@ -154,7 +161,7 @@ pub fn SidebarMobile() -> impl IntoView {
                                 aria-label="close sidebar"
                                 class="drawer-overlay"
                             ></label>
-                            <ul class="menu bg-base-200 text-base-content min-h-full w-72 p-4">
+                            <ul class="bg-base-200 text-base-content min-h-full w-72 p-4">
                                 <SidebarContent is_mobile=true />
                             </ul>
                         </div>

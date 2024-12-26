@@ -3,7 +3,7 @@ use components::notifications::Notifications;
 use consts::COLOR_MODE;
 use gloo::storage::{LocalStorage, Storage};
 use layout::Layout;
-use leptos::{logging, prelude::*};
+use leptos::prelude::*;
 use leptos_meta::*;
 use leptos_router::{components::*, path};
 use leptos_use::{use_color_mode_with_options, UseColorModeOptions, UseColorModeReturn};
@@ -66,7 +66,6 @@ pub struct User {
 impl User {
     pub fn new() -> Self {
         let user = LocalStorage::get::<User>("rua-user").unwrap_or_default();
-        logging::log!("user {:?}", user);
         Self { ..user }
     }
 }
@@ -109,7 +108,6 @@ pub fn App() -> impl IntoView {
     // ui 的全局状态
     let global_ui = GlobalUI::new();
     provide_context(global_ui);
-    logging::log!("token {:?}", global_ui.user.read().token.is_empty());
 
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();

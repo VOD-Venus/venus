@@ -156,6 +156,7 @@ impl NodeType {
 }
 
 /// Core config root
+/// https://www.v2fly.org/config/overview.html
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CoreConfig {

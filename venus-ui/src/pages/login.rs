@@ -114,7 +114,6 @@ pub fn Login() -> impl IntoView {
             match result {
                 Ok(response) => {
                     if let Some(data) = &response.data {
-                        logging::log!("login response {:?}", data.access_token);
                         nts.update(|nts| {
                             nts.push(Notification::new(
                                 NotificationKind::Success,
