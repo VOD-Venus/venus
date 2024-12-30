@@ -10,10 +10,15 @@ struct Navi {
     pub icon: &'static str,
 }
 /// Navigation items
-const NAVI: [Navi; 5] = [
+const NAVI: [Navi; 6] = [
+    Navi {
+        name: "Dashboard",
+        path: "/dashboard",
+        icon: "icon-[solar--clapperboard-text-bold-duotone]",
+    },
     Navi {
         name: "Proxies",
-        path: "/home",
+        path: "/proxies",
         icon: "icon-[solar--server-2-bold-duotone]",
     },
     Navi {
@@ -113,7 +118,7 @@ fn SidebarContent(is_mobile: bool) -> impl IntoView {
 
                 // toggle sidebar button
                 <span
-                    class="icon-[solar--square-double-alt-arrow-left-bold-duotone] transition-all duration-300 hidden sm:block w-7 h-7 cursor-pointer"
+                    class="icon-[solar--square-double-alt-arrow-right-bold-duotone] transition-all duration-300 hidden sm:block w-7 h-7 cursor-pointer"
                     class=("rotate-180", move || ui.sidebar_open.get())
                     on:click=move |_| ui.sidebar_open.set(!ui.sidebar_open.get())
                 ></span>

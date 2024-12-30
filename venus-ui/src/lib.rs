@@ -8,8 +8,8 @@ use leptos_meta::*;
 use leptos_router::{components::*, path};
 use leptos_use::{use_color_mode_with_options, UseColorModeOptions, UseColorModeReturn};
 use pages::{
-    about::About, dashboard::Dashboard, logging::Logging, login::Login, not_found::NotFound,
-    proxies::Proxies, settings::Settings,
+    about::About, dashboard::Dashboard, editor::Editor, logging::Logging, login::Login,
+    not_found::NotFound, proxies::Proxies, settings::Settings,
 };
 use serde::{Deserialize, Serialize};
 use utils::nanoid;
@@ -112,6 +112,9 @@ pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
 
+    let logged_in = Memo::new(move |_| Some(!global_ui.user.read().token.is_empty()));
+    let redirect_path = || "/login";
+
     view! {
         <Html {..} lang="en" dir="ltr" />
         <Title text="Venus" />
@@ -124,38 +127,44 @@ pub fn App() -> impl IntoView {
                     <ProtectedRoute
                         path=path!("/")
                         view=Proxies
-                        condition=move || Some(!global_ui.user.read().token.is_empty())
-                        redirect_path=|| "/login"
+                        condition=move || logged_in.get()
+                        redirect_path=redirect_path
                     />
                     <ProtectedRoute
                         path=path!("/dashboard")
                         view=Dashboard
-                        condition=move || Some(!global_ui.user.read().token.is_empty())
-                        redirect_path=|| "/login"
+                        condition=move || logged_in.get()
+                        redirect_path=redirect_path
                     />
                     <ProtectedRoute
                         path=path!("/proxies")
                         view=Proxies
-                        condition=move || Some(!global_ui.user.read().token.is_empty())
-                        redirect_path=|| "/login"
+                        condition=move || logged_in.get()
+                        redirect_path=redirect_path
                     />
                     <ProtectedRoute
                         path=path!("/settings")
                         view=Settings
-                        condition=move || Some(!global_ui.user.read().token.is_empty())
-                        redirect_path=|| "/login"
+                        condition=move || logged_in.get()
+                        redirect_path=redirect_path
                     />
                     <ProtectedRoute
                         path=path!("/logging")
                         view=Logging
-                        condition=move || Some(!global_ui.user.read().token.is_empty())
-                        redirect_path=|| "/login"
+                        condition=move || logged_in.get()
+                        redirect_path=redirect_path
+                    />
+                    <ProtectedRoute
+                        path=path!("/editor")
+                        view=Editor
+                        condition=move || logged_in.get()
+                        redirect_path=redirect_path
                     />
                     <ProtectedRoute
                         path=path!("/about")
                         view=About
-                        condition=move || Some(!global_ui.user.read().token.is_empty())
-                        redirect_path=|| "/login"
+                        condition=move || logged_in.get()
+                        redirect_path=redirect_path
                     />
                     <Route path=path!("/login") view=Login />
                     <Route path=path!("/*") view=NotFound />
