@@ -92,7 +92,7 @@ pub fn Login() -> impl IntoView {
     // 如果用户已经登录，则跳转到首页
     Effect::new(move |_| {
         if !state.user.read().token.is_empty() {
-            navigate("/home", Default::default());
+            navigate("/dashboard", Default::default());
         }
     });
 

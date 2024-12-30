@@ -5,20 +5,20 @@ use crate::{
 use leptos::prelude::*;
 
 #[derive(Debug, Clone, Copy)]
-struct HomeTab<'a> {
+struct ProxyTab<'a> {
     pub id: &'a str,
     pub name: &'a str,
 }
 
 /// 首页
 #[component]
-pub fn Home() -> impl IntoView {
-    let home_tabs: [HomeTab; 2] = [
-        HomeTab {
+pub fn Proxies() -> impl IntoView {
+    let home_tabs: [ProxyTab; 2] = [
+        ProxyTab {
             id: "subscription",
             name: "Subscription",
         },
-        HomeTab {
+        ProxyTab {
             id: "nodes",
             name: "Nodes",
         },
@@ -41,10 +41,10 @@ pub fn Home() -> impl IntoView {
                                     id=tab.id
                                     role="tab"
                                     class="tab transition-all duration-300"
-                                    class=("tab-active", move || ui.tabs.get().home == tab.id)
+                                    class=("tab-active", move || ui.tabs.get().proxies == tab.id)
                                     on:click=move |_| {
-                                        if ui.tabs.get().home != tab.id {
-                                            ui.tabs.update(|t| t.home = tab.id)
+                                        if ui.tabs.get().proxies != tab.id {
+                                            ui.tabs.update(|t| t.proxies = tab.id)
                                         }
                                     }
                                 >
@@ -56,7 +56,7 @@ pub fn Home() -> impl IntoView {
                 </div>
             </div>
 
-            {move || match ui.tabs.get().home {
+            {move || match ui.tabs.get().proxies {
                 "subscription" => view! { <Subscription /> }.into_any(),
                 "nodes" => view! { <div>nodes</div> }.into_any(),
                 _ => view! { <div>Error: wrong tab id</div> }.into_any(),

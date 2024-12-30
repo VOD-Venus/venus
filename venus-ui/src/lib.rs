@@ -8,8 +8,8 @@ use leptos_meta::*;
 use leptos_router::{components::*, path};
 use leptos_use::{use_color_mode_with_options, UseColorModeOptions, UseColorModeReturn};
 use pages::{
-    about::About, home::Home, logging::Logging, login::Login, not_found::NotFound,
-    settings::Settings,
+    about::About, dashboard::Dashboard, logging::Logging, login::Login, not_found::NotFound,
+    proxies::Proxies, settings::Settings,
 };
 use serde::{Deserialize, Serialize};
 use utils::nanoid;
@@ -25,8 +25,8 @@ mod utils;
 /// 各个页面的保存的 Tab ID，用于持久化 Tab 状态
 #[derive(Debug, Clone, Copy)]
 struct Tabs<'a> {
-    /// 首页的 Tab 标签页 ID
-    pub home: &'a str,
+    /// 代理页的 Tab 标签页 ID
+    pub proxies: &'a str,
 }
 
 /// 通知类型
@@ -85,7 +85,7 @@ impl GlobalUI {
     pub fn new() -> Self {
         Self {
             tabs: RwSignal::new(Tabs {
-                home: "subscription",
+                proxies: "subscription",
             }),
             notifications: RwSignal::new(vec![]),
             user: RwSignal::new(User::new()),
@@ -123,13 +123,19 @@ pub fn App() -> impl IntoView {
                 <ParentRoute path=path!("/") view=Layout>
                     <ProtectedRoute
                         path=path!("/")
-                        view=Home
+                        view=Proxies
                         condition=move || Some(!global_ui.user.read().token.is_empty())
                         redirect_path=|| "/login"
                     />
                     <ProtectedRoute
-                        path=path!("/home")
-                        view=Home
+                        path=path!("/dashboard")
+                        view=Dashboard
+                        condition=move || Some(!global_ui.user.read().token.is_empty())
+                        redirect_path=|| "/login"
+                    />
+                    <ProtectedRoute
+                        path=path!("/proxies")
+                        view=Proxies
                         condition=move || Some(!global_ui.user.read().token.is_empty())
                         redirect_path=|| "/login"
                     />
