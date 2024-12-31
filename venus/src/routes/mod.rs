@@ -4,7 +4,7 @@ use axum::{
     http::StatusCode,
     middleware,
     response::{IntoResponse, Response},
-    routing::{get, post},
+    routing::get,
     Json, Router,
 };
 use serde::Serialize;
@@ -22,6 +22,7 @@ use crate::{
     middlewares::{add_version, logging_route},
 };
 
+pub mod proxies;
 pub mod user;
 pub mod version;
 
@@ -56,9 +57,7 @@ pub fn routes() -> Router {
             "/api/",
             Router::new()
                 .route("/version", get(version::version))
-                .route("/user/register", post(user::register))
-                .route("/user/login", post(user::login))
-                .route("/user/protected", post(user::protected)),
+                .nest("/user/", user::routes()),
         )
         .layer(
             ServiceBuilder::new()

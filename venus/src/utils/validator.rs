@@ -1,3 +1,5 @@
+use std::sync::LazyLock;
+
 use axum::{
     async_trait,
     extract::{
@@ -6,6 +8,7 @@ use axum::{
     },
     Form, Json,
 };
+use regex::Regex;
 use serde::de::DeserializeOwned;
 use validator::Validate;
 
@@ -46,5 +49,55 @@ where
         let Json(value) = Json::<T>::from_request(req, state).await?;
         value.validate()?;
         Ok(ValidatedJson(value))
+    }
+}
+
+pub static URL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"^((https?|ftp):\/\/(([\w-]+\.)+[\w-]+|localhost)(:\d+)?(\/[-\w@:%\+.~#?&//=]*)?)$")
+        .expect("create url regex failed")
+});
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_valid_urls() {
+        let valid_urls = vec![
+            "https://example.com",
+            "http://example.com",
+            "ftp://example.com",
+            "http://localhost",
+            "https://example.com:8080/path?query=1",
+            "http://sub.example.com",
+        ];
+
+        for url in valid_urls {
+            assert!(
+                URL_REGEX.is_match(url),
+                "Expected '{}' to be a valid URL",
+                url
+            );
+        }
+    }
+
+    #[test]
+    fn test_invalid_urls() {
+        let invalid_urls = vec![
+            "example.com",
+            "http//example.com",
+            "://example.com",
+            "http:/example.com",
+            "ftp//example.com",
+            "just-a-string",
+        ];
+
+        for url in invalid_urls {
+            assert!(
+                !URL_REGEX.is_match(url),
+                "Expected '{}' to be an invalid URL",
+                url
+            );
+        }
     }
 }

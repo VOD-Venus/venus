@@ -10,6 +10,7 @@ rust-version = "1.80.0"
 venus-core = { path = "../venus-core" }
 # server
 axum = { version = "0.7.9", features = ["macros"] }
+axum-extra = { version = "0.9.6", features = ["typed-header"] }
 tokio = { version = "1.42.0", features = ["full"] }
 tower = "0.5.1"
 tower-http = { version = "0.6.2", features = ["full"] }
@@ -29,8 +30,8 @@ dotenvy = "0.15.7"
 argon2 = "0.5.3"
 rand = "0.8.5"
 validator = { version = "0.19.0", features = ["derive"] }
+regex = "1.11.1"
 jsonwebtoken = "9.3.0"
 chrono = "0.4.39"
-axum-extra = { version = "0.9.6", features = ["typed-header"] }
 
 [dev-dependencies]

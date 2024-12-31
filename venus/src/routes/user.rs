@@ -1,4 +1,4 @@
-use axum::{http::StatusCode, response::IntoResponse};
+use axum::{http::StatusCode, response::IntoResponse, routing::post, Router};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
@@ -128,4 +128,12 @@ pub async fn login(
 pub async fn protected(claims: Claims) -> AppResult<impl IntoResponse> {
     let sub = claims.sub;
     Ok(sub)
+}
+
+/// 用户路由
+pub fn routes() -> Router {
+    Router::new()
+        .route("/register", post(register))
+        .route("/login", post(login))
+        .route("/protected", post(protected))
 }
