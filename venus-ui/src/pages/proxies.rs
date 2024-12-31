@@ -44,7 +44,7 @@ pub fn Proxies() -> impl IntoView {
                                     class=("tab-active", move || ui.tabs.get().proxies == tab.id)
                                     on:click=move |_| {
                                         if ui.tabs.get().proxies != tab.id {
-                                            ui.tabs.update(|t| t.proxies = tab.id)
+                                            ui.tabs.update(|t| t.proxies = tab.id.into())
                                         }
                                     }
                                 >
@@ -56,7 +56,7 @@ pub fn Proxies() -> impl IntoView {
                 </div>
             </div>
 
-            {move || match ui.tabs.get().proxies {
+            {move || match ui.tabs.get().proxies.as_str() {
                 "subscription" => view! { <Subscription /> }.into_any(),
                 "nodes" => view! { <div>nodes</div> }.into_any(),
                 _ => view! { <div>Error: wrong tab id</div> }.into_any(),

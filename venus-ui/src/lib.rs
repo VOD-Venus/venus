@@ -1,7 +1,8 @@
 #![feature(stmt_expr_attributes)]
 use components::notifications::Notifications;
-use consts::COLOR_MODE;
+use consts::{COLOR_MODE, SIDEBAR_OPEN_KEY, TABS_KEY, USER_KEY};
 use gloo::storage::{LocalStorage, Storage};
+use hooks::use_global_ui;
 use layout::Layout;
 use leptos::prelude::*;
 use leptos_meta::*;
@@ -23,10 +24,23 @@ mod pages;
 mod utils;
 
 /// 各个页面的保存的 Tab ID，用于持久化 Tab 状态
-#[derive(Debug, Clone, Copy)]
-struct Tabs<'a> {
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct Tabs {
     /// 代理页的 Tab 标签页 ID
-    pub proxies: &'a str,
+    pub proxies: String,
+}
+impl Tabs {
+    pub fn new() -> Self {
+        let tabs = LocalStorage::get::<Tabs>(TABS_KEY).unwrap_or_default();
+        Self { ..tabs }
+    }
+}
+impl Default for Tabs {
+    fn default() -> Self {
+        Self {
+            proxies: "subscription".into(),
+        }
+    }
 }
 
 /// 通知类型
@@ -65,31 +79,31 @@ pub struct User {
 }
 impl User {
     pub fn new() -> Self {
-        let user = LocalStorage::get::<User>("rua-user").unwrap_or_default();
+        let user = LocalStorage::get::<User>(USER_KEY).unwrap_or_default();
         Self { ..user }
     }
 }
 
 #[derive(Copy, Clone, Debug)]
 struct GlobalUI {
-    /// 各个页面标签页的 tab index
-    pub tabs: RwSignal<Tabs<'static>>,
+    /// 各个页面标签页的 tab index，保存到 localStorage
+    pub tabs: RwSignal<Tabs>,
     /// 整个 App 的通知 右上角
     pub notifications: RwSignal<Vec<Notification>>,
-    /// 用户信息
+    /// 用户信息，保存到 localStorage
     pub user: RwSignal<User>,
-    /// Sidebar 的打开状态
+    /// Sidebar 的打开状态，保存到 localStorage
     pub sidebar_open: RwSignal<bool>,
 }
 impl GlobalUI {
     pub fn new() -> Self {
+        let sidebar_open = LocalStorage::get::<bool>(SIDEBAR_OPEN_KEY).unwrap_or_default();
+
         Self {
-            tabs: RwSignal::new(Tabs {
-                proxies: "subscription",
-            }),
+            tabs: RwSignal::new(Tabs::new()),
             notifications: RwSignal::new(vec![]),
             user: RwSignal::new(User::new()),
-            sidebar_open: RwSignal::new(false),
+            sidebar_open: RwSignal::new(sidebar_open),
         }
     }
 }
@@ -108,6 +122,22 @@ pub fn App() -> impl IntoView {
     // ui 的全局状态
     let global_ui = GlobalUI::new();
     provide_context(global_ui);
+    // persist ui
+    Effect::new(|| {
+        let ui = use_global_ui();
+        let tab = ui.tabs.get();
+        LocalStorage::set(TABS_KEY, tab).ok();
+    });
+    Effect::new(|| {
+        let ui = use_global_ui();
+        let user = ui.user.get();
+        LocalStorage::set(USER_KEY, user).ok();
+    });
+    Effect::new(|| {
+        let ui = use_global_ui();
+        let sidebar_open = ui.sidebar_open.get();
+        LocalStorage::set(SIDEBAR_OPEN_KEY, sidebar_open).ok();
+    });
 
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
@@ -126,7 +156,7 @@ pub fn App() -> impl IntoView {
                 <ParentRoute path=path!("/") view=Layout>
                     <ProtectedRoute
                         path=path!("/")
-                        view=Proxies
+                        view=Dashboard
                         condition=move || logged_in.get()
                         redirect_path=redirect_path
                     />

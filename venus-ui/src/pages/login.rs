@@ -97,11 +97,8 @@ pub fn Login() -> impl IntoView {
     });
 
     // 登录方法 点击登录按钮后触发
-    let login_action: Action<
-        LoginForm,
-        std::result::Result<BaseResponse<Data>, String>,
-        SyncStorage,
-    > = Action::new_unsync(|login_form: &LoginForm| login(login_form.clone()));
+    let login_action: Action<LoginForm, Result<BaseResponse<Data>, String>, SyncStorage> =
+        Action::new_unsync(|login_form: &LoginForm| login(login_form.clone()));
     let login_loading = login_action.pending();
     let login_result = login_action.value();
     let navigate = use_navigate();
