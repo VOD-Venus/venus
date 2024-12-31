@@ -57,7 +57,8 @@ pub fn routes() -> Router {
             "/api/",
             Router::new()
                 .route("/version", get(version::version))
-                .nest("/user/", user::routes()),
+                .nest("/user/", user::routes())
+                .nest("/subscription/", proxies::routes()),
         )
         .layer(
             ServiceBuilder::new()
