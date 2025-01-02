@@ -6,4 +6,6 @@ pub type Message = (Sender<MessageType>, Receiver<MessageType>);
 pub enum MessageType {
     /// Message from v2ray core process
     Core(String),
+    /// Shutdown signal, the core process will exit
+    Terminate,
 }

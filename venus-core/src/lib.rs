@@ -142,6 +142,7 @@ impl VenusCore for Venus {
     /// Kill core process if exist
     fn kill_core(&mut self) -> VenusResult<()> {
         if let Some(core) = self.child.as_mut() {
+            self.message_tx.send(MessageType::Terminate)?;
             core.kill()?;
             self.child = None;
             Ok(())

@@ -2,7 +2,7 @@ use std::{borrow::Cow, fmt::Display};
 
 use log::error;
 
-use crate::config::error::ConfigError;
+use crate::{config::error::ConfigError, message::MessageType};
 
 #[derive(thiserror::Error, Debug)]
 pub enum SubscriptionError {
@@ -30,6 +30,8 @@ pub enum VenusError {
     Decode(#[from] base64::DecodeError),
     #[error("from utf8 error {0}")]
     Utf8(#[from] std::string::FromUtf8Error),
+    #[error("subscription error {0:?}")]
+    Channel(#[from] std::sync::mpsc::SendError<MessageType>),
     #[error("subscription error {0}")]
     Subscription(#[from] SubscriptionError),
 }

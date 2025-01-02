@@ -1,7 +1,5 @@
-use std::thread;
-
 use tokio::signal;
-use tracing::{debug, info};
+use tracing::info;
 use tracing_subscriber::{fmt, prelude::*, registry, EnvFilter};
 use venus_core::{error::log_err, VenusCore};
 
@@ -111,7 +109,6 @@ where
     tokio::select! {
         _ = ctrl_c => {
             shutdown_cb()
-            // let _ = stop_core().map_err(log_err);
         },
         _ = terminate => {
             shutdown_cb()

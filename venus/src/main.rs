@@ -1,6 +1,7 @@
 use core::{global_core, global_message};
 use std::{env, error::Error, net::SocketAddr};
 
+use anyhow::Context;
 use axum::Router;
 use consts::{DEFAULT_PORT, RUA_COMPILER};
 use dotenvy::dotenv;
@@ -24,35 +25,40 @@ async fn main() -> Result<()> {
     dotenv().ok();
     init_logger();
 
-    tokio::spawn(async move {
+    {
         info!("venus {RUA_COMPILER}");
         let venus = &mut global_core().await.lock().await;
         info!("string core");
         venus
             .config
             .reload_rua()
-            .expect("reading venus configuration failed");
+            .with_context(|| "reading venus configuration failed")?;
         venus
             .config
             .reload_core()
-            .expect("reading core configuration failed");
+            .with_context(|| "reading core configuration failed")?;
         venus
             .config
             .write_core()
-            .expect("write core configuration failed");
-        venus.spawn_core().expect("staring core failed");
-
+            .with_context(|| "write core configuration failed")?;
+        venus.spawn_core().with_context(|| "staring core failed")?;
+    }
+    tokio::spawn(async move {
         // global message handler
         let child_rx = &global_message().await.lock().await.1;
+        let core_span = span!(Level::INFO, "CORE").entered();
         while let Ok(msg) = child_rx.recv() {
             match msg {
                 MessageType::Core(msg) => {
-                    let core_span = span!(Level::INFO, "CORE").entered();
                     info!("{msg}");
-                    core_span.exit();
+                }
+                MessageType::Terminate => {
+                    info!("core stopping");
+                    break;
                 }
             }
         }
+        core_span.exit();
     });
 
     let port = env::var("VENUS_PORT")
