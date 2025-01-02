@@ -9,6 +9,9 @@ The instances will accept a `mpsc::channel` Sender as core `stdio` messenger and
 ## Example
 
 ```rust
+// sender and receiver
+let msg = mpsc::channel();
+
 let mut venus = match Venus::new(msg.0.clone()) {
     Ok(v) => v,
     Err(err) => {
@@ -32,14 +35,7 @@ venus
 venus.spawn_core().with_context(|| "staring core failed")?;
 // global message handler
 thread::spawn(move || {
-    let lock = &MSG.lock();
-    let child_rx = match lock {
-        Ok(msg) => &msg.1,
-        Err(err) => {
-            error!("lock message failed {err}");
-            return;
-        }
-    };
+    let child_rx = msg.1;
     while let Ok(msg) = child_rx.recv() {
         match msg {
             MessageType::Core(msg) => {
@@ -49,6 +45,84 @@ thread::spawn(move || {
             }
         }
     }
+});
+```
+
+### Use with mutex
+
+Because the `async_trait` can't used with std mutex.
+So we need to use `tokio::sync::Mutex` to store core as global variable.
+
+```rust
+use std::{
+    process::exit,
+    sync::mpsc::{self},
+};
+use tokio::sync::{Mutex, OnceCell};
+use tracing::error;
+
+use venus_core::{message::Message, Venus};
+
+static MSG: OnceCell<Mutex<Message>> = OnceCell::const_new();
+pub async fn global_message() -> &'static Mutex<Message> {
+    MSG.get_or_init(|| async { Mutex::new(mpsc::channel()) })
+        .await
+}
+
+static CORE: OnceCell<Mutex<Venus>> = OnceCell::const_new();
+pub async fn global_core() -> &'static Mutex<Venus> {
+    CORE.get_or_init(|| async {
+        let msg = global_message().await.lock().await;
+        match Venus::new(msg.0.clone()) {
+            Ok(v) => Mutex::new(v),
+            Err(err) => {
+                error!("cannot initialize venus core {err}");
+                exit(1);
+            }
+        }
+    })
+    .await
+}
+```
+
+And core will send a termination message by the channel we passed in.
+So we can drop the mutex when we receive the termination message.
+
+```rust
+{
+    info!("venus {RUA_COMPILER}");
+    let venus = &mut global_core().await.lock().await;
+    info!("string core");
+    venus
+        .config
+        .reload_rua()
+        .with_context(|| "reading venus configuration failed")?;
+    venus
+        .config
+        .reload_core()
+        .with_context(|| "reading core configuration failed")?;
+    venus
+        .config
+        .write_core()
+        .with_context(|| "write core configuration failed")?;
+    venus.spawn_core().with_context(|| "staring core failed")?;
+}
+tokio::spawn(async move {
+    // global message handler
+    let child_rx = &global_message().await.lock().await.1;
+    let core_span = span!(Level::INFO, "CORE").entered();
+    while let Ok(msg) = child_rx.recv() {
+        match msg {
+            MessageType::Core(msg) => {
+                info!("{msg}");
+            }
+            MessageType::Terminate => {
+                info!("core stopping");
+                break;
+            }
+        }
+    }
+    core_span.exit();
 });
 ```
 
