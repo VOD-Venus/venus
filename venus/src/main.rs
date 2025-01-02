@@ -9,7 +9,7 @@ use routes::routes;
 use tokio::net::TcpListener;
 use tracing::{error, info, span, Level};
 use utils::{init_logger, shutdown_cb, shutdown_signal};
-use venus_core::message::MessageType;
+use venus_core::{message::MessageType, VenusCore};
 
 mod consts;
 mod core;

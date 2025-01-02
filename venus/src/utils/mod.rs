@@ -1,7 +1,7 @@
 use tokio::signal;
 use tracing::info;
 use tracing_subscriber::{fmt, prelude::*, registry, EnvFilter};
-use venus_core::error::log_err;
+use venus_core::{error::log_err, VenusCore};
 
 use crate::{core::CORE, error::AppResult};
 

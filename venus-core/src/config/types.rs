@@ -32,7 +32,7 @@ pub struct RUAUser {
     pub password: Cow<'static, str>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(rename_all = "camelCase")]
 /// Core subscriptions
 pub struct Subscription {
