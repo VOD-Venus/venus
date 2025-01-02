@@ -1,9 +1,11 @@
+use std::thread;
+
 use tokio::signal;
-use tracing::info;
+use tracing::{debug, info};
 use tracing_subscriber::{fmt, prelude::*, registry, EnvFilter};
 use venus_core::{error::log_err, VenusCore};
 
-use crate::{core::CORE, error::AppResult};
+use crate::{core::global_core, error::AppResult};
 
 pub mod jwt;
 pub mod password;
@@ -36,10 +38,9 @@ pub fn init_logger() {
     registry().with(env_layer).with(formatting_layer).init();
 }
 
-fn stop_core() -> AppResult<()> {
+async fn stop_core() -> AppResult<()> {
     info!("stopping core");
-    let venus = &*CORE;
-    let mut venus = venus.lock()?;
+    let venus = &mut global_core().await.lock().await;
     venus.config.write_core()?;
     venus.config.write_rua()?;
     venus.kill_core()?;
@@ -47,7 +48,9 @@ fn stop_core() -> AppResult<()> {
 }
 
 pub fn shutdown_cb() {
-    let _ = stop_core().map_err(log_err);
+    tokio::spawn(async move {
+        stop_core().await.map_err(log_err).ok();
+    });
 }
 
 /// Asynchronously waits for a shutdown signal and executes a callback function when a signal is received.

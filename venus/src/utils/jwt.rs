@@ -11,7 +11,7 @@ use jsonwebtoken::{
 use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
 
-use crate::error::AppError;
+use crate::error::{AppError, RouteError};
 
 pub struct Keys {
     pub encoding: EncodingKey,
@@ -54,10 +54,10 @@ where
         let TypedHeader(Authorization(bearer)) = parts
             .extract::<TypedHeader<Authorization<Bearer>>>()
             .await
-            .map_err(|_| AppError::InvalidToken("Extract the token failed".into()))?;
+            .map_err(|_| RouteError::InvalidToken("Extract the token failed".into()))?;
         // Decode the user data
         let token_data = decode_jwt(bearer.token())
-            .map_err(|_| AppError::InvalidToken("Deocde the token failed".into()))?;
+            .map_err(|_| RouteError::InvalidToken("Deocde the token failed".into()))?;
 
         Ok(token_data.claims)
     }

@@ -204,26 +204,27 @@ async fn request_subs(name: &str, url: &str) -> VenusResult<Vec<Node>> {
     let subscription = String::from_utf8(subscription)?.to_string();
     // Serizlize outbound nodes to json
     let name = name.to_string();
+    let sub_handler = |(index, line): (usize, &str)| -> VenusResult<Node> {
+        let (node_type, link) = line
+            .split_once("://")
+            .ok_or(anyhow!("Cannot serialize node link"))?;
+        let link = general_purpose::STANDARD.decode(link)?;
+        let link = String::from_utf8_lossy(&link).to_string();
+        let mut node = serde_json::from_str::<Node>(&link)?;
+
+        node.subs = Some(name.clone().into());
+        // Add unique id
+        let id = md5::compute(format!("{}-{}-{}-{}", node.ps, node.add, node.port, index));
+        node.node_id = Some(format!("{:?}", id).into());
+        node.raw_link = Some(line.to_string().into());
+        node.node_type = Some(NodeType::from(node_type));
+        Ok(node)
+    };
     let subscription = subscription
         .split('\n')
         .filter(|line| !line.is_empty())
         .enumerate()
-        .map(|(index, line)| {
-            let (node_type, link) = line
-                .split_once("://")
-                .ok_or(anyhow!("Cannot serialize node link"))?;
-            let link = general_purpose::STANDARD.decode(link)?;
-            let link = String::from_utf8_lossy(&link).to_string();
-            let mut node = serde_json::from_str::<Node>(&link)?;
-
-            node.subs = Some(name.clone().into());
-            // Add unique id
-            let id = md5::compute(format!("{}-{}-{}-{}", node.ps, node.add, node.port, index));
-            node.node_id = Some(format!("{:?}", id).into());
-            node.raw_link = Some(line.to_string().into());
-            node.node_type = Some(NodeType::from(node_type));
-            Ok(node)
-        })
+        .map(sub_handler)
         .collect::<VenusResult<Vec<_>>>()?;
     debug!("{subscription:?}");
     Ok(subscription)

@@ -9,6 +9,15 @@ use axum::{
 use serde_json::json;
 use serde_repr::*;
 use tracing::error;
+use venus_core::error::VenusError;
+
+#[derive(thiserror::Error, Debug)]
+pub enum RouteError {
+    // route
+    // 路由通常错误 错误信息直接返回用户
+    #[error("{0}")]
+    InvalidToken(Cow<'static, str>),
+}
 
 #[derive(thiserror::Error, Debug)]
 pub enum AppError {
@@ -33,12 +42,10 @@ pub enum AppError {
     // jwt
     #[error(transparent)]
     Jwt(#[from] jsonwebtoken::errors::Error),
+
     // route
-    // 路由通常错误 错误信息直接返回用户
-    #[error("{0}")]
-    InvalidToken(Cow<'static, str>),
-    // #[error("{0}")]
-    // UserConflict(Cow<'static, str>),
+    #[error(transparent)]
+    Route(#[from] RouteError),
 }
 
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Default)]
@@ -88,7 +95,16 @@ impl IntoResponse for AppError {
         use ErrorCode::*;
 
         let (status_code, code, err_message) = match self {
-            AppError::VenusCore(err) => log_internal_error(err),
+            AppError::VenusCore(err) => match err {
+                VenusError::Subscription(subscription_error) => match subscription_error {
+                    venus_core::error::SubscriptionError::AlreadyExist => (
+                        StatusCode::BAD_REQUEST,
+                        ParameterIncorrect,
+                        "Subscription already exist".to_string(),
+                    ),
+                },
+                _ => log_internal_error(err),
+            },
             AppError::VenusConfig(err) => log_internal_error(err),
             AppError::GlobalPoison(err) => log_internal_error(err),
             AppError::Any(err) => log_internal_error(err),
@@ -110,16 +126,15 @@ impl IntoResponse for AppError {
                 ParameterIncorrect,
                 self.to_string(),
             ),
-            AppError::InvalidToken(_) => (
-                StatusCode::BAD_REQUEST,
-                AuthorizeFailed,
-                "Invalid token".to_string(),
-            ),
             // route
-            /* AppError::AuthorizeFailed(err) => {
-                (StatusCode::UNAUTHORIZED, AuthorizeFailed, err.to_string())
-            }
-            AppError::UserConflict(err) => (StatusCode::CONFLICT, UserConflict, err.to_string()), */
+            AppError::Route(err) => match err {
+                RouteError::InvalidToken(_) => (
+                    StatusCode::BAD_REQUEST,
+                    AuthorizeFailed,
+                    "Invalid token".to_string(),
+                ),
+            },
+            // core
         };
         let body = Json(json!({
             "code": code,

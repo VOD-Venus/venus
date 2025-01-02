@@ -1,32 +1,29 @@
 use std::{
     process::exit,
-    sync::{
-        mpsc::{self},
-        LazyLock, Mutex,
-    },
+    sync::mpsc::{self},
 };
+use tokio::sync::{Mutex, OnceCell};
 use tracing::error;
 
 use venus_core::{message::Message, Venus};
 
-pub static MSG: LazyLock<Mutex<Message>> = LazyLock::new(|| Mutex::new(mpsc::channel()));
+static MSG: OnceCell<Mutex<Message>> = OnceCell::const_new();
+pub async fn global_message() -> &'static Mutex<Message> {
+    MSG.get_or_init(|| async { Mutex::new(mpsc::channel()) })
+        .await
+}
 
-pub static CORE: LazyLock<Mutex<Venus>> = LazyLock::new(|| {
-    let venus = {
-        let msg = match MSG.lock() {
-            Ok(m) => m,
-            Err(err) => {
-                error!("cannot initialize venus core {err}");
-                exit(1);
-            }
-        };
+static CORE: OnceCell<Mutex<Venus>> = OnceCell::const_new();
+pub async fn global_core() -> &'static Mutex<Venus> {
+    CORE.get_or_init(|| async {
+        let msg = global_message().await.lock().await;
         match Venus::new(msg.0.clone()) {
-            Ok(v) => v,
+            Ok(v) => Mutex::new(v),
             Err(err) => {
                 error!("cannot initialize venus core {err}");
                 exit(1);
             }
         }
-    };
-    Mutex::new(venus)
-});
+    })
+    .await
+}

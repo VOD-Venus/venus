@@ -1,13 +1,12 @@
-use core::{CORE, MSG};
-use std::{env, error::Error, net::SocketAddr, thread};
+use core::{global_core, global_message};
+use std::{env, error::Error, net::SocketAddr};
 
-use anyhow::Context;
 use axum::Router;
 use consts::{DEFAULT_PORT, RUA_COMPILER};
 use dotenvy::dotenv;
 use routes::routes;
 use tokio::net::TcpListener;
-use tracing::{error, info, span, Level};
+use tracing::{info, span, Level};
 use utils::{init_logger, shutdown_cb, shutdown_signal};
 use venus_core::{message::MessageType, VenusCore};
 
@@ -25,46 +24,36 @@ async fn main() -> Result<()> {
     dotenv().ok();
     init_logger();
 
-    info!("venus {RUA_COMPILER}");
-    let venus = &*CORE;
-    // register child message
-    {
+    tokio::spawn(async move {
+        info!("venus {RUA_COMPILER}");
+        let venus = &mut global_core().await.lock().await;
         info!("string core");
-        let mut venus = venus.lock()?;
         venus
             .config
             .reload_rua()
-            .with_context(|| "reading venus configuration failed")?;
+            .expect("reading venus configuration failed");
         venus
             .config
             .reload_core()
-            .with_context(|| "reading core configuration failed")?;
+            .expect("reading core configuration failed");
         venus
             .config
             .write_core()
-            .with_context(|| "write core configuration failed")?;
-        venus.spawn_core().with_context(|| "staring core failed")?;
+            .expect("write core configuration failed");
+        venus.spawn_core().expect("staring core failed");
+
         // global message handler
-        thread::spawn(move || {
-            let lock = &MSG.lock();
-            let child_rx = match lock {
-                Ok(msg) => &msg.1,
-                Err(err) => {
-                    error!("lock message failed {err}");
-                    return;
-                }
-            };
-            while let Ok(msg) = child_rx.recv() {
-                match msg {
-                    MessageType::Core(msg) => {
-                        let core_span = span!(Level::INFO, "CORE").entered();
-                        info!("{msg}");
-                        core_span.exit();
-                    }
+        let child_rx = &global_message().await.lock().await.1;
+        while let Ok(msg) = child_rx.recv() {
+            match msg {
+                MessageType::Core(msg) => {
+                    let core_span = span!(Level::INFO, "CORE").entered();
+                    info!("{msg}");
+                    core_span.exit();
                 }
             }
-        });
-    }
+        }
+    });
 
     let port = env::var("VENUS_PORT")
         .map(|port| port.parse::<u16>().unwrap_or(DEFAULT_PORT))

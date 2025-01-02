@@ -5,7 +5,7 @@ use validator::Validate;
 use venus_core::config::types::RUAUser;
 
 use crate::{
-    core::CORE,
+    core::global_core,
     error::{AppResult, ErrorCode},
     utils::{
         jwt::{self, Claims},
@@ -46,19 +46,17 @@ pub async fn register(
     let RegisterInput { username, password } = input;
 
     let hashed = password::hash(password).await?;
-    {
-        let config = &mut CORE.lock()?.config;
-        if config.venus.user.is_some() {
-            res.message = Some("admin user already exist".into());
-            return Ok((StatusCode::BAD_REQUEST, res));
-        } else {
-            config.venus.user = Some(RUAUser {
-                username: username.clone().into(),
-                password: hashed.into(),
-            })
-        }
-        config.write_rua()?;
+    let config = &mut global_core().await.lock().await.config;
+    if config.venus.user.is_some() {
+        res.message = Some("admin user already exist".into());
+        return Ok((StatusCode::BAD_REQUEST, res));
+    } else {
+        config.venus.user = Some(RUAUser {
+            username: username.clone().into(),
+            password: hashed.into(),
+        })
     }
+    config.write_rua()?;
 
     let iat = Utc::now().naive_utc();
     let exp = (iat + chrono::naive::Days::new(7)).and_utc().timestamp() as usize;
@@ -93,7 +91,7 @@ pub async fn login(
     let RegisterInput { username, password } = input;
 
     let user = {
-        let core = &CORE.lock()?;
+        let core = &global_core().await.lock().await;
         let config = &core.config;
         if let Some(user) = &config.venus.user {
             user.clone()

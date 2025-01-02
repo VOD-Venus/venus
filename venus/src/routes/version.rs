@@ -2,7 +2,7 @@ use std::borrow::Cow;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{consts::VERSION, core::CORE};
+use crate::{consts::VERSION, core::global_core};
 
 use super::{RouteResponse, RouteResult};
 
@@ -12,7 +12,7 @@ pub struct Versions {
     pub venus: Cow<'static, str>,
 }
 pub async fn version() -> RouteResult<Versions> {
-    let core = CORE.lock()?;
+    let core = global_core().await.lock().await;
     let v = Versions {
         core: core.version.clone().into(),
         venus: VERSION.into(),
