@@ -1,6 +1,6 @@
 {
   "log": {
-    "loglevel": "warning"
+    "loglevel": "debug"
   },
   "stats": {},
   "api": {
@@ -35,15 +35,17 @@
         "enabled": true,
         "destOverride": ["http", "tls"]
       }
-    },
+    }
+  ],
+  "inboundDetour": [
     {
-      "port": 10086,
       "listen": "127.0.0.1",
-      "tag": "api",
+      "port": 10086,
       "protocol": "dokodemo-door",
       "settings": {
         "address": "127.0.0.1"
-      }
+      },
+      "tag": "api"
     }
   ],
   "outbounds": [
@@ -66,6 +68,11 @@
     "domainStrategy": "IPOnDemand",
     "rules": [
       {
+        "inboundTag": ["api"],
+        "outboundTag": "api",
+        "type": "field"
+      },
+      {
         "type": "field",
         "ip": ["geoip:private"],
         "domain": null,
@@ -81,7 +88,8 @@
         "outboundTag": "blocked"
       }
     ],
-    "balancers": null
+    "balancers": null,
+    "strategy": "rules"
   },
   "dns": {
     "hosts": {
