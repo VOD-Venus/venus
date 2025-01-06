@@ -25,6 +25,8 @@ pub enum AppError {
     VenusCore(#[from] venus_core::error::VenusError),
     #[error("venus config error {0}")]
     VenusConfig(#[from] venus_core::config::error::ConfigError),
+    #[error("venus config error {0}")]
+    VenusGrpc(#[from] venus_core::grpc::error::GrpcError),
     #[error("venus poison {0}")]
     GlobalPoison(#[from] std::sync::PoisonError<std::sync::MutexGuard<'static, venus_core::Venus>>),
     #[error("{0}")]
@@ -134,6 +136,7 @@ impl IntoResponse for AppError {
                     "Invalid token".to_string(),
                 ),
             },
+            AppError::VenusGrpc(grpc_error) => todo!(),
             // core
         };
         let body = Json(json!({

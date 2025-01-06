@@ -23,6 +23,7 @@ use crate::{
 };
 
 pub mod proxies;
+pub mod stats;
 pub mod user;
 pub mod version;
 
@@ -58,7 +59,8 @@ pub fn routes() -> Router {
             Router::new()
                 .route("/version", get(version::version))
                 .nest("/user", user::routes())
-                .nest("/subscription", proxies::routes()),
+                .nest("/subscription", proxies::routes())
+                .nest("/stats", stats::routes()),
         )
         .layer(
             ServiceBuilder::new()

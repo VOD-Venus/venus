@@ -23,6 +23,7 @@ use tonic::async_trait;
 pub mod config;
 pub mod consts;
 pub mod error;
+pub mod grpc;
 pub mod message;
 
 pub mod v2ray_core {

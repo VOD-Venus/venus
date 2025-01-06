@@ -167,6 +167,7 @@ pub struct CoreConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub api: Option<Api>,
     pub inbounds: Vec<Inbound>,
+    pub inbound_detour: Vec<Inbound>,
     pub outbounds: Vec<Outbound>,
     pub routing: Routing,
     #[serde(skip_serializing_if = "Option::is_none")]

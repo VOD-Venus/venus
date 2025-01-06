@@ -49,7 +49,7 @@ impl Config {
         let mut buffer = String::new();
         config_file.read_to_string(&mut buffer)?;
         let mut rua_config = toml::from_str::<VenusConfig>(&buffer)?;
-        debug!("reloading rua config: {:?}", rua_config);
+        // debug!("reloading rua config: {:?}", rua_config);
         rua_config.version = VERSION.into();
         self.venus = rua_config;
         Ok(())
