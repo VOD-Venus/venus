@@ -10,7 +10,7 @@ all: build
 build: ui
 	$(CARGO) build -p venus
 
-release: clean ui-release
+release: ui-release
 	$(CARGO) build -p venus --release
 
 dev:
@@ -29,7 +29,7 @@ ui-dev:
 
 ui-release: ui-clean
 	cd venus-ui \
-		&& trunk build --release --profile ui
+		&& trunk build --release
 
 ui-clean:
 	cd venus-ui \
