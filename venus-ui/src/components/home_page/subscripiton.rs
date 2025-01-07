@@ -1,5 +1,20 @@
-use crate::components::subscription_card::{SubCardForm, SubscriptionCard};
+use crate::{
+    api::BaseResponse,
+    components::subscription_card::{SubCardForm, SubscriptionCard},
+    utils::error_to_string,
+};
 use leptos::prelude::*;
+
+async fn add_subscription(subs_form: SubCardForm) -> Result<BaseResponse<()>, String> {
+    use crate::api::post;
+
+    let address = format!("{}/api/subscription/add", "localhost:4001");
+    post(
+        &address,
+        serde_json::to_string(&subs_form).map_err(error_to_string)?,
+    )
+    .await
+}
 
 /// 首页中的订阅选项卡
 #[component]

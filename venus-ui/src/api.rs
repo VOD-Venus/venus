@@ -1,10 +1,17 @@
 use gloo::net::http::Request;
 use leptos::prelude::on_cleanup;
 use send_wrapper::SendWrapper;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use web_sys::wasm_bindgen::JsValue;
 
 use crate::utils::error_to_string;
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct BaseResponse<T> {
+    pub code: i64,
+    pub message: String,
+    pub data: Option<T>,
+}
 
 /// Send a POST request to the server
 ///
