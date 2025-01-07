@@ -91,7 +91,8 @@ v2ray:
 	python -m venv .venus \
 		&& source .venus/bin/activate \
 		&& pip install -r scripts/requirements.txt \
-		&& python scripts/download-core.py
+		&& python scripts/download-core.py \
+		&& chmod +x v2ray-core/v2ray
 
 
 .PHONY: all
