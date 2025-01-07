@@ -1,10 +1,14 @@
+use crate::components::subscription_card::{SubCardForm, SubscriptionCard};
 use leptos::prelude::*;
-
-use crate::components::subscription_card::SubscriptionCard;
 
 /// 首页中的订阅选项卡
 #[component]
 pub fn Subscription() -> impl IntoView {
+    let (form, set_form) = create_signal(SubCardForm {
+        name: "".into(),
+        url: "".into(),
+    });
+
     view! {
         <div class="py-4">
             <div class="pb-4">
@@ -16,7 +20,7 @@ pub fn Subscription() -> impl IntoView {
                     <button class="mr-2 btn btn-sm" onclick="add_modal.showModal()">
                         Add
                     </button>
-                    <SubscriptionCard />
+                    <SubscriptionCard form=form set_form=set_form on_ok=|_| {} on_close=|_| {} />
 
                     <button class="btn btn-sm">Update All</button>
                 </div>
