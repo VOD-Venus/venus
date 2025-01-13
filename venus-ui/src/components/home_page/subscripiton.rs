@@ -19,7 +19,7 @@ async fn add_subscription(subs_form: SubCardForm) -> Result<BaseResponse<()>, St
 /// 首页中的订阅选项卡
 #[component]
 pub fn Subscription() -> impl IntoView {
-    let (form, set_form) = create_signal(SubCardForm {
+    let (form, set_form) = signal(SubCardForm {
         name: "".into(),
         url: "".into(),
     });

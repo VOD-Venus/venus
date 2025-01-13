@@ -36,11 +36,13 @@ pub enum AppError {
     InvalidHeaderValue(#[from] header::InvalidHeaderValue),
     #[error(transparent)]
     ValidationError(#[from] validator::ValidationErrors),
+
     // axum
     #[error(transparent)]
     AxumFormRejection(#[from] FormRejection),
     #[error(transparent)]
     AxumJsonRejection(#[from] JsonRejection),
+
     // jwt
     #[error(transparent)]
     Jwt(#[from] jsonwebtoken::errors::Error),
@@ -136,8 +138,8 @@ impl IntoResponse for AppError {
                     "Invalid token".to_string(),
                 ),
             },
-            AppError::VenusGrpc(grpc_error) => todo!(),
             // core
+            AppError::VenusGrpc(err) => log_internal_error(err),
         };
         let body = Json(json!({
             "code": code,

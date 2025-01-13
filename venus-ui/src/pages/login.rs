@@ -112,6 +112,7 @@ pub fn Login() -> impl IntoView {
                             ));
                         });
                         let user = User {
+                            server: form().server.clone(),
                             username: form().username.clone(),
                             token: data.access_token.clone(),
                             token_type: data.token_type.clone(),

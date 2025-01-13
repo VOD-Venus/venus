@@ -71,6 +71,7 @@ impl Notification {
 /// 登录后保存的用户信息
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct User {
+    pub server: String,
     pub username: String,
     /// 用户的 jwt token
     /// 决定了用户是否已经登录
