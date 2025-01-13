@@ -5,6 +5,7 @@ use axum_extra::{
     headers::{authorization::Bearer, Authorization},
     TypedHeader,
 };
+use chrono::Utc;
 use jsonwebtoken::{
     decode, encode, Algorithm, DecodingKey, EncodingKey, Header, TokenData, Validation,
 };
@@ -58,6 +59,13 @@ where
         // Decode the user data
         let token_data = decode_jwt(bearer.token())
             .map_err(|_| RouteError::InvalidToken("Deocde the token failed".into()))?;
+
+        let now = Utc::now().naive_utc().and_utc().timestamp();
+        if token_data.claims.exp <= (now as usize) {
+            return Err(AppError::Route(RouteError::InvalidToken(
+                "token expired".into(),
+            )));
+        }
 
         Ok(token_data.claims)
     }
