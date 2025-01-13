@@ -4,7 +4,7 @@ use consts::{COLOR_MODE, SIDEBAR_OPEN_KEY, TABS_KEY, USER_KEY};
 use gloo::storage::{LocalStorage, Storage};
 use hooks::use_global_ui;
 use layout::Layout;
-use leptos::prelude::*;
+use leptos::{logging, prelude::*};
 use leptos_meta::*;
 use leptos_router::{components::*, path};
 use leptos_use::{use_color_mode_with_options, UseColorModeOptions, UseColorModeReturn};
@@ -132,6 +132,7 @@ pub fn App() -> impl IntoView {
     Effect::new(|| {
         let ui = use_global_ui();
         let user = ui.user.get();
+        logging::log!("user {:?}", ui.user.get());
         LocalStorage::set(USER_KEY, user).ok();
     });
     Effect::new(|| {

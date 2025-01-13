@@ -117,16 +117,7 @@ pub fn Login() -> impl IntoView {
                             token: data.access_token.clone(),
                             token_type: data.token_type.clone(),
                         };
-                        LocalStorage::set("rua-user", user)
-                            .map_err(|err| {
-                                logging::error!("set user info failed {:?}", err);
-                            })
-                            .ok();
-                        state.user.update(|d| {
-                            d.username = form().username.clone();
-                            d.token = data.access_token.clone();
-                            d.token_type = data.token_type.clone();
-                        });
+                        state.user.set(user);
                         navigate("/home", Default::default());
                     } else {
                         nts.update(|nts| {
