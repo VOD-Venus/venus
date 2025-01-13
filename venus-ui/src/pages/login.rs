@@ -1,10 +1,9 @@
-use gloo::storage::{LocalStorage, Storage};
 use leptos::web_sys::MouseEvent;
 use leptos::{ev::Event, logging, prelude::*};
 use leptos_router::hooks::use_navigate;
 use serde::{Deserialize, Serialize};
 
-use crate::api::BaseResponse;
+use crate::api::{BaseResponse, RequestApi};
 use crate::hooks::use_global_ui;
 use crate::User;
 use crate::{utils::error_to_string, Notification, NotificationKind};
@@ -33,7 +32,7 @@ struct LoginBody {
 async fn login(login_form: LoginForm) -> Result<LoginResponse, String> {
     use crate::api::post;
 
-    let address = format!("{}/api/user/login", login_form.server);
+    let address = format!("{}{}", login_form.server, RequestApi::Login);
     let login_body = LoginBody {
         username: login_form.username,
         password: login_form.password,
@@ -96,6 +95,7 @@ pub fn Login() -> impl IntoView {
     let login_loading = login_action.pending();
     let login_result = login_action.value();
     let navigate = use_navigate();
+    // after submit
     Effect::new(move |_| {
         let login_handler = || -> anyhow::Result<()> {
             let login_result = login_result.read();

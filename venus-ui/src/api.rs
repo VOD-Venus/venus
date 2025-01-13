@@ -1,10 +1,15 @@
-use gloo::net::http::Request;
+use core::fmt;
+
+use gloo::{
+    net::http::Request,
+    storage::{LocalStorage, Storage},
+};
 use leptos::prelude::on_cleanup;
 use send_wrapper::SendWrapper;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use web_sys::wasm_bindgen::JsValue;
 
-use crate::utils::error_to_string;
+use crate::{consts::USER_KEY, utils::error_to_string, User};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BaseResponse<T> {
@@ -35,9 +40,17 @@ where
         }
     });
 
+    let user = LocalStorage::get::<User>(USER_KEY).unwrap_or_default();
+    let token = user.token;
+    let token_type = user.token_type;
+
     let request = Request::post(address)
         .abort_signal(abort_signal.as_ref())
         .header("Content-Type", "application/json")
+        .header(
+            "Authorization",
+            format!("{} {}", token_type, token).as_str(),
+        )
         .body(body)
         .map_err(error_to_string)?
         .send()
@@ -45,5 +58,18 @@ where
     match request {
         Ok(response) => response.json().await.map_err(error_to_string),
         Err(err) => Err(err.to_string()),
+    }
+}
+
+pub enum RequestApi {
+    Login,
+    AddSubscription,
+}
+impl fmt::Display for RequestApi {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Login => write!(f, "/api/user/login"),
+            Self::AddSubscription => write!(f, "/api/subscription/add"),
+        }
     }
 }

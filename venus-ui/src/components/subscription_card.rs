@@ -14,11 +14,14 @@ pub struct SubCardForm {
 #[component]
 pub fn SubscriptionCard(
     form: ReadSignal<SubCardForm>,
+    /// on form change
     set_form: WriteSignal<SubCardForm>,
     /// Click the confirm button
     on_ok: impl FnMut(MouseEvent) + 'static,
     /// Click the close button
     on_close: impl FnMut(MouseEvent) + 'static,
+    loading: Memo<bool>,
+    node_ref: NodeRef<leptos::html::Form>,
 ) -> impl IntoView {
     enum FormTarget {
         Name,
@@ -40,39 +43,48 @@ pub fn SubscriptionCard(
             <div class="modal-box">
                 <h3 class="text-lg font-bold">Subscription</h3>
 
-                <div class="py-4 flex flex-col gap-4">
-                    <label class="input input-bordered flex items-center gap-2">
-                        Name
-                        <input
-                            type="text"
-                            class="grow"
-                            placeholder="rua"
-                            prop:value=move || form().name
-                            on:change=handle_change(FormTarget::Name)
-                        />
-                    </label>
-                    <label class="input input-bordered flex items-center gap-2">
-                        URL
-                        <input
-                            type="text"
-                            class="grow"
-                            placeholder="https://rua.rua"
-                            prop:value=move || form().url
-                            on:change=handle_change(FormTarget::Url)
-                        />
-                    </label>
-                </div>
+                <form method="dialog" node_ref=node_ref>
+                    <div class="py-4 flex flex-col gap-4">
+                        <label class="input input-bordered flex items-center gap-2">
+                            Name
+                            <input
+                                type="text"
+                                class="grow"
+                                placeholder="rua"
+                                prop:value=move || form().name
+                                on:change=handle_change(FormTarget::Name)
+                                required
+                            />
+                        </label>
+                        <label class="input input-bordered flex items-center gap-2">
+                            URL
+                            <input
+                                type="text"
+                                class="grow"
+                                placeholder="https://rua.rua"
+                                prop:value=move || form().url
+                                on:change=handle_change(FormTarget::Url)
+                                required
+                            />
+                        </label>
+                    </div>
 
-                <div class="modal-action">
-                    <button class="btn btn-primary" on:click=on_ok>
-                        Confirm
-                    </button>
-                    <form method="dialog">
+                    <div class="modal-action">
+                        <button
+                            class="btn btn-primary"
+                            on:click=on_ok
+                            disabled=move || loading.get()
+                        >
+                            <Show when=move || loading()>
+                                <span class="loading loading-spinner"></span>
+                            </Show>
+                            Confirm
+                        </button>
                         <button class="btn" on:click=on_close>
                             Close
                         </button>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </dialog>
     }
