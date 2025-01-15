@@ -1,10 +1,12 @@
 #![feature(stmt_expr_attributes)]
+use std::sync::{LazyLock, RwLock};
+
 use components::notifications::Notifications;
 use consts::{COLOR_MODE, SIDEBAR_OPEN_KEY, TABS_KEY, USER_KEY};
 use gloo::storage::{LocalStorage, Storage};
 use hooks::use_global_ui;
 use layout::Layout;
-use leptos::{logging, prelude::*};
+use leptos::prelude::*;
 use leptos_meta::*;
 use leptos_router::{components::*, path};
 use leptos_use::{use_color_mode_with_options, UseColorModeOptions, UseColorModeReturn};
@@ -22,6 +24,8 @@ mod hooks;
 mod layout;
 mod pages;
 mod utils;
+
+pub static USER: LazyLock<RwLock<User>> = LazyLock::new(|| RwLock::new(User::new()));
 
 /// 各个页面的保存的 Tab ID，用于持久化 Tab 状态
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -132,7 +136,8 @@ pub fn App() -> impl IntoView {
     Effect::new(|| {
         let ui = use_global_ui();
         let user = ui.user.get();
-        logging::log!("user {:?}", ui.user.get());
+        let mut global_user = USER.write().expect("write USER failed");
+        *global_user = user.clone();
         LocalStorage::set(USER_KEY, user).ok();
     });
     Effect::new(|| {

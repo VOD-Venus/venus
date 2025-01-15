@@ -21,7 +21,7 @@ run:
 
 ui:
 	cd venus-ui \
-		&& trunk build
+		&& trunk build --cargo-profile ui
 
 ui-dev:
 	cd venus-ui \
@@ -29,7 +29,7 @@ ui-dev:
 
 ui-release: ui-clean
 	cd venus-ui \
-		&& trunk build --release
+		&& trunk build --release --cargo-profile ui
 
 ui-clean:
 	cd venus-ui \

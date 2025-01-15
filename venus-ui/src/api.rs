@@ -1,15 +1,12 @@
 use core::fmt;
 
-use gloo::{
-    net::http::Request,
-    storage::{LocalStorage, Storage},
-};
-use leptos::prelude::on_cleanup;
+use gloo::net::http::Request;
+use leptos::{logging, prelude::on_cleanup};
 use send_wrapper::SendWrapper;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use web_sys::wasm_bindgen::JsValue;
 
-use crate::{consts::USER_KEY, utils::error_to_string, User};
+use crate::{utils::error_to_string, USER};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BaseResponse<T> {
@@ -40,9 +37,14 @@ where
         }
     });
 
-    let user = LocalStorage::get::<User>(USER_KEY).unwrap_or_default();
-    let token = user.token;
-    let token_type = user.token_type;
+    let user = USER.read();
+    let (token_type, token) = match user {
+        Ok(user) => (user.token_type.clone(), user.token.clone()),
+        Err(err) => {
+            logging::error!("cannot get user {err}");
+            ("".to_string(), "".to_string())
+        }
+    };
 
     let request = Request::post(address)
         .abort_signal(abort_signal.as_ref())
