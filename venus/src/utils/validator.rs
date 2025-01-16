@@ -1,7 +1,6 @@
 use std::sync::LazyLock;
 
 use axum::{
-    async_trait,
     extract::{
         rejection::{FormRejection, JsonRejection},
         FromRequest, Request,
@@ -17,7 +16,6 @@ use crate::error::AppError;
 #[derive(Debug, Clone, Copy, Default)]
 pub struct ValidatedForm<T>(pub T);
 
-#[async_trait]
 impl<T, S> FromRequest<S> for ValidatedForm<T>
 where
     T: DeserializeOwned + Validate,
@@ -36,7 +34,6 @@ where
 #[derive(Debug, Clone, Copy, Default)]
 pub struct ValidatedJson<T>(pub T);
 
-#[async_trait]
 impl<T, S> FromRequest<S> for ValidatedJson<T>
 where
     T: DeserializeOwned + Validate,

@@ -53,7 +53,7 @@ pub fn routes() -> Router {
     let ui_service = ServeDir::new(ui_folder.to_string()).fallback(ServeFile::new(ui_index));
 
     let router = Router::new()
-        .nest_service("/", ui_service)
+        .fallback_service(ui_service)
         .nest(
             "/api/",
             Router::new()
