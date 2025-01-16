@@ -43,7 +43,7 @@ pub fn SubscriptionCard(
             <div class="modal-box">
                 <h3 class="text-lg font-bold">Subscription</h3>
 
-                <form method="dialog" node_ref=node_ref>
+                <form node_ref=node_ref>
                     <div class="py-4 flex flex-col gap-4">
                         <label class="input input-bordered flex items-center gap-2">
                             Name
@@ -68,23 +68,21 @@ pub fn SubscriptionCard(
                             />
                         </label>
                     </div>
+                </form>
 
-                    <div class="modal-action">
-                        <button
-                            class="btn btn-primary"
-                            on:click=on_ok
-                            disabled=move || loading.get()
-                        >
-                            <Show when=move || loading()>
-                                <span class="loading loading-spinner"></span>
-                            </Show>
-                            Confirm
-                        </button>
+                <div class="modal-action">
+                    <button class="btn btn-primary" on:click=on_ok disabled=move || loading.get()>
+                        <Show when=move || loading()>
+                            <span class="loading loading-spinner"></span>
+                        </Show>
+                        Confirm
+                    </button>
+                    <form method="dialog">
                         <button class="btn" on:click=on_close>
                             Close
                         </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </dialog>
     }
