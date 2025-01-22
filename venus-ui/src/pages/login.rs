@@ -1,9 +1,10 @@
+use gloo::net::http::Method;
 use leptos::web_sys::MouseEvent;
 use leptos::{ev::Event, logging, prelude::*};
 use leptos_router::hooks::use_navigate;
 use serde::{Deserialize, Serialize};
 
-use crate::api::{BaseResponse, RequestApi};
+use crate::api::{axios, BaseResponse, RequestApi};
 use crate::hooks::use_global_ui;
 use crate::User;
 use crate::{utils::error_to_string, Notification, NotificationKind};
@@ -30,18 +31,22 @@ struct LoginBody {
 /// ## Arguments
 /// * `login_form` - The login form
 async fn login(login_form: LoginForm) -> Result<LoginResponse, String> {
-    use crate::api::post;
-
     let address = format!("{}{}", login_form.server, RequestApi::Login);
     let login_body = LoginBody {
         username: login_form.username,
         password: login_form.password,
     };
-    post(
-        &address,
-        serde_json::to_string(&login_body).map_err(error_to_string)?,
-    )
-    .await
+
+    let resquest = axios(&address, Method::POST)
+        .header("Content-Type", "application/json")
+        .body(serde_json::to_string(&login_body).map_err(error_to_string)?)
+        .map_err(error_to_string)?
+        .send()
+        .await;
+    match resquest {
+        Ok(response) => response.json().await.map_err(error_to_string),
+        Err(err) => Err(err.to_string()),
+    }
 }
 /// 登录用的表单
 #[derive(Debug, Clone, Serialize, Deserialize)]

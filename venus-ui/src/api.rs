@@ -1,12 +1,11 @@
 use core::fmt;
 
-use gloo::net::http::Request;
+use gloo::net::http::{Method, RequestBuilder};
 use leptos::{logging, prelude::on_cleanup};
 use send_wrapper::SendWrapper;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use web_sys::wasm_bindgen::JsValue;
+use serde::{Deserialize, Serialize};
 
-use crate::{utils::error_to_string, USER};
+use crate::USER;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BaseResponse<T> {
@@ -15,18 +14,12 @@ pub struct BaseResponse<T> {
     pub data: Option<T>,
 }
 
-/// Send a POST request to the server
+/// Create a new RequestBuilder
 ///
-/// ## Arguments
+/// # Parameters
 /// * `address` - The address of the server
-/// * `body` - The body of the request
-///
-/// ## Returns
-/// The response from the server
-pub async fn post<T>(address: &str, body: impl Into<JsValue>) -> Result<T, String>
-where
-    T: Serialize + DeserializeOwned,
-{
+/// * `method` - The request method
+pub fn axios(address: &str, method: Method) -> RequestBuilder {
     let abort_controller = SendWrapper::new(web_sys::AbortController::new().ok());
     let abort_signal = abort_controller.as_ref().map(|a| a.signal());
 
@@ -46,21 +39,16 @@ where
         }
     };
 
-    let request = Request::post(address)
-        .abort_signal(abort_signal.as_ref())
-        .header("Content-Type", "application/json")
-        .header(
+    let mut client = RequestBuilder::new(address)
+        .method(method.clone())
+        .abort_signal(abort_signal.as_ref());
+    if !token.is_empty() {
+        client = client.header(
             "Authorization",
             format!("{} {}", token_type, token).as_str(),
-        )
-        .body(body)
-        .map_err(error_to_string)?
-        .send()
-        .await;
-    match request {
-        Ok(response) => response.json().await.map_err(error_to_string),
-        Err(err) => Err(err.to_string()),
+        );
     }
+    client
 }
 
 pub enum RequestApi {

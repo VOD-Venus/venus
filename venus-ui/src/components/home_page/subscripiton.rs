@@ -1,24 +1,30 @@
 use crate::{
-    api::{BaseResponse, RequestApi},
+    api::{axios, BaseResponse, RequestApi},
     components::subscription_card::{SubCardForm, SubscriptionCard},
     consts::USER_KEY,
     utils::error_to_string,
     User,
 };
-use gloo::storage::{LocalStorage, Storage};
+use gloo::{
+    net::http::Method,
+    storage::{LocalStorage, Storage},
+};
 use leptos::{logging, prelude::*};
 use web_sys::MouseEvent;
 
 async fn add_subscription(subs_form: SubCardForm) -> Result<BaseResponse<()>, String> {
-    use crate::api::post;
-
     let user = LocalStorage::get::<User>(USER_KEY).unwrap_or_default();
     let address = format!("{}{}", user.server, RequestApi::AddSubscription);
-    post(
-        &address,
-        serde_json::to_string(&subs_form).map_err(error_to_string)?,
-    )
-    .await
+    let resquest = axios(&address, Method::POST)
+        .header("Content-Type", "application/json")
+        .body(serde_json::to_string(&subs_form).map_err(error_to_string)?)
+        .map_err(error_to_string)?
+        .send()
+        .await;
+    match resquest {
+        Ok(response) => response.json().await.map_err(error_to_string),
+        Err(err) => Err(err.to_string()),
+    }
 }
 
 /// 首页中的订阅选项卡

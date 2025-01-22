@@ -25,6 +25,9 @@ mod layout;
 mod pages;
 mod utils;
 
+/// Global user state
+/// It's different for leptos state.
+/// Will update when user changed in Effect.
 pub static USER: LazyLock<RwLock<User>> = LazyLock::new(|| RwLock::new(User::new()));
 
 /// 各个页面的保存的 Tab ID，用于持久化 Tab 状态
