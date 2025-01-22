@@ -18,7 +18,6 @@ use error::{log_err, SubscriptionError, VenusError, VenusResult};
 use log::debug;
 use message::MessageType;
 use reqwest::header::USER_AGENT;
-use tonic::async_trait;
 
 pub mod config;
 pub mod consts;
@@ -41,10 +40,20 @@ pub trait VenusCore {
     fn restart(&mut self) -> VenusResult<()>;
 }
 
-#[async_trait]
 pub trait VenusSubscriptor {
     /// Add subscription
-    async fn add_subscription(&mut self, name: String, url: String) -> VenusResult<()>;
+    ///
+    /// # Parameters
+    /// * `name`: subscription name
+    /// * `url`: subscription url
+    ///
+    /// # Returns
+    /// * `VenusResult<()>`
+    fn add_subscription(
+        &mut self,
+        name: String,
+        url: String,
+    ) -> impl std::future::Future<Output = VenusResult<()>> + Send;
 }
 
 #[derive(Debug)]
@@ -62,6 +71,13 @@ pub struct Venus {
 }
 
 impl Venus {
+    /// Create a new `Venus` instance
+    ///
+    /// # Parameters
+    /// * `message_tx`: message sender
+    ///
+    /// # Returns
+    /// * `VenusResult<Self>`
     pub fn new(message_tx: Sender<MessageType>) -> VenusResult<Self> {
         let config = Config::new()?;
 
@@ -160,7 +176,6 @@ impl VenusCore for Venus {
     }
 }
 
-#[async_trait]
 impl VenusSubscriptor for Venus {
     async fn add_subscription(&mut self, name: String, url: String) -> VenusResult<()> {
         let subscriptions = &self.config.venus.subscriptions;
@@ -190,6 +205,10 @@ pub fn core_version() -> VenusResult<String> {
 }
 
 /// Send http request to download subscription info
+///
+/// # Parameters
+/// * `name`: subscription name
+/// * `url`: subscription url
 async fn request_subs(name: &str, url: &str) -> VenusResult<Vec<Node>> {
     let client = reqwest::ClientBuilder::new().no_proxy().build()?;
     let result = client
@@ -202,7 +221,6 @@ async fn request_subs(name: &str, url: &str) -> VenusResult<Vec<Node>> {
 
     // Decode result to vmess://...
     let subscription = general_purpose::STANDARD.decode(result)?;
-    // let subscription = String::from_utf8_lossy(&subscription).to_string();
     let subscription = String::from_utf8(subscription)?.to_string();
     // Serizlize outbound nodes to json
     let name = name.to_string();
