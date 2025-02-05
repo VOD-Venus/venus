@@ -9,7 +9,7 @@ use chrono::Utc;
 use jsonwebtoken::{
     decode, encode, Algorithm, DecodingKey, EncodingKey, Header, TokenData, Validation,
 };
-use rand::distributions::{Alphanumeric, DistString};
+use rand::distr::{Alphanumeric, SampleString};
 use serde::{Deserialize, Serialize};
 
 use crate::error::{AppError, RouteError};
@@ -29,7 +29,7 @@ impl Keys {
 }
 
 pub static KEYS: LazyLock<Keys> = LazyLock::new(|| {
-    let secret = Alphanumeric.sample_string(&mut rand::thread_rng(), 32);
+    let secret = Alphanumeric.sample_string(&mut rand::rng(), 32);
     Keys::new(secret.as_bytes())
 });
 

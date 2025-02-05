@@ -11,7 +11,7 @@ use argon2::{password_hash, Argon2, PasswordHash, PasswordHasher, PasswordVerifi
 /// - `password`: 用户输入的明文密码
 pub async fn hash(password: String) -> anyhow::Result<String> {
     task::spawn_blocking(move || {
-        let salt = SaltString::generate(rand::thread_rng());
+        let salt = SaltString::generate(pass_rand::thread_rng());
         Ok(Argon2::default()
             .hash_password(password.as_bytes(), &salt)
             .map_err(|e| anyhow!(e).context("failed to hash password"))?
