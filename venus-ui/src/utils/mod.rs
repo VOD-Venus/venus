@@ -25,11 +25,11 @@ pub fn error_to_string(err: impl std::fmt::Display) -> String {
 pub fn nanoid(size: usize) -> String {
     const CHARSET: &str = "useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict";
     const MASK: u8 = 63; // 0b00111111 to select 6 bits (index range 0-63)
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     (0..size)
         .map(|_| {
-            let rand_value: u8 = rng.gen();
+            let rand_value: u8 = rng.random();
             CHARSET.as_bytes()[(rand_value & MASK) as usize] as char
         })
         .collect()

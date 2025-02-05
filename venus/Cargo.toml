@@ -29,6 +29,7 @@ dotenvy = "0.15.7"
 # password
 argon2 = "0.5.3"
 rand = "0.9.0"
+## for argon2 password-hash
 pass-rand = { package = "rand", version = "0.8.5" }
 validator = { version = "0.20.0", features = ["derive"] }
 regex = "1.11.1"
