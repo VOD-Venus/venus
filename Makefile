@@ -25,7 +25,7 @@ ui:
 
 ui-dev:
 	cd venus-ui \
-		&& trunk serve
+		&& trunk serve --cargo-profile ui-dev
 
 ui-release: ui-clean
 	cd venus-ui \
