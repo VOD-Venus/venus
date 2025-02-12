@@ -1,23 +1,19 @@
 use crate::{
     api::{axios, BaseResponse, RequestApi},
     components::subscription_card::{SubCardForm, SubscriptionCard},
-    consts::USER_KEY,
+    hooks::use_global_user,
     utils::error_to_string,
     User,
 };
-use gloo::{
-    net::http::Method,
-    storage::{LocalStorage, Storage},
-};
+use gloo::net::http::Method;
 use leptos::{logging, prelude::*};
 use web_sys::MouseEvent;
 
-async fn add_subscription(subs_form: SubCardForm) -> Result<BaseResponse<()>, String> {
-    let user = LocalStorage::get::<User>(USER_KEY).unwrap_or_default();
-    let address = format!("{}{}", user.server, RequestApi::AddSubscription);
+async fn add_subscription(subs_form: (SubCardForm, User)) -> Result<BaseResponse<()>, String> {
+    let address = format!("{}{}", subs_form.1.server, RequestApi::AddSubscription);
     let resquest = axios(&address, Method::POST)
         .header("Content-Type", "application/json")
-        .body(serde_json::to_string(&subs_form).map_err(error_to_string)?)
+        .body(serde_json::to_string(&subs_form.0).map_err(error_to_string)?)
         .map_err(error_to_string)?
         .send()
         .await;
@@ -35,9 +31,11 @@ pub fn Subscription() -> impl IntoView {
         url: "".into(),
     });
 
+    let user = use_global_user();
+
     let form_ref: NodeRef<leptos::html::Form> = NodeRef::new();
     let add_action: Action<SubCardForm, Result<BaseResponse<()>, String>, SyncStorage> =
-        Action::new_unsync(|form: &SubCardForm| add_subscription(form.clone()));
+        Action::new_unsync(move |form: &SubCardForm| add_subscription((form.clone(), user.get())));
     let add_loading = add_action.pending();
     let add_result = add_action.value();
     let handle_submit = move |e: MouseEvent| {
