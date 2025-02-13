@@ -3,7 +3,7 @@ use leptos::prelude::*;
 use crate::hooks::use_global_ui;
 use gloo::timers::callback::Timeout;
 
-const MAX_NOTIFICATIONS: usize = 5;
+// const MAX_NOTIFICATIONS: usize = 5;
 
 /// 全局通知栏
 #[component]

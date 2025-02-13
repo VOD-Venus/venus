@@ -1,12 +1,13 @@
 #![feature(stmt_expr_attributes)]
 use std::sync::{LazyLock, RwLock};
 
-use components::notifications::Notifications;
+use components::{home_page::subscripiton::get_subscriptions, notifications::Notifications};
 use consts::{COLOR_MODE, SIDEBAR_OPEN_KEY, TABS_KEY, USER_KEY};
 use gloo::storage::{LocalStorage, Storage};
 use hooks::use_global_ui;
 use layout::Layout;
 use leptos::prelude::*;
+use leptos::{logging, prelude::*};
 use leptos_meta::*;
 use leptos_router::{components::*, path};
 use leptos_use::{use_color_mode_with_options, UseColorModeOptions, UseColorModeReturn};
@@ -154,6 +155,24 @@ pub fn App() -> impl IntoView {
 
     let logged_in = Memo::new(move |_| Some(!global_ui.user.read().token.is_empty()));
     let redirect_path = || "/login";
+
+    // load subscriptions
+    let subs_data = LocalResource::new(move || get_subscriptions(global_ui.user.read().clone()));
+    Effect::new(move || {
+        let ui = use_global_ui();
+        let data = subs_data.get();
+        let data = data.as_deref();
+        if let Some(data) = data {
+            match data {
+                Ok(data) => {
+                    if data.code == 1002 {
+                        ui.user.set(User::new());
+                    }
+                }
+                Err(err) => logging::error!("get subscriptions error {err}"),
+            }
+        }
+    });
 
     view! {
         <Html {..} lang="en" dir="ltr" />

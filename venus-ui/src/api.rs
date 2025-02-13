@@ -54,12 +54,14 @@ pub fn axios(address: &str, method: Method) -> RequestBuilder {
 pub enum RequestApi {
     Login,
     AddSubscription,
+    ListSubscriptions,
 }
 impl fmt::Display for RequestApi {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Login => write!(f, "/api/user/login"),
             Self::AddSubscription => write!(f, "/api/subscription/add"),
+            Self::ListSubscriptions => write!(f, "/api/subscription/list"),
         }
     }
 }

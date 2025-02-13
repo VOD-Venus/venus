@@ -7,8 +7,93 @@ use crate::{
 };
 use gloo::net::http::Method;
 use leptos::{logging, prelude::*};
+use serde::{Deserialize, Serialize};
 use web_sys::MouseEvent;
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Subscriptions {
+    /// 订阅名称
+    pub name: String,
+    pub url: String,
+    /// 该订阅下的节点
+    pub nodes: Vec<Node>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct Node {
+    pub v: String,
+    pub ps: String,
+    pub add: String,
+    pub port: String,
+    pub id: String,
+    pub aid: String,
+    pub net: Net,
+    #[serde(rename = "type")]
+    pub purple_type: Type,
+    pub host: String,
+    pub path: String,
+    pub tls: Tls,
+    pub sni: String,
+    pub alpn: String,
+    pub subs: String,
+    pub speed: Option<serde_json::Value>,
+    pub delay: Option<serde_json::Value>,
+    pub connectivity: Option<serde_json::Value>,
+    pub node_id: String,
+    pub raw_link: String,
+    pub node_type: NodeType,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum Net {
+    Tcp,
+    Ws,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum NodeType {
+    Vmess,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum Type {
+    None,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum Tls {
+    #[serde(rename = "")]
+    Empty,
+    Tls,
+}
+
+/// 获取订阅列表
+///
+/// ## Arguments
+///
+/// * `user` - 用户信息
+pub async fn get_subscriptions(user: User) -> Result<BaseResponse<Subscriptions>, String> {
+    let address = format!("{}{}", user.server, RequestApi::ListSubscriptions);
+    let resquest = axios(&address, Method::GET)
+        .header("Content-Type", "application/json")
+        .send()
+        .await;
+    match resquest {
+        Ok(response) => response.json().await.map_err(error_to_string),
+        Err(err) => Err(err.to_string()),
+    }
+}
+
+/// 添加订阅
+///
+/// ## Arguments
+///
+/// * `subs_form` - 订阅表单
+/// * `user` - 用户信息
 async fn add_subscription(subs_form: (SubCardForm, User)) -> Result<BaseResponse<()>, String> {
     let address = format!("{}{}", subs_form.1.server, RequestApi::AddSubscription);
     let resquest = axios(&address, Method::POST)
