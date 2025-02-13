@@ -1,6 +1,7 @@
 #![feature(stmt_expr_attributes)]
 use std::sync::{LazyLock, RwLock};
 
+use components::home_page::subscripiton::Subscription;
 use components::{home_page::subscripiton::get_subscriptions, notifications::Notifications};
 use consts::{COLOR_MODE, SIDEBAR_OPEN_KEY, TABS_KEY, USER_KEY};
 use gloo::storage::{LocalStorage, Storage};
@@ -93,6 +94,19 @@ impl User {
     }
 }
 
+/// 节点页面的数据
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct Proxies {
+    pub subscriptions: Vec<Subscription>,
+}
+impl Proxies {
+    pub fn new() -> Self {
+        Self {
+            subscriptions: vec![],
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug)]
 struct GlobalUI {
     /// 各个页面标签页的 tab index，保存到 localStorage
@@ -103,6 +117,8 @@ struct GlobalUI {
     pub user: RwSignal<User>,
     /// Sidebar 的打开状态，保存到 localStorage
     pub sidebar_open: RwSignal<bool>,
+    /// 节点页面的数据 /proxies
+    pub proxies: RwSignal<Proxies>,
 }
 impl GlobalUI {
     pub fn new() -> Self {
@@ -113,6 +129,7 @@ impl GlobalUI {
             notifications: RwSignal::new(vec![]),
             user: RwSignal::new(User::new()),
             sidebar_open: RwSignal::new(sidebar_open),
+            proxies: RwSignal::new(Proxies::new()),
         }
     }
 }
@@ -179,7 +196,14 @@ pub fn App() -> impl IntoView {
                         ui.user.update(|user| user.token = "".into());
                         return;
                     }
-                    todo!();
+                    if data.code == 200 {
+                        // save subscriptions
+                        if let Some(data) = &data.data {
+                            ui.proxies.set(Proxies {
+                                subscriptions: data.to_vec(),
+                            })
+                        }
+                    }
                 }
                 Err(err) => logging::error!("get subscriptions error {err}"),
             }

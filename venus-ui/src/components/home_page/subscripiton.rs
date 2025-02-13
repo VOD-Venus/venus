@@ -1,7 +1,9 @@
+use std::borrow::Cow;
+
 use crate::{
     api::{axios, BaseResponse, RequestApi},
     components::subscription_card::{SubCardForm, SubscriptionCard},
-    hooks::use_global_user,
+    hooks::{use_global_ui, use_global_user},
     utils::error_to_string,
     User,
 };
@@ -10,65 +12,105 @@ use leptos::{logging, prelude::*};
 use serde::{Deserialize, Serialize};
 use web_sys::MouseEvent;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Subscriptions {
-    /// 订阅名称
-    pub name: String,
-    pub url: String,
-    /// 该订阅下的节点
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[serde(rename_all = "camelCase")]
+/// Core subscriptions
+pub struct Subscription {
+    pub name: Cow<'static, str>,
+    pub url: Cow<'static, str>,
     pub nodes: Vec<Node>,
 }
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
+/// Subscription nodes
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Node {
-    pub v: String,
-    pub ps: String,
-    pub add: String,
-    pub port: String,
-    pub id: String,
-    pub aid: String,
-    pub net: Net,
+    pub v: Cow<'static, str>,
+    // Node name
+    pub ps: Cow<'static, str>,
+    // Address
+    pub add: Cow<'static, str>,
+    pub port: Cow<'static, str>,
+    pub id: Cow<'static, str>,
+    // AlertID
+    pub aid: Cow<'static, str>,
+    // Protocol type determine streamSettings network field
+    pub net: Cow<'static, str>,
+    // Protocol type
     #[serde(rename = "type")]
-    pub purple_type: Type,
-    pub host: String,
-    pub path: String,
-    pub tls: Tls,
-    pub sni: String,
-    pub alpn: String,
-    pub subs: String,
-    pub speed: Option<serde_json::Value>,
-    pub delay: Option<serde_json::Value>,
-    pub connectivity: Option<serde_json::Value>,
-    pub node_id: String,
-    pub raw_link: String,
-    pub node_type: NodeType,
+    pub type_field: Cow<'static, str>,
+    pub host: Cow<'static, str>,
+    // streamSettings
+    pub path: Cow<'static, str>,
+    // Determine streamSettings security field
+    pub tls: Cow<'static, str>,
+    // Determine streamSettings headers sni
+    pub sni: Cow<'static, str>,
+    pub alpn: Cow<'static, str>,
+    // Add by manually
+    // The subscription group
+    pub subs: Option<Cow<'static, str>>,
+    // Current node speed, upload and download
+    pub speed: Option<f64>,
+    // Current node delay
+    pub delay: Option<u64>,
+    // Node connectivity
+    pub connectivity: Option<bool>,
+    // Node unique ID
+    pub node_id: Option<Cow<'static, str>>,
+    // Node raw link from subcription link
+    pub raw_link: Option<Cow<'static, str>>,
+    // Node net type
+    pub node_type: Option<NodeType>,
 }
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "snake_case")]
-pub enum Net {
-    Tcp,
-    Ws,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum NodeType {
     Vmess,
+    Vless,
+    SS,
+    SSR,
+    Trojan,
+    Trojango,
+    HttpProxy,
+    HttpsProxy,
+    SOCKS5,
+    HTTP2,
+    Unknown,
 }
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "snake_case")]
-pub enum Type {
-    None,
+impl From<&str> for NodeType {
+    fn from(value: &str) -> Self {
+        use NodeType::*;
+        match value.to_lowercase().as_str() {
+            "vmess" => Vmess,
+            "vless" => Vless,
+            "ss" => SS,
+            "ssr" => SSR,
+            "trojan" => Trojan,
+            "trojan-go" => Trojango,
+            "http-proxy" => HttpProxy,
+            "https-proxy" => HttpsProxy,
+            "socks5" => SOCKS5,
+            "http2" => HTTP2,
+            _ => Unknown,
+        }
+    }
 }
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "snake_case")]
-pub enum Tls {
-    #[serde(rename = "")]
-    Empty,
-    Tls,
+impl NodeType {
+    pub fn as_str(&self) -> &str {
+        use NodeType::*;
+        match self {
+            Vmess => "vmess",
+            Vless => "vless",
+            SS => "ss",
+            SSR => "ssr",
+            Trojan => "trojan",
+            Trojango => "trojan-go",
+            HttpProxy => "http-proxy",
+            HttpsProxy => "https-proxy",
+            SOCKS5 => "socks5",
+            HTTP2 => "http2",
+            Unknown => "unknown",
+        }
+    }
 }
 
 /// 获取订阅列表
@@ -76,7 +118,7 @@ pub enum Tls {
 /// ## Arguments
 ///
 /// * `user` - 用户信息
-pub async fn get_subscriptions(server: String) -> Result<BaseResponse<Subscriptions>, String> {
+pub async fn get_subscriptions(server: String) -> Result<BaseResponse<Vec<Subscription>>, String> {
     let address = format!("{}{}", server, RequestApi::ListSubscriptions);
     let resquest = axios(&address, Method::GET)
         .header("Content-Type", "application/json")
@@ -140,6 +182,10 @@ pub fn Subscription() -> impl IntoView {
         logging::log!("test {:?}", add_result.get());
     });
 
+    // subscriptions
+    let ui = use_global_ui();
+    let subscriptions = move || ui.proxies.get().subscriptions;
+
     view! {
         <div class="py-4">
             <div class="pb-4">
@@ -159,7 +205,6 @@ pub fn Subscription() -> impl IntoView {
                         node_ref=form_ref
                         loading=add_loading
                     />
-
                     <button class="btn btn-sm">Update All</button>
                 </div>
             </div>
@@ -170,53 +215,24 @@ pub fn Subscription() -> impl IntoView {
                 </div>
 
                 <div class="flex flex-wrap">
-                    <div class="shadow-xl card dark:bg-base-300 bg-base-100 w-96 mr-4 mb-4">
-                        <div class="card-body">
-                            <h2 class="card-title">RUA!</h2>
-                            <div class="text-gray-400">"https://google.com"</div>
-                            <div class="justify-end card-actions">
-                                <button class="btn btn-sm">Buy Now</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="shadow-xl card dark:bg-base-300 bg-base-100 w-96 mr-4 mb-4">
-                        <div class="card-body">
-                            <h2 class="card-title">RUA!</h2>
-                            <div class="text-gray-400">"https://google.com"</div>
-                            <div class="justify-end card-actions">
-                                <button class="btn btn-sm">Buy Now</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="shadow-xl card dark:bg-base-300 bg-base-100 w-96 mr-4 mb-4">
-                        <div class="card-body">
-                            <h2 class="card-title">RUA!</h2>
-                            <div class="text-gray-400">"https://google.com"</div>
-                            <div class="justify-end card-actions">
-                                <button class="btn btn-sm">Buy Now</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="shadow-xl card dark:bg-base-300 bg-base-100 w-96 mr-4 mb-4">
-                        <div class="card-body">
-                            <h2 class="card-title">RUA!</h2>
-                            <div class="text-gray-400">"https://google.com"</div>
-                            <div class="justify-end card-actions">
-                                <button class="btn btn-sm">Buy Now</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="shadow-xl card dark:bg-base-300 bg-base-100 w-96 mr-4 mb-4">
-                        <div class="card-body">
-                            <h2 class="card-title">RUA!</h2>
-                            <div class="text-gray-400">"https://google.com"</div>
-                            <div class="justify-end card-actions">
-                                <button class="btn btn-sm">Buy Now</button>
-                            </div>
-                        </div>
-                    </div>
+                    <For
+                        each=move || subscriptions()
+                        key=|sub| sub.url.clone()
+                        children=move |sub| {
+                            view! {
+                                <div class="shadow-xl card dark:bg-base-300 bg-base-100 w-96 mr-4 mb-4">
+                                    <div class="card-body">
+                                        <h2 class="card-title">{sub.name.clone()}</h2>
+                                        <div class="text-gray-400">{sub.url.clone()}</div>
+                                        <div class="justify-end card-actions">
+                                            <button class="btn btn-sm">Buy Now</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    />
                 </div>
-
             </div>
         </div>
     }
