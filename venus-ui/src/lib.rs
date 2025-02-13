@@ -6,8 +6,8 @@ use consts::{COLOR_MODE, SIDEBAR_OPEN_KEY, TABS_KEY, USER_KEY};
 use gloo::storage::{LocalStorage, Storage};
 use hooks::use_global_ui;
 use layout::Layout;
+use leptos::logging;
 use leptos::prelude::*;
-use leptos::{logging, prelude::*};
 use leptos_meta::*;
 use leptos_router::{components::*, path};
 use leptos_use::{use_color_mode_with_options, UseColorModeOptions, UseColorModeReturn};
@@ -153,11 +153,20 @@ pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
 
+    // protect route
     let logged_in = Memo::new(move |_| Some(!global_ui.user.read().token.is_empty()));
     let redirect_path = || "/login";
 
     // load subscriptions
-    let subs_data = LocalResource::new(move || get_subscriptions(global_ui.user.read().clone()));
+    let subs_data = LocalResource::new(move || async move {
+        let user = LocalStorage::get::<User>(USER_KEY);
+        if let Ok(user) = user {
+            logging::log!("get subscriptions {:?}", user);
+            get_subscriptions(user.server).await
+        } else {
+            Err("no user".into())
+        }
+    });
     Effect::new(move || {
         let ui = use_global_ui();
         let data = subs_data.get();
@@ -166,8 +175,11 @@ pub fn App() -> impl IntoView {
             match data {
                 Ok(data) => {
                     if data.code == 1002 {
-                        ui.user.set(User::new());
+                        // clear token, redirect to login page
+                        ui.user.update(|user| user.token = "".into());
+                        return;
                     }
+                    todo!();
                 }
                 Err(err) => logging::error!("get subscriptions error {err}"),
             }

@@ -76,8 +76,8 @@ pub enum Tls {
 /// ## Arguments
 ///
 /// * `user` - 用户信息
-pub async fn get_subscriptions(user: User) -> Result<BaseResponse<Subscriptions>, String> {
-    let address = format!("{}{}", user.server, RequestApi::ListSubscriptions);
+pub async fn get_subscriptions(server: String) -> Result<BaseResponse<Subscriptions>, String> {
+    let address = format!("{}{}", server, RequestApi::ListSubscriptions);
     let resquest = axios(&address, Method::GET)
         .header("Content-Type", "application/json")
         .send()
