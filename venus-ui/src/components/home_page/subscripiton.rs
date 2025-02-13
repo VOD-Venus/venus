@@ -5,10 +5,10 @@ use crate::{
     components::subscription_card::{SubCardForm, SubscriptionCard},
     hooks::{use_global_ui, use_global_user},
     utils::error_to_string,
-    User,
+    Notification, NotificationKind, User,
 };
 use gloo::net::http::Method;
-use leptos::{logging, prelude::*};
+use leptos::prelude::*;
 use serde::{Deserialize, Serialize};
 use web_sys::MouseEvent;
 
@@ -158,6 +158,7 @@ pub fn Subscription() -> impl IntoView {
         url: "".into(),
     });
 
+    let ui = use_global_ui();
     let user = use_global_user();
 
     let form_ref: NodeRef<leptos::html::Form> = NodeRef::new();
@@ -179,11 +180,35 @@ pub fn Subscription() -> impl IntoView {
         add_action.dispatch(form());
     };
     Effect::new(move |_| {
-        logging::log!("test {:?}", add_result.get());
+        let result = add_result.get();
+        if let Some(res) = result {
+            match res {
+                Ok(response) => ui.notifications.update(|nts| {
+                    if response.code == 200 {
+                        nts.push(Notification::new(
+                            NotificationKind::Success,
+                            "Add subscription success".into(),
+                        ));
+                    } else {
+                        nts.push(Notification::new(
+                            NotificationKind::Success,
+                            response.message.clone(),
+                        ));
+                    }
+                }),
+                Err(err) => {
+                    ui.notifications.update(|nts| {
+                        nts.push(Notification::new(
+                            NotificationKind::Error,
+                            format!("Add subscription failed {}", err),
+                        ));
+                    });
+                }
+            }
+        }
     });
 
     // subscriptions
-    let ui = use_global_ui();
     let subscriptions = move || ui.proxies.get().subscriptions;
 
     view! {
