@@ -19,15 +19,9 @@ rustflags = ["-Cdebuginfo=0", "-C", "target-cpu=native", "-Z", "threads=8"]
 
 [profile.ui-dev]
 inherits = "dev"
-rustflags = ["-Z", "threads=8", "--cfg", 'getrandom_backend="wasm_js"']
+rustflags = ["-Z", "threads=8", "--cfg"]
 
 [profile.ui]
 inherits = "release"
 opt-level = "s"
-rustflags = [
-    "-Cdebuginfo=0",
-    "-Z",
-    "threads=8",
-    "--cfg",
-    'getrandom_backend="wasm_js"',
-]
+rustflags = ["-Cdebuginfo=0", "-Z", "threads=8"]

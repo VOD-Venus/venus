@@ -8,12 +8,12 @@ rust-version = "1.80.0"
 anyhow = "1.0.95"
 log = "0.4.25"
 thiserror = "2.0.11"
-toml = "0.8.19"
+toml = "0.8.20"
 serde = { version = "1.0.217", features = ["derive", "serde_derive"] }
 serde_json = { version = "1.0.138" }
 json_comments = "0.2.2"
 tonic = "0.12.3"
-prost = "0.13.4"
+prost = "0.13.5"
 reqwest = "0.12.12"
 base64 = "0.22.1"
 md5 = "0.7.0"
@@ -23,4 +23,4 @@ tonic-build = "0.12.3"
 walkdir = "2.5.0"
 
 [dev-dependencies]
-tempfile = "3.16.0"
+tempfile = "3.17.0"
