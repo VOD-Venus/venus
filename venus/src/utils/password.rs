@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Context};
+use fastrand::Rng;
 use tokio::task;
 
 use argon2::password_hash::SaltString;
@@ -11,7 +12,12 @@ use argon2::{password_hash, Argon2, PasswordHash, PasswordHasher, PasswordVerifi
 /// - `password`: 用户输入的明文密码
 pub async fn hash(password: String) -> anyhow::Result<String> {
     task::spawn_blocking(move || {
-        let salt = SaltString::generate(pass_rand::thread_rng());
+        // 生成16字节随机数据作为盐
+        let mut salt_bytes = [0u8; 16];
+        Rng::new().fill(&mut salt_bytes);
+        let salt = SaltString::encode_b64(&salt_bytes)
+            .map_err(|e| anyhow!(e).context("failed to generate salt"))?;
+
         Ok(Argon2::default()
             .hash_password(password.as_bytes(), &salt)
             .map_err(|e| anyhow!(e).context("failed to hash password"))?

@@ -2,7 +2,6 @@
 name = "venus"
 version = "0.1.4"
 edition = "2021"
-rust-version = "1.80.0"
 
 [dependencies]
 # core
@@ -28,12 +27,11 @@ serde_with = { version = "3.12.0", features = ["time_0_3"] }
 dotenvy = "0.15.7"
 # password
 argon2 = "0.5.3"
-rand = "0.9.0"
-## for argon2 password-hash
-pass-rand = { package = "rand", version = "0.8.5" }
 validator = { version = "0.20.0", features = ["derive"] }
 regex = "1.11.1"
 jsonwebtoken = "9.3.1"
 chrono = "0.4.39"
+fastrand = "2.3.0"
+rand = "0.9.0"
 
 [dev-dependencies]
