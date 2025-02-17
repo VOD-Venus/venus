@@ -9,7 +9,7 @@ use axum::{
 use serde_json::json;
 use serde_repr::*;
 use tracing::error;
-use venus_core::error::VenusError;
+use venus_core::error::{self, VenusError};
 
 #[derive(thiserror::Error, Debug)]
 pub enum RouteError {
@@ -22,7 +22,7 @@ pub enum RouteError {
 #[derive(thiserror::Error, Debug)]
 pub enum AppError {
     #[error("venus core error {0}")]
-    VenusCore(#[from] venus_core::error::VenusError),
+    VenusCore(#[from] error::VenusError),
     #[error("venus config error {0}")]
     VenusConfig(#[from] venus_core::config::error::ConfigError),
     #[error("venus config error {0}")]
@@ -101,10 +101,35 @@ impl IntoResponse for AppError {
         let (status_code, code, err_message) = match self {
             AppError::VenusCore(err) => match err {
                 VenusError::Subscription(subscription_error) => match subscription_error {
-                    venus_core::error::SubscriptionError::AlreadyExist => (
+                    error::SubscriptionError::AlreadyExist(_) => (
                         StatusCode::BAD_REQUEST,
                         ParameterIncorrect,
                         "Subscription already exist".to_string(),
+                    ),
+                    error::SubscriptionError::InvalidFormat(e) => (
+                        StatusCode::BAD_REQUEST,
+                        ParameterIncorrect,
+                        format!("Invalid format {}", e),
+                    ),
+                    error::SubscriptionError::Base64Decode(_, decode_error) => (
+                        StatusCode::BAD_REQUEST,
+                        ParameterIncorrect,
+                        format!("Base64 decode error {}", decode_error),
+                    ),
+                    error::SubscriptionError::Utf8Conversion(_, _) => (
+                        StatusCode::BAD_REQUEST,
+                        ParameterIncorrect,
+                        "UTF-8 conversion error".into(),
+                    ),
+                    error::SubscriptionError::JsonParse(error) => (
+                        StatusCode::BAD_REQUEST,
+                        ParameterIncorrect,
+                        format!("JSON parse error {}", error),
+                    ),
+                    error::SubscriptionError::EmptyContent(_) => (
+                        StatusCode::BAD_REQUEST,
+                        ParameterIncorrect,
+                        "Empty content".to_string(),
                     ),
                 },
                 _ => log_internal_error(err),

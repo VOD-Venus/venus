@@ -7,7 +7,7 @@ use std::{
     thread,
 };
 
-use anyhow::{anyhow, Ok as AOk};
+use anyhow::{anyhow, Context, Ok as AOk};
 use base64::{engine::general_purpose, Engine};
 use config::{
     types::{Node, NodeType, Subscription},
@@ -15,7 +15,6 @@ use config::{
 };
 use consts::{NAME, VENUS_V2RAY_PATH, VERSION};
 use error::{log_err, SubscriptionError, VenusError, VenusResult};
-use log::debug;
 use message::MessageType;
 use reqwest::header::USER_AGENT;
 
@@ -164,7 +163,7 @@ impl VenusCore for Venus {
             self.child = None;
             Ok(())
         } else {
-            Err(VenusError::Core("core not running".into()))
+            Err(VenusError::CoreLaunch("core not running".into()))
         }
     }
 
@@ -180,9 +179,9 @@ impl VenusSubscriptor for Venus {
     async fn add_subscription(&mut self, name: String, url: String) -> VenusResult<()> {
         let subscriptions = &self.config.venus.subscriptions;
         if subscriptions.iter().any(|s| s.url == url) {
-            return Err(SubscriptionError::AlreadyExist.into());
+            return Err(SubscriptionError::AlreadyExist(name.clone()).into());
         }
-        let subs = request_subs(&name, &url).await?;
+        let subs = fetch_subscription(&name, &url).await?;
         let subscription = Subscription {
             name: name.into(),
             url: url.into(),
@@ -197,11 +196,18 @@ impl VenusSubscriptor for Venus {
 /// Detect the v2ray core version
 pub fn core_version() -> VenusResult<String> {
     let core_exec_path = format!("{}/v2ray", &*VENUS_V2RAY_PATH);
-    let core = Command::new(core_exec_path).args(["version"]).output()?;
-    let output = String::from_utf8_lossy(&core.stdout);
-    let stdout = output.split(' ').collect::<Vec<_>>();
-    let version = stdout.get(1).map(|v| v.to_string()).ok_or(anyhow!(""))?;
-    Ok(version)
+    let output = Command::new(core_exec_path)
+        .args(["version"])
+        .output()
+        .map_err(|e| VenusError::CoreLaunch(e.to_string()))?;
+
+    let output_str = String::from_utf8_lossy(&output.stdout);
+    let version = output_str
+        .split_whitespace()
+        .nth(1)
+        .ok_or_else(|| VenusError::VersionParse(String::from_utf8_lossy(&output.stdout).into()))?;
+
+    Ok(version.to_string())
 }
 
 /// Send http request to download subscription info
@@ -209,43 +215,64 @@ pub fn core_version() -> VenusResult<String> {
 /// # Parameters
 /// * `name`: subscription name
 /// * `url`: subscription url
-async fn request_subs(name: &str, url: &str) -> VenusResult<Vec<Node>> {
-    let client = reqwest::ClientBuilder::new().no_proxy().build()?;
-    let result = client
+async fn fetch_subscription(name: &str, url: &str) -> VenusResult<Vec<Node>> {
+    let client = reqwest::ClientBuilder::new()
+        .no_proxy()
+        .build()
+        .context("Failed to create HTTP client")?;
+
+    let response = client
         .get(url)
         .header(USER_AGENT, format!("{}/{}", NAME, VERSION))
         .send()
-        .await?
+        .await
+        .context("Failed to send subscription request")?;
+
+    let content = response
         .text()
-        .await?;
+        .await
+        .context("Failed to read subscription response")?;
 
-    // Decode result to vmess://...
-    let subscription = general_purpose::STANDARD.decode(result)?;
-    let subscription = String::from_utf8(subscription)?.to_string();
-    // Serizlize outbound nodes to json
-    let name = name.to_string();
-    let sub_handler = |(index, line): (usize, &str)| -> VenusResult<Node> {
-        let (node_type, link) = line
-            .split_once("://")
-            .ok_or(anyhow!("Cannot serialize node link"))?;
-        let link = general_purpose::STANDARD.decode(link)?;
-        let link = String::from_utf8_lossy(&link).to_string();
-        let mut node = serde_json::from_str::<Node>(&link)?;
+    parse_subscription_content(name, url, &content)
+}
 
-        node.subs = Some(name.clone().into());
-        // Add unique id
-        let id = md5::compute(format!("{}-{}-{}-{}", node.ps, node.add, node.port, index));
-        node.node_id = Some(format!("{:?}", id).into());
-        node.raw_link = Some(line.to_string().into());
-        node.node_type = Some(NodeType::from(node_type));
-        Ok(node)
-    };
-    let subscription = subscription
-        .split('\n')
-        .filter(|line| !line.is_empty())
+/// 解析订阅内容
+fn parse_subscription_content(name: &str, url: &str, content: &str) -> VenusResult<Vec<Node>> {
+    let decoded = general_purpose::STANDARD
+        .decode(content)
+        .map_err(|e| SubscriptionError::Base64Decode(url.to_string(), e))?;
+
+    let content_str = String::from_utf8(decoded)
+        .map_err(|e| SubscriptionError::Utf8Conversion(url.to_string(), e))?;
+
+    content_str
+        .lines()
+        .filter(|line| !line.trim().is_empty())
         .enumerate()
-        .map(sub_handler)
-        .collect::<VenusResult<Vec<_>>>()?;
-    debug!("{subscription:?}");
-    Ok(subscription)
+        .map(|(idx, line)| parse_node(line, name, idx))
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.into())
+}
+
+/// 解析单节点信息
+fn parse_node(line: &str, subs_name: &str, index: usize) -> Result<Node, SubscriptionError> {
+    let (protocol, payload) = line
+        .split_once("://")
+        .ok_or_else(|| SubscriptionError::InvalidFormat(line.to_string()))?;
+
+    let decoded = general_purpose::STANDARD
+        .decode(payload)
+        .map_err(|e| SubscriptionError::Base64Decode(line.into(), e))?;
+
+    let mut node: Node = serde_json::from_slice(&decoded).map_err(SubscriptionError::JsonParse)?;
+
+    // 生成唯一标识
+    let id_data = format!("{}-{}-{}-{}", node.ps, node.add, node.port, index);
+    node.node_id = Some(format!("{:x}", md5::compute(id_data)).into());
+
+    node.subs = Some(subs_name.to_string().into());
+    node.raw_link = Some(line.to_string().into());
+    node.node_type = Some(NodeType::from(protocol));
+
+    Ok(node)
 }
