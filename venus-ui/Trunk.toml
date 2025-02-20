@@ -6,3 +6,6 @@ port = 4002
 # cargo_profile = "ui"
 minify = "on_release"
 public_url = "./"
+
+[tools]
+wasm_opt = "version_119"
