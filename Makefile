@@ -62,16 +62,16 @@ fix:
 		&& $(CARGO) fix --allow-dirty --all-features && $(CARGO) fmt
 
 linux-musl: clean-release
-	$(CROSS) build -p venus --release --target x86_64-unknown-linux-musl
+	$(CARGO) build -p venus --release --target x86_64-unknown-linux-musl
 
 aarch64-unknown-linux-musl: clean-release
 	$(CROSS) build -p venus --release --target aarch64-unknown-linux-musl
 
 linux-gnu: clean-release
-	$(CROSS) build -p venus --release --target x86_64-unknown-linux-gnu
+	$(CARGO) build -p venus --release --target x86_64-unknown-linux-gnu
 
 windows-gnu: clean-release
-	$(CROSS) build -p venus --release --target x86_64-pc-windows-gnu
+	$(CARGO) build -p venus --release --target x86_64-pc-windows-gnu
 
 freebsd: clean-release
 	$(CROSS) build -p venus --release --target x86_64-unknown-freebsd
