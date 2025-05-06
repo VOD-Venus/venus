@@ -21,6 +21,7 @@ send_wrapper = { version = "0.6.0", features = ["futures"] }
 web-sys = { version = "0.3.77", features = ["Document", "Window"] }
 anyhow = "1.0.95"
 fastrand = { version = "2.3.0", features = ["js"] }
+thaw = { version = "0.4.7", features = ["csr", "nightly"] }
 
 # utils
 # strum = { version = "0.25", features = ["derive", "strum_macros"] }

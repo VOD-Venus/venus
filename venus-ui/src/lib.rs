@@ -11,12 +11,14 @@ use leptos::logging;
 use leptos::prelude::*;
 use leptos_meta::*;
 use leptos_router::{components::*, path};
-use leptos_use::{use_color_mode_with_options, UseColorModeOptions, UseColorModeReturn};
+use leptos_use::{use_color_mode_with_options, ColorMode, UseColorModeOptions, UseColorModeReturn};
 use pages::{
     about::About, dashboard::Dashboard, editor::Editor, logging::Logging, login::Login,
     not_found::NotFound, proxies::Proxies, settings::Settings,
 };
 use serde::{Deserialize, Serialize};
+use thaw::ConfigProvider;
+use thaw::Theme;
 
 mod api;
 mod components;
@@ -115,6 +117,14 @@ pub fn App() -> impl IntoView {
             .custom_modes(COLOR_MODE.iter().map(|m| m.to_string()).collect::<_>()),
     );
     provide_context((mode, set_mode));
+    // color mode for thaw ui
+    let theme = move || mode.get();
+    let theme = match theme() {
+        ColorMode::Light => RwSignal::new(Theme::light()),
+        ColorMode::Dark => RwSignal::new(Theme::dark()),
+        _ => RwSignal::new(Theme::light()),
+    };
+    provide_context(theme);
 
     // ui 的全局状态
     let global_ui = GlobalUI::new();
@@ -187,55 +197,57 @@ pub fn App() -> impl IntoView {
         <Meta charset="UTF-8" />
         <Meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <Router>
-            <Routes fallback=NotFound>
-                <ParentRoute path=path!("/") view=Layout>
-                    <ProtectedRoute
-                        path=path!("/")
-                        view=Dashboard
-                        condition=move || logged_in.get()
-                        redirect_path=redirect_path
-                    />
-                    <ProtectedRoute
-                        path=path!("/dashboard")
-                        view=Dashboard
-                        condition=move || logged_in.get()
-                        redirect_path=redirect_path
-                    />
-                    <ProtectedRoute
-                        path=path!("/proxies")
-                        view=Proxies
-                        condition=move || logged_in.get()
-                        redirect_path=redirect_path
-                    />
-                    <ProtectedRoute
-                        path=path!("/settings")
-                        view=Settings
-                        condition=move || logged_in.get()
-                        redirect_path=redirect_path
-                    />
-                    <ProtectedRoute
-                        path=path!("/logging")
-                        view=Logging
-                        condition=move || logged_in.get()
-                        redirect_path=redirect_path
-                    />
-                    <ProtectedRoute
-                        path=path!("/editor")
-                        view=Editor
-                        condition=move || logged_in.get()
-                        redirect_path=redirect_path
-                    />
-                    <ProtectedRoute
-                        path=path!("/about")
-                        view=About
-                        condition=move || logged_in.get()
-                        redirect_path=redirect_path
-                    />
-                    <Route path=path!("/login") view=Login />
-                    <Route path=path!("/*") view=NotFound />
-                </ParentRoute>
-            </Routes>
-        </Router>
+        <ConfigProvider theme class="h-full">
+            <Router>
+                <Routes fallback=NotFound>
+                    <ParentRoute path=path!("/") view=Layout>
+                        <ProtectedRoute
+                            path=path!("/")
+                            view=Dashboard
+                            condition=move || logged_in.get()
+                            redirect_path=redirect_path
+                        />
+                        <ProtectedRoute
+                            path=path!("/dashboard")
+                            view=Dashboard
+                            condition=move || logged_in.get()
+                            redirect_path=redirect_path
+                        />
+                        <ProtectedRoute
+                            path=path!("/proxies")
+                            view=Proxies
+                            condition=move || logged_in.get()
+                            redirect_path=redirect_path
+                        />
+                        <ProtectedRoute
+                            path=path!("/settings")
+                            view=Settings
+                            condition=move || logged_in.get()
+                            redirect_path=redirect_path
+                        />
+                        <ProtectedRoute
+                            path=path!("/logging")
+                            view=Logging
+                            condition=move || logged_in.get()
+                            redirect_path=redirect_path
+                        />
+                        <ProtectedRoute
+                            path=path!("/editor")
+                            view=Editor
+                            condition=move || logged_in.get()
+                            redirect_path=redirect_path
+                        />
+                        <ProtectedRoute
+                            path=path!("/about")
+                            view=About
+                            condition=move || logged_in.get()
+                            redirect_path=redirect_path
+                        />
+                        <Route path=path!("/login") view=Login />
+                        <Route path=path!("/*") view=NotFound />
+                    </ParentRoute>
+                </Routes>
+            </Router>
+        </ConfigProvider>
     }
 }
