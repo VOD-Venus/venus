@@ -43,10 +43,7 @@ pub fn axios(address: &str, method: Method) -> RequestBuilder {
         .method(method.clone())
         .abort_signal(abort_signal.as_ref());
     if !token.is_empty() {
-        client = client.header(
-            "Authorization",
-            format!("{} {}", token_type, token).as_str(),
-        );
+        client = client.header("Authorization", format!("{token_type} {token}").as_str());
     }
     client
 }
