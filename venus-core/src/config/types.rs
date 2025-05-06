@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, collections::HashMap, path::PathBuf};
 
@@ -38,6 +39,7 @@ pub struct RUAUser {
 pub struct Subscription {
     pub name: Cow<'static, str>,
     pub url: Cow<'static, str>,
+    pub updated: DateTime<Utc>,
     pub nodes: Vec<Node>,
 }
 

@@ -59,6 +59,6 @@ pub async fn query_stats(url: String) -> Result<StatsResponse, GrpcError> {
             acc
         },
     );
-    debug!("RESPONSE={:?}", res);
+    debug!("RESPONSE={res:?}");
     Ok(res)
 }

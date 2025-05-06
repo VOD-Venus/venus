@@ -9,6 +9,7 @@ use std::{
 
 use anyhow::{anyhow, Context, Ok as AOk};
 use base64::{engine::general_purpose, Engine};
+use chrono::Utc;
 use config::{
     types::{Node, NodeType, Subscription},
     Config,
@@ -185,6 +186,7 @@ impl VenusSubscriptor for Venus {
         let subscription = Subscription {
             name: name.into(),
             url: url.into(),
+            updated: Utc::now(),
             nodes: subs,
         };
         self.config.venus.subscriptions.push(subscription);
@@ -223,7 +225,7 @@ async fn fetch_subscription(name: &str, url: &str) -> VenusResult<Vec<Node>> {
 
     let response = client
         .get(url)
-        .header(USER_AGENT, format!("{}/{}", NAME, VERSION))
+        .header(USER_AGENT, format!("{NAME}/{VERSION}"))
         .send()
         .await
         .context("Failed to send subscription request")?;
