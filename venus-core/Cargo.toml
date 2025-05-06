@@ -4,24 +4,24 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.96"
-log = "0.4.25"
-thiserror = "2.0.11"
-toml = "0.8.20"
-serde = { version = "1.0.218", features = ["derive", "serde_derive"] }
-serde_json = { version = "1.0.139" }
+anyhow = "1.0.98"
+log = "0.4.27"
+thiserror = "2.0.12"
+toml = "0.8.22"
+serde = { version = "1.0.219", features = ["derive", "serde_derive"] }
+serde_json = { version = "1.0.140" }
 json_comments = "0.2.2"
-tonic = "0.12.3"
+tonic = "0.13.1"
 prost = "0.13.5"
-reqwest = "0.12.12"
+reqwest = "0.12.15"
 base64 = "0.22.1"
 md5 = "0.7.0"
-openssl = { version = "0.10.71", features = ["vendored"] }
-openssl-sys = { version = "0.9.106", features = ["vendored"] }
+openssl = { version = "0.10.72", features = ["vendored"] }
+openssl-sys = { version = "0.9.108", features = ["vendored"] }
 
 [build-dependencies]
-tonic-build = "0.12.3"
+tonic-build = "0.13.1"
 walkdir = "2.5.0"
 
 [dev-dependencies]
-tempfile = "3.17.1"
+tempfile = "3.19.1"
