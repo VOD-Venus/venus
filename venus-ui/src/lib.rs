@@ -19,6 +19,7 @@ use pages::{
 use serde::{Deserialize, Serialize};
 use thaw::ConfigProvider;
 use thaw::Theme;
+use thaw::ToasterProvider;
 
 mod api;
 mod components;
@@ -198,56 +199,58 @@ pub fn App() -> impl IntoView {
         <Meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <ConfigProvider theme class="h-full">
-            <Router>
-                <Routes fallback=NotFound>
-                    <ParentRoute path=path!("/") view=Layout>
-                        <ProtectedRoute
-                            path=path!("/")
-                            view=Dashboard
-                            condition=move || logged_in.get()
-                            redirect_path=redirect_path
-                        />
-                        <ProtectedRoute
-                            path=path!("/dashboard")
-                            view=Dashboard
-                            condition=move || logged_in.get()
-                            redirect_path=redirect_path
-                        />
-                        <ProtectedRoute
-                            path=path!("/proxies")
-                            view=Proxies
-                            condition=move || logged_in.get()
-                            redirect_path=redirect_path
-                        />
-                        <ProtectedRoute
-                            path=path!("/settings")
-                            view=Settings
-                            condition=move || logged_in.get()
-                            redirect_path=redirect_path
-                        />
-                        <ProtectedRoute
-                            path=path!("/logging")
-                            view=Logging
-                            condition=move || logged_in.get()
-                            redirect_path=redirect_path
-                        />
-                        <ProtectedRoute
-                            path=path!("/editor")
-                            view=Editor
-                            condition=move || logged_in.get()
-                            redirect_path=redirect_path
-                        />
-                        <ProtectedRoute
-                            path=path!("/about")
-                            view=About
-                            condition=move || logged_in.get()
-                            redirect_path=redirect_path
-                        />
-                        <Route path=path!("/login") view=Login />
-                        <Route path=path!("/*") view=NotFound />
-                    </ParentRoute>
-                </Routes>
-            </Router>
+            <ToasterProvider>
+                <Router>
+                    <Routes fallback=NotFound>
+                        <ParentRoute path=path!("/") view=Layout>
+                            <ProtectedRoute
+                                path=path!("/")
+                                view=Dashboard
+                                condition=move || logged_in.get()
+                                redirect_path=redirect_path
+                            />
+                            <ProtectedRoute
+                                path=path!("/dashboard")
+                                view=Dashboard
+                                condition=move || logged_in.get()
+                                redirect_path=redirect_path
+                            />
+                            <ProtectedRoute
+                                path=path!("/proxies")
+                                view=Proxies
+                                condition=move || logged_in.get()
+                                redirect_path=redirect_path
+                            />
+                            <ProtectedRoute
+                                path=path!("/settings")
+                                view=Settings
+                                condition=move || logged_in.get()
+                                redirect_path=redirect_path
+                            />
+                            <ProtectedRoute
+                                path=path!("/logging")
+                                view=Logging
+                                condition=move || logged_in.get()
+                                redirect_path=redirect_path
+                            />
+                            <ProtectedRoute
+                                path=path!("/editor")
+                                view=Editor
+                                condition=move || logged_in.get()
+                                redirect_path=redirect_path
+                            />
+                            <ProtectedRoute
+                                path=path!("/about")
+                                view=About
+                                condition=move || logged_in.get()
+                                redirect_path=redirect_path
+                            />
+                            <Route path=path!("/login") view=Login />
+                            <Route path=path!("/*") view=NotFound />
+                        </ParentRoute>
+                    </Routes>
+                </Router>
+            </ToasterProvider>
         </ConfigProvider>
     }
 }

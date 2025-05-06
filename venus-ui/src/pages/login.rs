@@ -3,9 +3,10 @@ use leptos::web_sys::MouseEvent;
 use leptos::{ev::Event, logging, prelude::*};
 use leptos_router::hooks::use_navigate;
 use serde::{Deserialize, Serialize};
+use thaw::{ToastIntent, ToasterInjection};
 
 use crate::api::{axios, BaseResponse, RequestApi};
-use crate::hooks::use_global_ui;
+use crate::hooks::{dispatch_toast, use_global_ui};
 use crate::utils::error_to_string;
 use crate::User;
 
@@ -93,6 +94,9 @@ pub fn Login() -> impl IntoView {
         }
     });
 
+    // toaster
+    let toaster = ToasterInjection::expect_context();
+
     // 登录方法 点击登录按钮后触发
     let login_action: Action<LoginForm, Result<BaseResponse<Data>, String>, SyncStorage> =
         Action::new_unsync(|login_form: &LoginForm| login(login_form.clone()));
@@ -109,12 +113,12 @@ pub fn Login() -> impl IntoView {
             match result {
                 Ok(response) => {
                     if let Some(data) = &response.data {
-                        // nts.update(|nts| {
-                        //     nts.push(Notification::new(
-                        //         NotificationKind::Success,
-                        //         "Login success".into(),
-                        //     ));
-                        // });
+                        dispatch_toast(
+                            toaster,
+                            ToastIntent::Success,
+                            "Login".into(),
+                            "Login success".into(),
+                        );
                         let user = User {
                             server: form().server.clone(),
                             username: form().username.clone(),
@@ -124,22 +128,22 @@ pub fn Login() -> impl IntoView {
                         state.user.set(user);
                         navigate("/home", Default::default());
                     } else {
-                        // nts.update(|nts| {
-                        //     nts.push(Notification::new(
-                        //         NotificationKind::Error,
-                        //         response.message.clone(),
-                        //     ));
-                        // });
+                        dispatch_toast(
+                            toaster,
+                            ToastIntent::Error,
+                            "Login".into(),
+                            format!("Login failed: {}", response.message),
+                        );
                     }
                 }
                 Err(err) => {
                     logging::error!("login error {:?}", err);
-                    // nts.update(|nts| {
-                    //     nts.push(Notification::new(
-                    //         NotificationKind::Error,
-                    //         "Login failed".into(),
-                    //     ));
-                    // });
+                    dispatch_toast(
+                        toaster,
+                        ToastIntent::Error,
+                        "Login".into(),
+                        format!("Login failed: {err}"),
+                    );
                 }
             }
             Ok(())
