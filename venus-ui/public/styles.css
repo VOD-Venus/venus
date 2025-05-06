@@ -1,15 +1,18 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "daisyui";
+@plugin "daisyui" {
+    themes:
+        light --default,
+        dark --prefersdark;
+}
+@config "../tailwind.config.js";
 
-@layer base {
-    /* body { */
-    /*     @apply dark:text-gray-300 bg-bluish-gray; */
-    /*     @apply dark:bg-rua-gray-900; */
-    /*     user-select: none; */
-    /* } */
-    html,
-    body {
-        height: 100%;
-    }
+/* body { */
+/*     @apply dark:text-gray-300 bg-bluish-gray; */
+/*     @apply dark:bg-rua-gray-900; */
+/*     user-select: none; */
+/* } */
+html,
+body {
+    height: 100%;
 }
