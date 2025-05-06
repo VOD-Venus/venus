@@ -5,7 +5,7 @@ use crate::{
     components::subscription_card::{SubCardForm, SubscriptionCard},
     hooks::{use_global_ui, use_global_user},
     utils::error_to_string,
-    Notification, NotificationKind, User,
+    User,
 };
 use gloo::net::http::Method;
 use leptos::prelude::*;
@@ -183,26 +183,28 @@ pub fn Subscription() -> impl IntoView {
         let result = add_result.get();
         if let Some(res) = result {
             match res {
-                Ok(response) => ui.notifications.update(|nts| {
-                    if response.code == 200 {
-                        nts.push(Notification::new(
-                            NotificationKind::Success,
-                            "Add subscription success".into(),
-                        ));
-                    } else {
-                        nts.push(Notification::new(
-                            NotificationKind::Success,
-                            response.message.clone(),
-                        ));
-                    }
-                }),
+                Ok(response) => {
+                    // ui.notifications.update(|nts| {
+                    //     if response.code == 200 {
+                    //         // nts.push(Notification::new(
+                    //         //     NotificationKind::Success,
+                    //         //     "Add subscription success".into(),
+                    //         // ));
+                    //     } else {
+                    //         // nts.push(Notification::new(
+                    //         //     NotificationKind::Success,
+                    //         //     response.message.clone(),
+                    //         // ));
+                    //     }
+                    // }),
+                }
                 Err(err) => {
-                    ui.notifications.update(|nts| {
-                        nts.push(Notification::new(
-                            NotificationKind::Error,
-                            format!("Add subscription failed {}", err),
-                        ));
-                    });
+                    // ui.notifications.update(|nts| {
+                    //     nts.push(Notification::new(
+                    //         NotificationKind::Error,
+                    //         format!("Add subscription failed {}", err),
+                    //     ));
+                    // });
                 }
             }
         }

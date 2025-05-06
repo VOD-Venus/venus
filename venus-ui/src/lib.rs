@@ -1,8 +1,8 @@
 #![feature(stmt_expr_attributes)]
 use std::sync::{LazyLock, RwLock};
 
+use components::home_page::subscripiton::get_subscriptions;
 use components::home_page::subscripiton::Subscription;
-use components::{home_page::subscripiton::get_subscriptions, notifications::Notifications};
 use consts::{COLOR_MODE, SIDEBAR_OPEN_KEY, TABS_KEY, USER_KEY};
 use gloo::storage::{LocalStorage, Storage};
 use hooks::use_global_ui;
@@ -17,7 +17,6 @@ use pages::{
     not_found::NotFound, proxies::Proxies, settings::Settings,
 };
 use serde::{Deserialize, Serialize};
-use utils::nanoid;
 
 mod api;
 mod components;
@@ -48,31 +47,6 @@ impl Default for Tabs {
     fn default() -> Self {
         Self {
             proxies: "subscription".into(),
-        }
-    }
-}
-
-/// 通知类型
-#[derive(Debug, Clone)]
-pub enum NotificationKind {
-    Success,
-    Info,
-    Warning,
-    Error,
-}
-/// 通知消息，由于右上角通知栏
-#[derive(Debug, Clone)]
-pub struct Notification {
-    pub key: String,
-    pub kind: NotificationKind,
-    pub message: String,
-}
-impl Notification {
-    pub fn new(kind: NotificationKind, message: String) -> Self {
-        Self {
-            key: nanoid(6),
-            kind,
-            message,
         }
     }
 }
@@ -111,8 +85,6 @@ impl Proxies {
 struct GlobalUI {
     /// 各个页面标签页的 tab index，保存到 localStorage
     pub tabs: RwSignal<Tabs>,
-    /// 整个 App 的通知 右上角
-    pub notifications: RwSignal<Vec<Notification>>,
     /// 用户信息，保存到 localStorage
     pub user: RwSignal<User>,
     /// Sidebar 的打开状态，保存到 localStorage
@@ -126,7 +98,6 @@ impl GlobalUI {
 
         Self {
             tabs: RwSignal::new(Tabs::new()),
-            notifications: RwSignal::new(vec![]),
             user: RwSignal::new(User::new()),
             sidebar_open: RwSignal::new(sidebar_open),
             proxies: RwSignal::new(Proxies::new()),
@@ -266,8 +237,5 @@ pub fn App() -> impl IntoView {
                 </ParentRoute>
             </Routes>
         </Router>
-
-        // Global notifications
-        <Notifications />
     }
 }

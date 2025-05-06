@@ -6,8 +6,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::api::{axios, BaseResponse, RequestApi};
 use crate::hooks::use_global_ui;
+use crate::utils::error_to_string;
 use crate::User;
-use crate::{utils::error_to_string, Notification, NotificationKind};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -83,7 +83,6 @@ pub fn Login() -> impl IntoView {
     };
 
     let state = use_global_ui();
-    let nts = state.notifications;
     let form_ref: NodeRef<leptos::html::Form> = NodeRef::new();
 
     let navigate = use_navigate();
@@ -110,12 +109,12 @@ pub fn Login() -> impl IntoView {
             match result {
                 Ok(response) => {
                     if let Some(data) = &response.data {
-                        nts.update(|nts| {
-                            nts.push(Notification::new(
-                                NotificationKind::Success,
-                                "Login success".into(),
-                            ));
-                        });
+                        // nts.update(|nts| {
+                        //     nts.push(Notification::new(
+                        //         NotificationKind::Success,
+                        //         "Login success".into(),
+                        //     ));
+                        // });
                         let user = User {
                             server: form().server.clone(),
                             username: form().username.clone(),
@@ -125,22 +124,22 @@ pub fn Login() -> impl IntoView {
                         state.user.set(user);
                         navigate("/home", Default::default());
                     } else {
-                        nts.update(|nts| {
-                            nts.push(Notification::new(
-                                NotificationKind::Error,
-                                response.message.clone(),
-                            ));
-                        });
+                        // nts.update(|nts| {
+                        //     nts.push(Notification::new(
+                        //         NotificationKind::Error,
+                        //         response.message.clone(),
+                        //     ));
+                        // });
                     }
                 }
                 Err(err) => {
                     logging::error!("login error {:?}", err);
-                    nts.update(|nts| {
-                        nts.push(Notification::new(
-                            NotificationKind::Error,
-                            "Login failed".into(),
-                        ));
-                    });
+                    // nts.update(|nts| {
+                    //     nts.push(Notification::new(
+                    //         NotificationKind::Error,
+                    //         "Login failed".into(),
+                    //     ));
+                    // });
                 }
             }
             Ok(())
