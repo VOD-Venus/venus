@@ -2,6 +2,7 @@
 name = "venus-core"
 version = "0.1.0"
 edition = "2021"
+authors = ["xfy <i@rua.plus>"]
 
 [dependencies]
 anyhow = "1.0.98"
